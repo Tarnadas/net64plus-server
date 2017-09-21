@@ -1,0 +1,43 @@
+{
+  "name": "sm64o-ded",
+  "version": "1.0.0",
+  "description": "Unofficial dedicated server software for Super Mario 64 Online",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npm run build-dev && node ./dist/",
+    "build-dev": "webpack --env=dev",
+    "build": "webpack --env=prod",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tarnadas/sm64o-ded.git"
+  },
+  "keywords": [
+    "Super",
+    "Mario",
+    "64",
+    "Online",
+    "dedicated",
+    "server"
+  ],
+  "author": "Mario Reder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tarnadas/sm64o-ded/issues"
+  },
+  "homepage": "https://github.com/Tarnadas/sm64o-ded#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
+    "standard": "^10.0.3",
+    "webpack": "^3.6.0",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "uws": "^8.14.1"
+  }
+}
