@@ -31,6 +31,17 @@ export default class Client {
       this.ws.send(msg)
     } else if (bytes[0] === PACKET_TYPE.CHAT_MESSAGE) {
       this.onChatMessage(msg)
+    } else if (bytes[0] === PACKET_TYPE.HANDSHAKE) {
+      msg = Buffer.from(msg)
+      this.major = msg.readUInt8(1)
+      this.minor = msg.readUInt8(2)
+      this.characterId = msg.readUInt8(3)
+      this.username = msg.slice(5, 5 + msg.readUInt8(4)).toString('utf8')
+
+      // send ID back to client
+      const payload = Buffer.allocUnsafe(1)
+      payload.writeUInt8(this.id, 0)
+      this.ws.send(Packet.create(PACKET_TYPE.MEMORY_WRITE, payload))
     }
   }
 }
