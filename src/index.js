@@ -1,15 +1,14 @@
 import WebSocketServer from './WebSocketServer'
-import { GAME_MODE } from './GameMode'
 
 const PORT = 8080
-const UPDATE_INTERVAL = 64
+const UPDATE_INTERVAL = 16
 
-export const server = new WebSocketServer(PORT)
-export const memory = Buffer.alloc(0x240)
+const server = new WebSocketServer(PORT)
 
-export let gameMode = GAME_MODE.NORMAL
+export let gameMode = 1
 
 const main = async () => {
+  server.broadcastPlayerData()
   setTimeout(main, UPDATE_INTERVAL)
 }
 main()
