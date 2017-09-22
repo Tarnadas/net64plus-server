@@ -1,4 +1,6 @@
+import { gameMode } from './index'
 import Packet, { PACKET_TYPE } from './Packet'
+import { GAME_MODE_OFFSET } from './GameMode'
 
 export default class Client {
   constructor (id, ws, onDisconnect, onChatMessage) {
@@ -42,6 +44,12 @@ export default class Client {
       const payload = Buffer.allocUnsafe(1)
       payload.writeUInt8(this.id, 0)
       this.ws.send(Packet.create(PACKET_TYPE.MEMORY_WRITE, payload))
+
+      // send current game mode
+      const gameModePayload = Buffer.allocUnsafe(8)
+      gameModePayload.writeUInt32LE(GAME_MODE_OFFSET, 0)
+      gameModePayload.writeUInt32LE(gameMode, 4)
+      this.ws.send(Packet.create(PACKET_TYPE.MEMORY_WRITE, gameModePayload))
     }
   }
 }
