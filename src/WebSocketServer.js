@@ -18,7 +18,7 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     for (let i in clients) {
       for (let j in clients) {
-        if (i !== j && clients[i] && clients[j] && clients[j].playerData) {
+        if (i !== j && clients[i] && clients[i].connected && clients[j] && clients[j].playerData) {
           clients[i].ws.send(Packet.create(PACKET_TYPE.PLAYER_DATA, clients[j].playerData))
         }
       }
@@ -26,7 +26,7 @@ export default class WebSocketServer {
   }
 
   onConnection (ws) {
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 100; i++) {
       if (!clients[i]) {
         clients[i] = new Client(i + 1, ws, this.onDisconnect, this.onChatMessage)
         console.log('a user connected')
