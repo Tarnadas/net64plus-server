@@ -1,6 +1,6 @@
 import WebSocketServer from './WebSocketServer'
 
-const PORT = 8080
+const PORT = 3000
 const UPDATE_INTERVAL = 16
 
 const server = new WebSocketServer(PORT)
