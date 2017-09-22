@@ -64,6 +64,7 @@ export default class Client {
 
   onPlayerData (msg) {
     msg = Buffer.from(msg)
+    msg.writeUInt8(this.id, 4)
     this.playerData = msg.slice(1)
   }
 

@@ -18,7 +18,7 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     for (let i in clients) {
       for (let j in clients) {
-        if (clients[i] && clients[j] && clients[j].playerData) {
+        if (i !== j && clients[i] && clients[j] && clients[j].playerData) {
           clients[i].ws.send(Packet.create(PACKET_TYPE.PLAYER_DATA, clients[j].playerData))
         }
       }
