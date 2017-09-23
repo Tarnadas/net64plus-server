@@ -9,6 +9,7 @@ export default class WebSocketServer {
   constructor (port) {
     this.onConnection = this.onConnection.bind(this)
     this.onDisconnect = this.onDisconnect.bind(this)
+    this.onPlayerCountUpdate = this.onPlayerCountUpdate.bind(this)
     this.onChatMessage = this.onChatMessage.bind(this)
 
     this.server = new Server({ port })
@@ -18,7 +19,7 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     for (let i in clients) {
       for (let j in clients) {
-        if (i !== j && clients[i] && clients[i].connected && clients[j] && clients[j].playerData) {
+        if (i !== j && clients[i].connected && clients[j].playerData) {
           clients[i].ws.send(Packet.create(PACKET_TYPE.PLAYER_DATA, clients[j].playerData))
         }
       }
@@ -26,19 +27,33 @@ export default class WebSocketServer {
   }
 
   onConnection (ws) {
-    for (let i = 0; i < 100; i++) {
-      if (!clients[i]) {
-        clients[i] = new Client(i + 1, ws, this.onDisconnect, this.onChatMessage)
-        console.log('a user connected')
-        return
-      }
+    const id = clients.length
+    if (id >= 255) {
+      // server full
+      return
     }
-    // server full
+    clients[id] = new Client(id + 1, ws, this.onDisconnect, this.onChatMessage)
+    this.onPlayerCountUpdate()
+    console.log('a user connected')
   }
 
   onDisconnect (id) {
-    delete clients[id - 1]
+    clients[id - 1] = clients[clients.length - 1]
+    delete clients[clients.length - 1]
+    const idBuf = Buffer.allocUnsafe(1)
+    idBuf.writeUInt8(id, 0)
+    clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
+    this.onPlayerCountUpdate()
     console.log('a user disconnected')
+  }
+
+  onPlayerCountUpdate () {
+    const countBuf = Buffer.allocUnsafe(1)
+    countBuf.writeUInt8(clients.length, 0)
+    const countPacket = Packet.create(PACKET_TYPE.PLAYER_COUNT, countBuf)
+    for (const client of clients) {
+      client.ws.send(countPacket)
+    }
   }
 
   onChatMessage (msg) {

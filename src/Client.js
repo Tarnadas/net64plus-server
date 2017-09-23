@@ -60,9 +60,9 @@ export default class Client {
     const gameModePayload = Buffer.allocUnsafe(1)
     gameModePayload.writeUInt8(gameMode, 0)
     this.ws.send(Packet.create(PACKET_TYPE.GAME_MODE, gameModePayload))
-    
+
     setTimeout(() => {
-    	this.connected = true
+      this.connected = true
     }, 100)
   }
 
