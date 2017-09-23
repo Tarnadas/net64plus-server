@@ -4,8 +4,7 @@ export const PACKET_TYPE = {
   GAME_MODE: 2,
   CHAT_MESSAGE: 3,
   CHARACTER_SWITCH: 4,
-  PING: 5,
-  PLAYER_COUNT: 6
+  PING: 5
 }
 
 export default class Packet {
