@@ -33,7 +33,7 @@ export default class WebSocketServer {
 
   onConnection (ws) {
     const id = clients.length
-    if (id >= 255) {
+    if (id >= 24) {
       // server full
       return
     }
