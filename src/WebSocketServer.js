@@ -1,5 +1,8 @@
 import { Server } from 'uws'
 
+import zlib from 'zlib'
+
+import { players } from './Player'
 import Client from './Client'
 import Packet, { PACKET_TYPE } from './Packet'
 
@@ -16,15 +19,15 @@ export default class WebSocketServer {
   }
 
   broadcastPlayerData () {
-    const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, Buffer.concat(
+    const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
       Array.from((function * () {
-        for (let client of clients) {
-          yield client.playerData
+        for (const player of players) {
+          if (player.playerData) yield player.playerData
         }
       })())
-    ))
-    for (let client of clients) {
-      client.ws.send(playerPacket)
+    )))
+    for (let player of players) {
+      player.client.ws.send(playerPacket)
     }
   }
 
@@ -39,18 +42,23 @@ export default class WebSocketServer {
   }
 
   onDisconnect (id) {
-    clients[id - 1] = clients[clients.length - 1]
-    delete clients[clients.length - 1]
+    const last = clients.length - 1
+    clients[id - 1] = clients[last]
+    if (clients[last].player) {
+      players[id - 1] = players[last]
+      players.pop()
+    }
+    clients.pop()
     const idBuf = Buffer.allocUnsafe(1)
     idBuf.writeUInt8(id, 0)
-    clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
+    if (clients[id - 1]) clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
     console.log('a user disconnected')
   }
 
   onChatMessage (msg) {
-    // broadcast to all clients
-    for (const client of clients) {
-      client.ws.send(msg)
+    // broadcast to all players
+    for (const player of players) {
+      player.client.ws.send(msg)
     }
   }
 }

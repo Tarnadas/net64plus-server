@@ -8,7 +8,7 @@ export const PACKET_TYPE = {
 }
 
 export default class Packet {
-  static create (type, payload) {
+  static create (type, payload = Buffer.alloc(0)) {
     const typeBuffer = Buffer.allocUnsafe(1)
     typeBuffer.writeUInt8(type, 0)
     return Buffer.concat([typeBuffer, payload])

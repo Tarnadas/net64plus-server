@@ -1,14 +1,9 @@
-import { gameMode } from './index'
+import Player from './Player'
 import Packet, { PACKET_TYPE } from './Packet'
-
-const CHARACTER = [
-  'Mario', 'Luigi', 'Yoshi', 'Wario', 'Peach', 'Toad', 'Waluigi', 'Rosalina'
-]
 
 export default class Client {
   constructor (id, ws, onDisconnect, onChatMessage) {
     this.sendPacket = this.sendPacket.bind(this)
-    this.onDisconnect = onDisconnect.bind(this, id)
     this.onChatMessage = onChatMessage
     this.onMessage = this.onMessage.bind(this)
     this.onHandshake = this.onHandshake.bind(this)
@@ -17,9 +12,8 @@ export default class Client {
 
     this.id = id
     this.ws = ws
-    ws.on('close', this.onDisconnect)
+    ws.on('close', onDisconnect.bind(this, id))
     ws.on('message', this.onMessage)
-    ws.send('something')
   }
 
   sendPacket (type, payload) {
@@ -44,37 +38,17 @@ export default class Client {
   }
 
   onHandshake (msg) {
-    msg = Buffer.from(msg)
-    this.major = msg.readUInt8(1)
-    this.minor = msg.readUInt8(2)
-    this.characterId = msg.readUInt8(3)
-    this.characterName = CHARACTER[this.characterId]
-    this.username = msg.slice(5, 5 + msg.readUInt8(4)).toString('utf8')
-
-    // send ID back to client
-    const payload = Buffer.allocUnsafe(1)
-    payload.writeUInt8(this.id, 0)
-    this.ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, payload))
-
-    // send current game mode
-    const gameModePayload = Buffer.allocUnsafe(1)
-    gameModePayload.writeUInt8(gameMode, 0)
-    this.ws.send(Packet.create(PACKET_TYPE.GAME_MODE, gameModePayload))
-
-    setTimeout(() => {
-      this.connected = true
-    }, 100)
+    this.player = new Player(this, Buffer.from(msg))
   }
 
   onPlayerData (msg) {
     msg = Buffer.from(msg)
     msg.writeUInt8(this.id, 4)
-    this.playerData = msg.slice(1)
+    this.player.setPlayerData(msg.slice(1))
   }
 
   onCharacterSwitch (msg) {
     msg = Buffer.from(msg)
-    this.characterId = msg.readUInt8(1)
-    this.characterName = CHARACTER[this.characterId]
+    this.player.switchCharacter(msg.readUInt8(1))
   }
 }
