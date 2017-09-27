@@ -37,8 +37,8 @@ export default class Client {
   }
 
   onPlayerData (msg) {
-    console.log(`set player data ${this.id} ${this.player.username}: ${Buffer.from(msg).slice(1).toString()}`)
-    this.player.playerData = Buffer.from(msg).slice(1)
+    // console.log(`set player data ${this.id} ${this.player.username}: ${Buffer.from(msg).slice(1).toString()}`)
+    Buffer.from(msg).slice(1).copy(this.player.playerData)
   }
 
   onCharacterSwitch (msg) {

@@ -20,11 +20,10 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
       Array.from((function * () {
-        for (let i = 0; i < players.length; i++) {
-          const player = players[i]
-          if (player.playerData) {
+        for (const player of players) {
+          if (player.playerData.readUInt8(3) !== 0) {
             player.playerData.writeUInt8(player.client.id, 3)
-            console.log(`yield player data ${player.client.id} ${player.username}: ${player.playerData.toString()}`)
+            // console.log(`yield player data ${player.client.id} ${player.username}: ${player.playerData.toString()}`)
             yield player.playerData
           }
         }

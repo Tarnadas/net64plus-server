@@ -16,6 +16,7 @@ export default class Player {
     this.characterName = CHARACTER[this.characterId]
     const usernameOffset = 5 + msg.readUInt8(4)
     this.username = msg.slice(5, usernameOffset).toString('utf8')
+    this.playerData = Buffer.alloc(0x18)
 
     // send ID back to client
     const payload = Buffer.allocUnsafe(1)
