@@ -3,12 +3,7 @@ import Packet, { PACKET_TYPE } from './Packet'
 
 export default class Client {
   constructor (id, ws, onDisconnect, onChatMessage) {
-    this.sendPacket = this.sendPacket.bind(this)
     this.onChatMessage = onChatMessage
-    this.onMessage = this.onMessage.bind(this)
-    this.onHandshake = this.onHandshake.bind(this)
-    this.onPlayerData = this.onPlayerData.bind(this)
-    this.onCharacterSwitch = this.onCharacterSwitch.bind(this)
 
     this.id = id
     this.ws = ws

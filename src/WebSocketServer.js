@@ -20,7 +20,7 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
       Array.from((function * () {
-        for (let player of players) {
+        for (const player of players) {
           if (player.playerData) {
             player.playerData.writeUInt8(player.client.id, 3)
             yield player.playerData
@@ -69,7 +69,7 @@ export default class WebSocketServer {
 
   onChatMessage (msg) {
     // broadcast to all players
-    for (let player of players) {
+    for (const player of players) {
       player.client.ws.send(msg)
     }
   }
