@@ -49,9 +49,9 @@ export default class WebSocketServer {
     clients[id - 1] = clients[last]
     if (clients[last].player) {
       players[id - 1] = players[last]
-      players.pop()
+      players.splice(-1, 1)
     }
-    clients.pop()
+    clients.splice(-1, 1)
     const idBuf = Buffer.allocUnsafe(1)
     idBuf.writeUInt8(id, 0)
     if (clients[id - 1]) clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
