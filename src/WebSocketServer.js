@@ -11,7 +11,6 @@ const clients = []
 export default class WebSocketServer {
   constructor (port) {
     this.onConnection = this.onConnection.bind(this)
-    this.onDisconnect = this.onDisconnect.bind(this)
     this.onChatMessage = this.onChatMessage.bind(this)
 
     this.server = new Server({ port })
@@ -54,9 +53,11 @@ export default class WebSocketServer {
       players.splice(-1, 1)
     }
     clients.splice(-1, 1)
-    const idBuf = Buffer.allocUnsafe(1)
-    idBuf.writeUInt8(id, 0)
-    if (clients[id - 1]) clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
+    if (clients[id - 1]) {
+      const idBuf = Buffer.allocUnsafe(1)
+      idBuf.writeUInt8(id, 0)
+      clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
+    }
     console.log('a user disconnected')
     console.log(`active users: ${clients.length}/24`)
     console.log('after dc')
