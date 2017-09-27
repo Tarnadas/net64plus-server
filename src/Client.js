@@ -8,7 +8,7 @@ export default class Client {
     this.id = id
     this.ws = ws
     ws.on('close', onDisconnect.bind(this))
-    ws.on('message', this.onMessage)
+    ws.on('message', this.onMessage.bind(this))
   }
 
   sendPacket (type, payload) {
