@@ -27,9 +27,7 @@ export default class Player {
     gameModePayload.writeUInt8(gameMode, 0)
     client.ws.send(Packet.create(PACKET_TYPE.GAME_MODE, gameModePayload))
 
-    setTimeout(() => {
-      players[client.id - 1] = this
-    }, 100)
+    players[client.id - 1] = this
   }
 
   setPlayerData (playerData) {
