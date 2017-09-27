@@ -23,6 +23,7 @@ export default class WebSocketServer {
         for (const player of players) {
           if (player.playerData) {
             player.playerData.writeUInt8(player.client.id, 3)
+            console.log(`yield player data ${player.client.id} ${player.username}: ${player.playerData.toString()}`)
             yield player.playerData
           }
         }

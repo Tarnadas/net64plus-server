@@ -30,10 +30,6 @@ export default class Player {
     players[client.id - 1] = this
   }
 
-  setPlayerData (playerData) {
-    this.playerData = playerData
-  }
-
   switchCharacter (characterId) {
     this.characterId = characterId
     this.characterName = CHARACTER[characterId]
