@@ -39,9 +39,12 @@ export default class WebSocketServer {
     }
     clients[id] = new Client(id + 1, ws, this.onDisconnect, this.onChatMessage)
     console.log('a user connected')
+    console.log(`active users: ${clients.length}/24`)
   }
 
   onDisconnect (id) {
+    console.log('before dc')
+    console.log(clients)
     const last = clients.length - 1
     clients[id - 1] = clients[last]
     if (clients[last].player) {
@@ -53,6 +56,9 @@ export default class WebSocketServer {
     idBuf.writeUInt8(id, 0)
     if (clients[id - 1]) clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
     console.log('a user disconnected')
+    console.log(`active users: ${clients.length}/24`)
+    console.log('after dc')
+    console.log(clients)
   }
 
   onChatMessage (msg) {
