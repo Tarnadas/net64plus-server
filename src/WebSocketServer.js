@@ -42,10 +42,12 @@ export default class WebSocketServer {
     console.log(`active users: ${clients.length}/24`)
   }
 
-  onDisconnect (id) {
+  onDisconnect () {
+    const id = this.id
     console.log('before dc')
     console.log(clients)
     const last = clients.length - 1
+    clients[last].id = id
     clients[id - 1] = clients[last]
     if (clients[last].player) {
       players[id - 1] = players[last]

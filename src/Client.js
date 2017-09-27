@@ -12,7 +12,7 @@ export default class Client {
 
     this.id = id
     this.ws = ws
-    ws.on('close', onDisconnect.bind(this, id))
+    ws.on('close', onDisconnect.bind(this))
     ws.on('message', this.onMessage)
   }
 
