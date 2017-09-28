@@ -47,8 +47,8 @@ export default class WebSocketServer {
 
   onDisconnect () {
     const id = this.id
-    console.log('before dc')
-    console.log(clients)
+    // console.log('before dc')
+    // console.log(clients)
     const last = clients.length - 1
     clients[last].id = id
     clients[id - 1] = clients[last]
@@ -64,8 +64,8 @@ export default class WebSocketServer {
     }
     console.log('a user disconnected')
     console.log(`active users: ${clients.length}/24`)
-    console.log('after dc')
-    console.log(clients)
+    // console.log('after dc')
+    // console.log(clients)
   }
 
   onChatMessage (msg) {

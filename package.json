@@ -1,6 +1,6 @@
 {
   "name": "sm64o-ded",
-  "version": "1.0.0",
+  "version": "0.3",
   "description": "Unofficial dedicated server software for Super Mario 64 Online",
   "main": "dist/index.js",
   "scripts": {
