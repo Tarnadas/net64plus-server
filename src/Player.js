@@ -1,4 +1,4 @@
-import { VERSION_MAJOR, VERSION_MINOR, gameMode } from './index'
+import { CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, gameMode } from './index'
 import Packet, { PACKET_TYPE } from './Packet'
 
 const CHARACTER = [
@@ -12,10 +12,10 @@ export default class Player {
     this.client = client
     this.major = msg.readUInt8(1)
     this.minor = msg.readUInt8(2)
-    if (this.major !== VERSION_MAJOR || this.minor !== VERSION_MINOR) {
+    if (this.major !== CLIENT_VERSION_MAJOR || this.minor !== CLIENT_VERSION_MINOR) {
       const payload = Buffer.allocUnsafe(2)
-      payload.writeUInt8(VERSION_MAJOR, 0)
-      payload.writeUInt8(VERSION_MINOR, 1)
+      payload.writeUInt8(CLIENT_VERSION_MAJOR, 0)
+      payload.writeUInt8(CLIENT_VERSION_MINOR, 1)
       client.ws.send(Packet.create(PACKET_TYPE.WRONG_VERSION, payload))
       return
     }
