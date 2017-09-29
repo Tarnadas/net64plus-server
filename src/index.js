@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 
 export const CLIENT_VERSION_MAJOR = 0
-export const CLIENT_VERSION_MINOR = 3
+export const CLIENT_VERSION_MINOR = 4
 
 const UPDATE_INTERVAL = 24
 
