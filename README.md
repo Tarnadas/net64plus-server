@@ -35,7 +35,7 @@ $ npm start
 - (OPTIONAL) if you want to run your server indefinitely with auto restarts, I suggest to use pm2
 ```
 $ npm i -g pm2
-$ npm run compile
+$ npm run build
 $ pm2 start ./dist --name="net64 server"
 ```
 
