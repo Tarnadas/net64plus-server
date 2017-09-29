@@ -1,5 +1,5 @@
 {
-  "port": "3678",
+  "port": 3678,
   "enableWebHook": false,
   "name": "A Net64+ Server",
   "domain": "",
