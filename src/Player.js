@@ -42,4 +42,11 @@ export default class Player {
     this.characterId = characterId
     this.characterName = CHARACTER[characterId]
   }
+
+  toJSON () {
+    return {
+      username: this.username,
+      characterId: this.characterId
+    }
+  }
 }
