@@ -11,7 +11,7 @@ There is a [public server list](http://smmdb.ddns.net/net64) of all Net64+ serve
 - download and install [Node 8](https://nodejs.org/en/download/current/)
 - `git clone` this repository or [download as zip](https://github.com/Tarnadas/sm64o-ded/archive/master.zip)
 - modify `settings.json`
-```json
+```js
 {
   "port": "3678", // make sure your port is forwarded
   "enableWebHook": false, // set this to true, if you want your server to be listed
