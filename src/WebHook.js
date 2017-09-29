@@ -2,8 +2,8 @@ import got from 'got'
 
 import { players } from './Player'
 
-const URL_LIST = 'http://tarnadas.ddns.net/net64'
-const URL_API = 'http://tarnadas.ddns.net/api/net64server'
+const URL_LIST = 'http://smmdb.ddns.net/net64'
+const URL_API = 'http://smmdb.ddns.net/api/net64server'
 const URL_IP_API = 'http://ip-api.com/json'
 
 const apiKey = Symbol('apiKey')
