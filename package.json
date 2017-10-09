@@ -1,7 +1,7 @@
 {
-  "name": "sm64o-ded",
+  "name": "net64plus-ded",
   "version": "0.4.1",
-  "description": "Unofficial dedicated server software for Super Mario 64 Online",
+  "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
   "scripts": {
     "start": "npm run build-dev && node ./dist/",
@@ -11,9 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tarnadas/sm64o-ded.git"
+    "url": "git+https://github.com/Tarnadas/net64plus-ded.git"
   },
   "keywords": [
+    "net64",
+    "net64+",
     "Super",
     "Mario",
     "64",
@@ -24,9 +26,9 @@
   "author": "Mario Reder",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Tarnadas/sm64o-ded/issues"
+    "url": "https://github.com/Tarnadas/net64plus-ded/issues"
   },
-  "homepage": "https://github.com/Tarnadas/sm64o-ded#readme",
+  "homepage": "https://github.com/Tarnadas/net64plus-ded#readme",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
