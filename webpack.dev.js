@@ -16,7 +16,8 @@ module.exports = [
     },
     plugins: [
       new webpack.EnvironmentPlugin({
-        NODE_ENV: 'development'
+        NODE_ENV: 'development',
+        VERSION: process.env.npm_package_version
       })
     ],
     externals: [require('webpack-node-externals')()],

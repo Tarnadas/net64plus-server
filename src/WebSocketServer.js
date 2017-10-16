@@ -13,7 +13,9 @@ export default class WebSocketServer {
     this.onConnection = this.onConnection.bind(this)
     this.onChatMessage = this.onChatMessage.bind(this)
 
-    this.server = new Server({ port })
+    this.server = new Server({ port }, () => {
+      console.log(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${port}`)
+    })
     this.server.on('connection', this.onConnection)
   }
 
@@ -23,7 +25,6 @@ export default class WebSocketServer {
         for (const player of players) {
           if (player.playerData.readUInt8(3) !== 0) {
             player.playerData.writeUInt8(player.client.id, 3)
-            // console.log(`yield player data ${player.client.id} ${player.username}: ${player.playerData.toString()}`)
             yield player.playerData
           }
         }
@@ -47,8 +48,6 @@ export default class WebSocketServer {
 
   onDisconnect () {
     const id = this.id
-    // console.log('before dc')
-    // console.log(clients)
     const last = clients.length - 1
     clients[last].id = id
     clients[id - 1] = clients[last]
@@ -64,8 +63,6 @@ export default class WebSocketServer {
     }
     console.log('a user disconnected')
     console.log(`active users: ${clients.length}/24`)
-    // console.log('after dc')
-    // console.log(clients)
   }
 
   onChatMessage (msg) {
