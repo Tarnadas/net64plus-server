@@ -21,29 +21,28 @@ export default class WebSocketServer {
 
   broadcastPlayerData () {
     const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
-      Array.from((function * () {
-        for (const player of players) {
-          if (player.playerData.readUInt8(3) !== 0) {
-            player.playerData.writeUInt8(player.client.id, 3)
-            yield player.playerData
-          }
-        }
-      })())
+      players
+        .filter(player => player.playerData.readUInt8(3) !== 0)
+        .map(player => {
+          player.playerData.writeUInt8(player.client.id, 3)
+          return player.playerData
+        })
     )))
     for (let player of players) {
-      player.client.ws.send(playerPacket)
+      player.client.ws.send(playerPacket, {
+        binary: true
+      })
     }
   }
 
   onConnection (ws) {
     const id = clients.length
     if (id >= 24) {
-      // server full
+      ws.send(Packet.create(PACKET_TYPE.SERVER_FULL))
       return
     }
     clients[id] = new Client(id + 1, ws, this.onDisconnect, this.onChatMessage)
-    console.log('a user connected')
-    console.log(`active users: ${clients.length}/24`)
+    console.log(`Active users: ${clients.length}/24`)
   }
 
   onDisconnect () {
@@ -61,7 +60,6 @@ export default class WebSocketServer {
       idBuf.writeUInt8(id, 0)
       clients[id - 1].ws.send(Packet.create(PACKET_TYPE.HANDSHAKE, idBuf))
     }
-    console.log('a user disconnected')
     console.log(`active users: ${clients.length}/24`)
   }
 
