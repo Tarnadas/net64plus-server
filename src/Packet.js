@@ -5,7 +5,8 @@ export const PACKET_TYPE = {
   CHAT_MESSAGE: 3,
   CHARACTER_SWITCH: 4,
   PING: 5,
-  WRONG_VERSION: 6
+  WRONG_VERSION: 6,
+  SERVER_FULL: 7
 }
 
 export default class Packet {
