@@ -22,7 +22,7 @@ export default class WebSocketServer {
   broadcastPlayerData () {
     const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
       players
-        .filter(player => player.playerData.readUInt8(3) !== 0)
+        .filter(player => player && player.playerData.readUInt8(3) !== 0)
         .map(player => {
           player.playerData.writeUInt8(player.client.id, 3)
           return player.playerData
@@ -49,6 +49,10 @@ export default class WebSocketServer {
     const id = this.id
     const last = clients.length - 1
     clients[last].id = id
+    if (!clients[last]) {
+      console.error('CLIENTS', JSON.stringify(clients))
+      return
+    }
     clients[id - 1] = clients[last]
     if (clients[last].player) {
       players[id - 1] = players[last]
