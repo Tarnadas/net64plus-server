@@ -7,26 +7,24 @@ module.exports = [
     entry: path.join(__dirname, 'src/index.js'),
     output: {
       filename: 'index.js',
-      path: path.join(__dirname, 'dist')
+      path: path.join(__dirname, 'compile')
     },
-    devtool: 'inline-source-map',
     node: {
       __dirname: false,
       __filename: false
     },
     plugins: [
       new webpack.EnvironmentPlugin({
-        NODE_ENV: 'development',
-        VERSION: process.env.npm_package_version
+        NODE_ENV: 'production',
+        VERSION: process.env.npm_package_version,
+        TARGET_ENV: 'win32'
       }),
-      new webpack.IgnorePlugin(/^\.\.\/compile\/uws$/)
+      new webpack.IgnorePlugin(/^uws$/)
     ],
-    externals: [require('webpack-node-externals')()],
     module: {
       loaders: [
         {
           test: /\.js$/,
-          exclude: /node_modules/,
           loader: 'babel-loader',
           query: {
             babelrc: false,
@@ -38,6 +36,10 @@ module.exports = [
               }]
             ]
           }
+        },
+        {
+          test: /\.node$/,
+          loader: 'node-loader'
         }
       ]
     }

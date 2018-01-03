@@ -1,4 +1,4 @@
-import got from 'got'
+import axios from 'axios'
 
 import { players } from './Player'
 
@@ -18,9 +18,9 @@ export default class WebHook {
     this[apiKey] = settings.apiKey;
     (async () => {
       try {
-        const res = (await got(URL_IP_API, {
-          json: true
-        })).body
+        const res = (await axios.get(URL_IP_API, {
+          responseType: 'json'
+        })).data
         if (res.query) this.ip = res.query
         if (res.country) this.country = res.country
         if (res.countryCode) this.countryCode = res.countryCode
@@ -38,14 +38,15 @@ export default class WebHook {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON
-      got(URL_API, {
-        method: 'POST',
-        headers: {
-          Authorization: `APIKEY ${this[apiKey]}`
-        },
-        json: true,
-        body
-      })
+      axios.post(
+        URL_API,
+        body,
+        {
+          headers: {
+            'Authorization': `APIKEY ${this[apiKey]}`
+          }
+        }
+      )
     } catch (err) {
       if (err.statusCode && err.statusCode === 401) {
         console.error('Your API key seems to be wrong. Please check your settings!\nWebHook was disabled now')

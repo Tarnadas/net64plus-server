@@ -18,7 +18,8 @@ module.exports = [
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         VERSION: process.env.npm_package_version
-      })
+      }),
+      new webpack.IgnorePlugin(/^\.\.\/compile\/uws$/)
     ],
     externals: [require('webpack-node-externals')()],
     module: {
