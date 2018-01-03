@@ -34,13 +34,13 @@ export default class WebHook {
     })()
   }
 
-  async loop () {
+  loop () {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON
       axios.post(
         URL_API,
-        JSON.stringify(body),
+        body,
         {
           headers: {
             'Authorization': `APIKEY ${this[apiKey]}`
