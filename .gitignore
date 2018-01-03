@@ -1,5 +1,6 @@
 
 /node_modules/
 /dist/
+/compile/index.js
 /.idea/
-/package-lock.json
+net64plus-ded.exe
