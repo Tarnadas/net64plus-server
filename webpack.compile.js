@@ -21,6 +21,7 @@ module.exports = [
       }),
       new webpack.IgnorePlugin(/^uws$/)
     ],
+    externals: /^\.\/uws_win32.*$/,
     module: {
       loaders: [
         {
