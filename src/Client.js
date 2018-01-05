@@ -33,11 +33,14 @@ export default class Client {
   }
 
   onHandshake (msg) {
-    this.player = new Player(this, Buffer.from(msg))
+    try {
+      this.player = new Player(this, Buffer.from(msg))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   onPlayerData (msg) {
-    // console.log(`set player data ${this.id} ${this.player.username}: ${Buffer.from(msg).slice(1).toString()}`)
     if (!this.player) return
     Buffer.from(msg).slice(1).copy(this.player.playerData)
   }
