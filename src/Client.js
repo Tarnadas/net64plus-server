@@ -26,7 +26,7 @@ export default class Client {
     } else if (bytes[0] === PACKET_TYPE.HANDSHAKE) {
       this.onHandshake(msg)
     } else if (bytes[0] === PACKET_TYPE.PLAYER_DATA) {
-      this.onPlayerData(msg)
+      this.onMemoryData(msg)
     } else if (bytes[0] === PACKET_TYPE.CHARACTER_SWITCH) {
       this.onCharacterSwitch(msg)
     }
@@ -40,9 +40,12 @@ export default class Client {
     }
   }
 
-  onPlayerData (msg) {
+  onMemoryData (msg) {
     if (!this.player) return
-    Buffer.from(msg).slice(1).copy(this.player.playerData)
+    const memoryData = Buffer.from(msg).slice(1)
+    const copiedMemoryData = Buffer.allocUnsafe(memoryData.length)
+    memoryData.copy(copiedMemoryData)
+    this.player.memoryData.push(copiedMemoryData)
   }
 
   onCharacterSwitch (msg) {

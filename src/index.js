@@ -38,7 +38,7 @@ if (settings.enableWebHook) {
 }
 
 const main = async () => {
-  server.broadcastPlayerData()
+  server.broadcastMemoryData()
   setTimeout(main, UPDATE_INTERVAL)
 }
 main()

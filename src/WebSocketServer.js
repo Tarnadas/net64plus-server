@@ -28,17 +28,13 @@ export default class WebSocketServer {
     this.server.on('connection', this.onConnection)
   }
 
-  broadcastPlayerData () {
-    const playerPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
-      players
-        .filter(player => player && player.playerData.readUInt8(3) !== 0)
-        .map(player => {
-          player.playerData.writeUInt8(player.client.id, 3)
-          return player.playerData
-        })
+  broadcastMemoryData () {
+    const memoryPacket = Packet.create(PACKET_TYPE.PLAYER_DATA, zlib.gzipSync(Buffer.concat(
+      players.map(player => Buffer.concat(player.memoryData))
     )))
-    for (let player of players) {
-      player.client.ws.send(playerPacket, {
+    for (const player of players) {
+      player.memoryData = []
+      player.client.ws.send(memoryPacket, {
         binary: true
       })
     }
