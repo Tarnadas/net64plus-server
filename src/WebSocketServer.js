@@ -53,11 +53,11 @@ export default class WebSocketServer {
   onDisconnect () {
     const id = this.id
     const last = clients.length - 1
-    clients[last].id = id
     if (!clients[last]) {
       console.error('CLIENTS', JSON.stringify(clients))
       return
     }
+    clients[last].id = id
     clients[id - 1] = clients[last]
     if (clients[last].player) {
       players[id - 1] = players[last]
