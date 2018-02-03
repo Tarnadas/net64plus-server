@@ -27,6 +27,7 @@ export default class WebHook {
         if (res.lat) this.lat = res.lat
         if (res.lon) this.lon = res.lon
         this.loop()
+        setInterval(this.loop.bind(this), 10000);
         console.log(`WebHook enabled. Your server will be displayed at ${URL_LIST}`)
       } catch (err) {
         console.log('WebHook disabled, because API service is down or you made too many requests (by restarting the server too often)')
@@ -56,7 +57,6 @@ export default class WebHook {
         console.error(err)
       }
     }
-    setTimeout(this.loop.bind(this), 10000)
   }
 
   toJSON () {

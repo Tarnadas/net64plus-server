@@ -20,15 +20,12 @@ const DEFAULT_SETTINGS = {
 
 export let gameMode = 1
 
-let settings
-if (process.env.TARGET_ENV === 'win32') {
-  settings = DEFAULT_SETTINGS
-} else {
+let settings = DEFAULT_SETTINGS
+if (process.env.TARGET_ENV !== 'win32') {
   try {
     settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json')))
   } catch (err) {
-    console.log('Failed to find or parse settings.json file. Using default settings instead')
-    settings = DEFAULT_SETTINGS
+    console.log('Failed to find or parse settings.json file. Using default settings instead.')
   }
 }
 
@@ -39,6 +36,8 @@ if (settings.enableWebHook) {
 
 const main = async () => {
   server.broadcastMemoryData()
-  setTimeout(main, UPDATE_INTERVAL)
 }
+
 main()
+
+setInterval(main, 24);
