@@ -21,19 +21,19 @@ export default class Client {
     switch (bytes[0]) {
       case PACKET_TYPE.PING:
         this.ws.send(msg)
-        break;
+        break
       case PACKET_TYPE.CHAT_MESSAGE:
-        this.onChatMessage(msg);
-        break;
+        this.onChatMessage(msg)
+        break
       case PACKET_TYPE.HANDSHAKE:
         this.onHandshake(msg)
-        break;
+        break
       case PACKET_TYPE.PLAYER_DATA:
         this.onMemoryData(msg)
-        break;
+        break
       case PACKET_TYPE.CHARACTER_SWITCH:
         this.onCharacterSwitch(msg)
-        break;
+        break
     }
   }
 

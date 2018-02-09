@@ -17,7 +17,6 @@ export default class WebSocketServer {
   constructor (port) {
     this.onConnection = this.onConnection.bind(this)
     this.onChatMessage = this.onChatMessage.bind(this)
-
     this.server = new Server({ port }, () => {
       console.log(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${port}`)
       if (process.env.TARGET_ENV === 'win32') {

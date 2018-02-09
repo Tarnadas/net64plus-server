@@ -10,12 +10,12 @@ const apiKey = Symbol('apiKey')
 
 export default class WebHook {
   constructor (settings) {
-    this.loop.bind(this)
+    this.loop = this.loop.bind(this)
     this.name = settings.name
     this.domain = settings.domain
     this.description = settings.description
     this.port = settings.port
-    this[apiKey] = settings.apiKey;
+    this[apiKey] = settings.apiKey
     (async () => {
       try {
         const res = (await axios.get(URL_IP_API, {
@@ -27,7 +27,7 @@ export default class WebHook {
         if (res.lat) this.lat = res.lat
         if (res.lon) this.lon = res.lon
         this.loop()
-        setInterval(this.loop.bind(this), 10000);
+        setInterval(this.loop, 10000);
         console.log(`WebHook enabled. Your server will be displayed at ${URL_LIST}`)
       } catch (err) {
         console.log('WebHook disabled, because API service is down or you made too many requests (by restarting the server too often)')
