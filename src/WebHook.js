@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { players } from './Player'
+import { webSocketServer } from '.'
 
 const URL_LIST = 'https://smmdb.ddns.net/net64'
 const URL_API = 'https://smmdb.ddns.net/api/net64server'
@@ -26,20 +26,18 @@ export default class WebHook {
         if (res.countryCode) this.countryCode = res.countryCode
         if (res.lat) this.lat = res.lat
         if (res.lon) this.lon = res.lon
-        this.loop()
-        setInterval(this.loop, 10000);
-        console.log(`WebHook enabled. Your server will be displayed at ${URL_LIST}`)
+        this.loop(true)
       } catch (err) {
-        console.log('WebHook disabled, because API service is down or you made too many requests (by restarting the server too often)')
+        console.warn('WebHook disabled, because API service is down or you made too many requests (by restarting the server too often)')
       }
     })()
   }
 
-  loop () {
+  async loop (firstRun = false) {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON
-      axios.post(
+      await axios.post(
         URL_API,
         body,
         {
@@ -49,17 +47,16 @@ export default class WebHook {
         }
       )
     } catch (err) {
-      if (err.statusCode && err.statusCode === 401) {
+      if (err.response && err.response.status === 401) {
         console.error('Your API key seems to be wrong. Please check your settings!\nWebHook was disabled now')
         return
       } else {
         // fail silently. Server might be unreachable
-        console.error(err)
       }
     }
   }
 
   toJSON () {
-    return Object.assign(this, { players })
+    return Object.assign(this, { players: webSocketServer.players })
   }
 }

@@ -6,6 +6,11 @@ This is a dedicated server for Net64 aka Sm64O, that uses the Websocket protocol
 
 There is a [public server list](http://smmdb.ddns.net/net64) of all Net64+ server, that have enabled listing.
 
+## Downloads
+
+For user servers, there is a prebuilt Windows version with a few limitations, but it is much easier to host in general.
+Please go to the [release section](https://github.com/Tarnadas/net64plus-ded/releases).
+
 ## Installation
 
 - download and install [Node 8](https://nodejs.org/en/download/current/)

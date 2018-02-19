@@ -5,8 +5,6 @@ const CHARACTER = [
   'Mario', 'Luigi', 'Yoshi', 'Wario', 'Peach', 'Toad', 'Waluigi', 'Rosalina'
 ]
 
-export const players = []
-
 export default class Player {
   constructor (client, msg) {
     this.client = client
@@ -34,8 +32,6 @@ export default class Player {
     const gameModePayload = Buffer.allocUnsafe(1)
     gameModePayload.writeUInt8(gameMode, 0)
     client.ws.send(Packet.create(PACKET_TYPE.GAME_MODE, gameModePayload))
-
-    players[client.id - 1] = this
   }
 
   switchCharacter (characterId) {

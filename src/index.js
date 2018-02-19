@@ -6,7 +6,6 @@ import path from 'path'
 
 export const CLIENT_VERSION_MAJOR = 0
 export const CLIENT_VERSION_MINOR = 4
-export const CLIENT_VERSION_PATCH = 1
 
 const UPDATE_INTERVAL = 24
 const DEFAULT_SETTINGS = {
@@ -29,15 +28,23 @@ if (process.env.TARGET_ENV !== 'win32') {
   }
 }
 
-const server = new WebSocketServer(settings.port)
+export const webSocketServer = new WebSocketServer(settings.port)
 if (settings.enableWebHook) {
   const webHook = new WebHook(settings)
 }
 
-const main = async () => {
-  server.broadcastMemoryData()
+let performRestart = false
+const main = () => {
+  if (performRestart) {
+    webSocketServer.restart()
+    performRestart = false
+    return
+  }
+  webSocketServer.broadcastPlayerData()
 }
+setInterval(main, UPDATE_INTERVAL)
 
-main()
-
-setInterval(main, 24);
+process.on('uncaughtException', err => {
+  performRestart = true
+  console.warn(`An unexpected error occured and the server is performing an automatic restart. Please report this issue:\n\n${err}`)
+})
