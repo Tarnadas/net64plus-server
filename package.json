@@ -1,6 +1,6 @@
 {
   "name": "net64plus-ded",
-  "version": "1.0.0",
+  "version": "0.5.2",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
   "scripts": {

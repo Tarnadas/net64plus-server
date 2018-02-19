@@ -45,12 +45,9 @@ export default class Client {
     }
   }
 
-  onMemoryData (msg) {
+  onPlayerData (msg) {
     if (!this.player) return
-    const memoryData = Buffer.from(msg).slice(1)
-    const copiedMemoryData = Buffer.allocUnsafe(memoryData.length)
-    memoryData.copy(copiedMemoryData)
-    this.player.memoryData.push(copiedMemoryData)
+    Buffer.from(msg).slice(1).copy(this.player.playerData)
   }
 
   onCharacterSwitch (msg) {
