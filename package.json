@@ -1,6 +1,7 @@
 {
   "name": "net64plus-ded",
-  "version": "0.5.3",
+  "version": "1.0.0",
+  "compatVersion": "1.0.0.",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
   "scripts": {
@@ -32,21 +33,35 @@
     "url": "https://github.com/Tarnadas/net64plus-ded/issues"
   },
   "homepage": "https://github.com/Tarnadas/net64plus-ded#readme",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "farmhash": "^2.0.5",
+    "protobufjs": "^6.8.5",
+    "uws": "^9.14.0"
+  },
   "devDependencies": {
+    "@types/uws": "^0.13.1",
+    "awesome-typescript-loader": "^3.4.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
-    "chai": "^4.1.2",
-    "mocha": "^3.5.3",
+    "eslint": "^4.18.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-config-standard-with-typescript": "^2.0.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsdoc": "^3.4.1",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-typescript": "^0.8.1",
+    "jest": "^22.3.0",
     "nexe": "^2.0.0-rc.23",
     "node-loader": "^0.6.0",
     "standard": "^10.0.3",
-    "typescript": "^2.6.2",
+    "ts-jest": "^22.0.4",
+    "typescript": "^2.7.2",
+    "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
     "webpack-node-externals": "^1.6.0"
-  },
-  "dependencies": {
-    "axios": "^0.17.1",
-    "uws": "^9.14.0"
   }
 }
