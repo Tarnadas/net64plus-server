@@ -76,6 +76,7 @@ export class WebHook {
         // fail silently. Server might be unreachable
       }
     }
+    setTimeout(this.loop, 10000)
   }
 
   private toJSON () {
