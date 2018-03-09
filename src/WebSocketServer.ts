@@ -31,7 +31,7 @@ export class WebSocketServer {
 
   private metaData: MetaData = new MetaData()
 
-  private tokenHolder?: Player // TOOD
+  private tokenHolder?: Player // TODO
 
   constructor (private port: number, public clients: Client[] = [], public players: Player[] = []) {
     this.onConnection = this.onConnection.bind(this)
@@ -40,10 +40,10 @@ export class WebSocketServer {
 
   private init (): void {
     this.server = new Server({ port: this.port }, () => {
-      console.log(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
+      console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
       if (process.env.TARGET_ENV === 'win32') {
-        console.log('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
-        console.log('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')
+        console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
+        console.info('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')
       }
     })
     this.server.on('connection', this.onConnection)
@@ -59,10 +59,10 @@ export class WebSocketServer {
   }
 
   public addPlayer (player: Player): void {
+    this.players[player.client.id] = player
     if (player.client.id === 1) {
       this.grantNewServerToken()
     }
-    this.players[player.client.id] = player
   }
 
   public sendHandshake (client: Client): void {
@@ -73,7 +73,7 @@ export class WebSocketServer {
         handshake: {
           playerId: client.id,
           playerList: {
-            playerUpdates: this.players.map(player => ({
+            playerUpdates: this.players.filter(player => player).map(player => ({
               player: {
                 username: client!.player!.username,
                 characterId: client!.player!.characterId
@@ -147,7 +147,7 @@ export class WebSocketServer {
       data: {
         messageType: ServerClient.MessageType.PLAYER_DATA,
         metaData: {
-          metaData: this.metaData.getMetaData()
+          metaData: metas
         }
       }
     }
@@ -159,6 +159,9 @@ export class WebSocketServer {
   }
 
   public onGlobalChatMessage (client: Client, message: string) {
+    if (process.env.NODE_ENV === 'development') {
+      console.info(`Received global message from client ${client.id}:\n${message}`)
+    }
     const chat: IServerClientMessage = {
       compression: Compression.NONE,
       data: {
@@ -200,7 +203,7 @@ export class WebSocketServer {
   }
 
   public grantNewServerToken (): void {
-    for (let i in this.players) {
+    for (const i in this.players) {
       const player = this.players[i]
       const serverToken: IServerClientMessage = {
         compression: Compression.NONE,
@@ -216,6 +219,9 @@ export class WebSocketServer {
       }
       const serverTokenMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverToken)).finish()
       player.client.sendMessage(serverTokenMessage)
+      if (process.env.NODE_ENV === 'development') {
+        console.info(`New server token has been granted to player [${player.client.id}] ${player.username}`)
+      }
       return
     }
   }
@@ -225,16 +231,16 @@ export class WebSocketServer {
     if (id == null) {
       this.sendServerFullMessage(ws)
       if (process.env.NODE_ENV === 'development') {
-        console.info(`A new client connect, but server is full`)
+        console.info(`A new client connected, but server is full`)
       }
       return
     }
     if (process.env.NODE_ENV === 'development') {
-      console.info(`A new client connect and received ID: ${id}`)
+      console.info(`A new client connected and received ID: ${id}`)
     }
     this.clients[id] = new Client(id, this, ws)
     const activeUsers = this.clients.filter(client => client).length
-    console.log(`Active users: ${activeUsers}/24`)
+    console.info(`Active users: ${activeUsers}/24`)
   }
 
   private getNextClientId (): number | null {

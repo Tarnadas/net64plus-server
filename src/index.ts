@@ -19,7 +19,7 @@ if (process.env.TARGET_ENV !== 'win32') {
       encoding: 'utf8'
     }))
   } catch (err) {
-    console.log('Failed to find or parse settings.json file. Using default settings instead.')
+    console.info('Failed to find or parse settings.json file. Using default settings instead.')
   }
 }
 

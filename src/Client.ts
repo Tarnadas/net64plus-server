@@ -42,7 +42,7 @@ export class Client {
       this.server.grantNewServerToken()
     }
     const activeUsers = this.server.clients.filter(client => client).length
-    console.log(`Active users: ${activeUsers}/24`)
+    console.info(`Active users: ${activeUsers}/24`)
   }
 
   /**
