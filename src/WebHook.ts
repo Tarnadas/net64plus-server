@@ -80,6 +80,6 @@ export class WebHook {
   }
 
   private toJSON () {
-    return Object.assign(this, { players: webSocketServer.players })
+    return Object.assign(this, { players: webSocketServer.players.filter(player => player) })
   }
 }
