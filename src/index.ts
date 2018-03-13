@@ -1,16 +1,18 @@
-import { WebSocketServer } from './WebSocketServer'
-import { WebHook } from './WebHook'
-import { DEFAULT_SETTINGS } from './models/Settings.model'
+import axios from 'axios'
 
 import * as fs from 'fs'
 import * as path from 'path'
 
-export const CLIENT_VERSION_MAJOR = 0
-export const CLIENT_VERSION_MINOR = 4
+import { WebSocketServer } from './WebSocketServer'
+import { WebHook } from './WebHook'
+import { DEFAULT_SETTINGS } from './models/Settings.model'
+import { Server } from './models/Server.model'
 
-const UPDATE_INTERVAL = 32
+const UPDATE_INTERVAL = 128
+const URL_IP_API = 'http://freegeoip.net/json/'
 
 export let gameMode = 1
+export let webSocketServer: WebSocketServer
 
 let settings = DEFAULT_SETTINGS
 if (process.env.TARGET_ENV !== 'win32') {
@@ -23,21 +25,46 @@ if (process.env.TARGET_ENV !== 'win32') {
   }
 }
 
-export const webSocketServer = new WebSocketServer(settings.port)
-if (settings.enableWebHook) {
-  const webHook = new WebHook(settings)
+const init = async () => {
+  try {
+    const res = (await axios.get(URL_IP_API, {
+      responseType: 'json'
+    })).data
+    return {
+      ip: res.ip,
+      country: res.country_name,
+      countryCode: res.country_code,
+      latitude: res.latitude,
+      longitude: res.longitude
+    }
+  } catch (err) {
+    console.error('It looks like you are offline. The server won\'t be able to start until you have an internet connection.')
+    throw err
+  }
 }
 
-let performRestart = false
-const main = () => {
-  if (performRestart) {
-    webSocketServer.restart()
-    performRestart = false
-    return
+(async () => {
+  let serverData: Server = await init()
+  webSocketServer = new WebSocketServer(settings, serverData)
+  if (settings.enableWebHook) {
+    if (!settings.apiKey) {
+      throw new Error('You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
+    }
+    const webHook = new WebHook(settings, serverData)
   }
-  webSocketServer.broadcastData()
-}
-setInterval(main, UPDATE_INTERVAL)
+  
+  let performRestart = false
+  const main = () => {
+    if (performRestart) {
+      webSocketServer.restart()
+      performRestart = false
+      return
+    }
+    webSocketServer.broadcastData()
+  }
+  setInterval(main, UPDATE_INTERVAL)
+})()
+
 
 /* process.on('uncaughtException', (err: Error) => {
   performRestart = true

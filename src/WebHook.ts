@@ -2,58 +2,49 @@ import axios from 'axios'
 
 import { webSocketServer } from '.'
 import { Settings } from './models/Settings.model'
+import { Server } from './models/Server.model'
 
 const URL_LIST = 'https://smmdb.ddns.net/net64'
 const URL_API = 'https://smmdb.ddns.net/api/net64server'
-const URL_IP_API = 'http://ip-api.com/json'
 
 const apiKey = Symbol('apiKey')
 
 export class WebHook {
-  private name: string
-
-  private ip?: string
-
-  private domain: string
-
-  private description: string
+  private ip: string
 
   private port: number
 
-  private apiKey?: string
+  private domain: string
 
-  private country?: string
+  private name: string
 
-  private countryCode?: string
+  private description: string
 
-  private latitude?: number
+  private country: string
 
-  private longitude?: number
+  private countryCode: string
 
-  constructor ({ name, domain, description, port, apiKey }: Settings) {
-    this.loop = this.loop.bind(this)
-    this.name = name
-    this.domain = domain
-    this.description = description
+  private latitude: number
+
+  private longitude: number
+
+  private apiKey: string
+
+  constructor (
+    { name, domain, description, port, apiKey }: Settings,
+    { ip, country, countryCode, latitude, longitude }: Server
+  ) {
+    this.ip = ip
     this.port = port
-    this.apiKey = apiKey
-    this.init()
-  }
-
-  private async init (): Promise<void> {
-    try {
-      const res = (await axios.get(URL_IP_API, {
-        responseType: 'json'
-      })).data
-      if (res.query) this.ip = res.query
-      if (res.country) this.country = res.country
-      if (res.countryCode) this.countryCode = res.countryCode
-      if (res.lat) this.latitude = res.lat
-      if (res.lon) this.longitude = res.lon
-      this.loop(true)
-    } catch (err) {
-      console.warn('WebHook disabled, because API service is down or you made too many requests (by restarting the server too often)')
-    }
+    this.domain = domain
+    this.name = name
+    this.description = description
+    this.country = country
+    this.countryCode = countryCode
+    this.latitude = latitude
+    this.longitude = longitude
+    this.apiKey = apiKey!
+    this.loop(true)
   }
 
   private loop = async (firstRun = false) => {

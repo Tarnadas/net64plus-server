@@ -6,6 +6,8 @@ import { Client } from './Client'
 import { Player } from './Player'
 import { MetaData } from './MetaData'
 import { ConnectionError } from './models/Connection.model'
+import { Settings } from './models/Settings.model'
+import { Server } from './models/Server.model'
 import {
   ServerClientMessage,
   IServerClientMessage,
@@ -16,7 +18,8 @@ import {
   Compression,
   Chat,
   Error as ErrorProto,
-  IMeta
+  IMeta,
+  GameModeType
 } from './proto/ServerClientMessage'
 
 let Server: typeof WebSocket.Server
@@ -27,13 +30,38 @@ if (process.env.TARGET_ENV === 'win32') {
 }
 
 export class WebSocketServer {
+  public clients: Client[] = []
+  
+  public players: Player[] = []
+
   private server?: WebSocket.Server
 
   private metaData: MetaData = new MetaData()
 
   private tokenHolder?: Player // TODO
 
-  constructor (private port: number, public clients: Client[] = [], public players: Player[] = []) {
+  private ip: string
+
+  private port: number
+
+  private name: string
+
+  private domain: string
+
+  private description: string
+
+  private countryCode: string
+  
+  constructor (
+    { port, name, domain, description }: Settings,
+    { ip, countryCode }: Server
+  ) {
+    this.ip = ip
+    this.port = port
+    this.name = name
+    this.domain = domain
+    this.description = description
+    this.countryCode = countryCode
     this.onConnection = this.onConnection.bind(this)
     this.init()
   }
@@ -72,13 +100,20 @@ export class WebSocketServer {
         messageType: ServerClient.MessageType.HANDSHAKE,
         handshake: {
           playerId: client.id,
+          ip: this.ip,
+          port: this.port,
+          domain: this.domain,
+          name: this.name,
+          description: this.description,
+          countryCode: this.countryCode,
+          gameMode: GameModeType.DEFAULT, // TODO
           playerList: {
             playerUpdates: this.players.filter(player => player).map(player => ({
               player: {
-                username: client!.player!.username,
-                characterId: client!.player!.characterId
+                username: player.username,
+                characterId: player.characterId
               },
-              playerId: client.id
+              playerId: player.client.id
             }))
           }
         }
@@ -96,8 +131,7 @@ export class WebSocketServer {
         serverMessage: {
           messageType: ServerMessage.MessageType.SERVER_TOKEN,
           serverToken: {
-            tokenType: tokenType ? ServerToken.TokenType.GRANT : ServerToken.TokenType.LOSE,
-            signature: ''
+            tokenType: tokenType ? ServerToken.TokenType.GRANT : ServerToken.TokenType.LOSE
           }
         }
       }

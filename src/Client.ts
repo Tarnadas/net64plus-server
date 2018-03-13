@@ -133,8 +133,8 @@ export class Client {
         return
       }
       this.player = new Player(this, handshake!.username!, handshake!.characterId!)
-      this.sendHandshake()
       webSocketServer.addPlayer(this.player)
+      this.sendHandshake()
     } catch (err) {
       console.error(err)
     }

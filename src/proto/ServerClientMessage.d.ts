@@ -274,11 +274,29 @@ export interface IServerHandshake {
     /** ServerHandshake playerId */
     playerId?: (number|null);
 
-    /** ServerHandshake gameMode */
-    gameMode?: (IGameMode|null);
+    /** ServerHandshake ip */
+    ip?: (string|null);
+
+    /** ServerHandshake port */
+    port?: (number|null);
+
+    /** ServerHandshake domain */
+    domain?: (string|null);
+
+    /** ServerHandshake name */
+    name?: (string|null);
+
+    /** ServerHandshake description */
+    description?: (string|null);
 
     /** ServerHandshake playerList */
     playerList?: (IPlayerListUpdate|null);
+
+    /** ServerHandshake countryCode */
+    countryCode?: (string|null);
+
+    /** ServerHandshake gameMode */
+    gameMode?: (GameModeType|null);
 }
 
 /** Represents a ServerHandshake. */
@@ -293,11 +311,29 @@ export class ServerHandshake implements IServerHandshake {
     /** ServerHandshake playerId. */
     public playerId: number;
 
-    /** ServerHandshake gameMode. */
-    public gameMode?: (IGameMode|null);
+    /** ServerHandshake ip. */
+    public ip: string;
+
+    /** ServerHandshake port. */
+    public port: number;
+
+    /** ServerHandshake domain. */
+    public domain: string;
+
+    /** ServerHandshake name. */
+    public name: string;
+
+    /** ServerHandshake description. */
+    public description: string;
 
     /** ServerHandshake playerList. */
     public playerList?: (IPlayerListUpdate|null);
+
+    /** ServerHandshake countryCode. */
+    public countryCode: string;
+
+    /** ServerHandshake gameMode. */
+    public gameMode: GameModeType;
 
     /**
      * Creates a new ServerHandshake instance using the specified properties.
@@ -374,7 +410,7 @@ export class ServerHandshake implements IServerHandshake {
 export interface IGameMode {
 
     /** GameMode gameMode */
-    gameMode?: (GameMode.GameModeType|null);
+    gameMode?: (GameModeType|null);
 }
 
 /** Represents a GameMode. */
@@ -387,7 +423,7 @@ export class GameMode implements IGameMode {
     constructor(properties?: IGameMode);
 
     /** GameMode gameMode. */
-    public gameMode: GameMode.GameModeType;
+    public gameMode: GameModeType;
 
     /**
      * Creates a new GameMode instance using the specified properties.
@@ -460,19 +496,16 @@ export class GameMode implements IGameMode {
     public toJSON(): { [k: string]: any };
 }
 
-export namespace GameMode {
-
-    /** GameModeType enum. */
-    enum GameModeType {
-        NONE = 0,
-        DEFAULT = 1,
-        THIRD_PERSON_SHOOTER = 2,
-        INTERACTIONLESS = 3,
-        PROP_HUNT = 4,
-        BOSS_RUSH = 5,
-        TAG = 6,
-        WARIO_WARE = 8
-    }
+/** GameModeType enum. */
+export enum GameModeType {
+    NONE = 0,
+    DEFAULT = 1,
+    THIRD_PERSON_SHOOTER = 2,
+    INTERACTIONLESS = 3,
+    PROP_HUNT = 4,
+    BOSS_RUSH = 5,
+    TAG = 6,
+    WARIO_WARE = 8
 }
 
 /** Properties of a PlayerUpdate. */
@@ -974,9 +1007,6 @@ export interface IServerToken {
 
     /** ServerToken tokenType */
     tokenType?: (ServerToken.TokenType|null);
-
-    /** ServerToken signature */
-    signature?: (string|null);
 }
 
 /** Represents a ServerToken. */
@@ -990,9 +1020,6 @@ export class ServerToken implements IServerToken {
 
     /** ServerToken tokenType. */
     public tokenType: ServerToken.TokenType;
-
-    /** ServerToken signature. */
-    public signature: string;
 
     /**
      * Creates a new ServerToken instance using the specified properties.

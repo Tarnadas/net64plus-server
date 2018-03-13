@@ -870,8 +870,14 @@ $root.ServerHandshake = (function() {
      * @exports IServerHandshake
      * @interface IServerHandshake
      * @property {number|null} [playerId] ServerHandshake playerId
-     * @property {IGameMode|null} [gameMode] ServerHandshake gameMode
+     * @property {string|null} [ip] ServerHandshake ip
+     * @property {number|null} [port] ServerHandshake port
+     * @property {string|null} [domain] ServerHandshake domain
+     * @property {string|null} [name] ServerHandshake name
+     * @property {string|null} [description] ServerHandshake description
      * @property {IPlayerListUpdate|null} [playerList] ServerHandshake playerList
+     * @property {string|null} [countryCode] ServerHandshake countryCode
+     * @property {GameModeType|null} [gameMode] ServerHandshake gameMode
      */
 
     /**
@@ -898,12 +904,44 @@ $root.ServerHandshake = (function() {
     ServerHandshake.prototype.playerId = 0;
 
     /**
-     * ServerHandshake gameMode.
-     * @member {IGameMode|null|undefined} gameMode
+     * ServerHandshake ip.
+     * @member {string} ip
      * @memberof ServerHandshake
      * @instance
      */
-    ServerHandshake.prototype.gameMode = null;
+    ServerHandshake.prototype.ip = "";
+
+    /**
+     * ServerHandshake port.
+     * @member {number} port
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.port = 0;
+
+    /**
+     * ServerHandshake domain.
+     * @member {string} domain
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.domain = "";
+
+    /**
+     * ServerHandshake name.
+     * @member {string} name
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.name = "";
+
+    /**
+     * ServerHandshake description.
+     * @member {string} description
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.description = "";
 
     /**
      * ServerHandshake playerList.
@@ -912,6 +950,22 @@ $root.ServerHandshake = (function() {
      * @instance
      */
     ServerHandshake.prototype.playerList = null;
+
+    /**
+     * ServerHandshake countryCode.
+     * @member {string} countryCode
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.countryCode = "";
+
+    /**
+     * ServerHandshake gameMode.
+     * @member {GameModeType} gameMode
+     * @memberof ServerHandshake
+     * @instance
+     */
+    ServerHandshake.prototype.gameMode = 0;
 
     /**
      * Creates a new ServerHandshake instance using the specified properties.
@@ -939,10 +993,22 @@ $root.ServerHandshake = (function() {
             writer = $Writer.create();
         if (message.playerId != null && message.hasOwnProperty("playerId"))
             writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.playerId);
-        if (message.gameMode != null && message.hasOwnProperty("gameMode"))
-            $root.GameMode.encode(message.gameMode, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        if (message.ip != null && message.hasOwnProperty("ip"))
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.ip);
+        if (message.port != null && message.hasOwnProperty("port"))
+            writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.port);
+        if (message.domain != null && message.hasOwnProperty("domain"))
+            writer.uint32(/* id 4, wireType 2 =*/34).string(message.domain);
+        if (message.name != null && message.hasOwnProperty("name"))
+            writer.uint32(/* id 5, wireType 2 =*/42).string(message.name);
+        if (message.description != null && message.hasOwnProperty("description"))
+            writer.uint32(/* id 6, wireType 2 =*/50).string(message.description);
         if (message.playerList != null && message.hasOwnProperty("playerList"))
-            $root.PlayerListUpdate.encode(message.playerList, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            $root.PlayerListUpdate.encode(message.playerList, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+        if (message.countryCode != null && message.hasOwnProperty("countryCode"))
+            writer.uint32(/* id 8, wireType 2 =*/66).string(message.countryCode);
+        if (message.gameMode != null && message.hasOwnProperty("gameMode"))
+            writer.uint32(/* id 9, wireType 0 =*/72).int32(message.gameMode);
         return writer;
     };
 
@@ -981,10 +1047,28 @@ $root.ServerHandshake = (function() {
                 message.playerId = reader.uint32();
                 break;
             case 2:
-                message.gameMode = $root.GameMode.decode(reader, reader.uint32());
+                message.ip = reader.string();
                 break;
             case 3:
+                message.port = reader.uint32();
+                break;
+            case 4:
+                message.domain = reader.string();
+                break;
+            case 5:
+                message.name = reader.string();
+                break;
+            case 6:
+                message.description = reader.string();
+                break;
+            case 7:
                 message.playerList = $root.PlayerListUpdate.decode(reader, reader.uint32());
+                break;
+            case 8:
+                message.countryCode = reader.string();
+                break;
+            case 9:
+                message.gameMode = reader.int32();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -1024,16 +1108,43 @@ $root.ServerHandshake = (function() {
         if (message.playerId != null && message.hasOwnProperty("playerId"))
             if (!$util.isInteger(message.playerId))
                 return "playerId: integer expected";
-        if (message.gameMode != null && message.hasOwnProperty("gameMode")) {
-            var error = $root.GameMode.verify(message.gameMode);
-            if (error)
-                return "gameMode." + error;
-        }
+        if (message.ip != null && message.hasOwnProperty("ip"))
+            if (!$util.isString(message.ip))
+                return "ip: string expected";
+        if (message.port != null && message.hasOwnProperty("port"))
+            if (!$util.isInteger(message.port))
+                return "port: integer expected";
+        if (message.domain != null && message.hasOwnProperty("domain"))
+            if (!$util.isString(message.domain))
+                return "domain: string expected";
+        if (message.name != null && message.hasOwnProperty("name"))
+            if (!$util.isString(message.name))
+                return "name: string expected";
+        if (message.description != null && message.hasOwnProperty("description"))
+            if (!$util.isString(message.description))
+                return "description: string expected";
         if (message.playerList != null && message.hasOwnProperty("playerList")) {
             var error = $root.PlayerListUpdate.verify(message.playerList);
             if (error)
                 return "playerList." + error;
         }
+        if (message.countryCode != null && message.hasOwnProperty("countryCode"))
+            if (!$util.isString(message.countryCode))
+                return "countryCode: string expected";
+        if (message.gameMode != null && message.hasOwnProperty("gameMode"))
+            switch (message.gameMode) {
+            default:
+                return "gameMode: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 8:
+                break;
+            }
         return null;
     };
 
@@ -1051,15 +1162,56 @@ $root.ServerHandshake = (function() {
         var message = new $root.ServerHandshake();
         if (object.playerId != null)
             message.playerId = object.playerId >>> 0;
-        if (object.gameMode != null) {
-            if (typeof object.gameMode !== "object")
-                throw TypeError(".ServerHandshake.gameMode: object expected");
-            message.gameMode = $root.GameMode.fromObject(object.gameMode);
-        }
+        if (object.ip != null)
+            message.ip = String(object.ip);
+        if (object.port != null)
+            message.port = object.port >>> 0;
+        if (object.domain != null)
+            message.domain = String(object.domain);
+        if (object.name != null)
+            message.name = String(object.name);
+        if (object.description != null)
+            message.description = String(object.description);
         if (object.playerList != null) {
             if (typeof object.playerList !== "object")
                 throw TypeError(".ServerHandshake.playerList: object expected");
             message.playerList = $root.PlayerListUpdate.fromObject(object.playerList);
+        }
+        if (object.countryCode != null)
+            message.countryCode = String(object.countryCode);
+        switch (object.gameMode) {
+        case "NONE":
+        case 0:
+            message.gameMode = 0;
+            break;
+        case "DEFAULT":
+        case 1:
+            message.gameMode = 1;
+            break;
+        case "THIRD_PERSON_SHOOTER":
+        case 2:
+            message.gameMode = 2;
+            break;
+        case "INTERACTIONLESS":
+        case 3:
+            message.gameMode = 3;
+            break;
+        case "PROP_HUNT":
+        case 4:
+            message.gameMode = 4;
+            break;
+        case "BOSS_RUSH":
+        case 5:
+            message.gameMode = 5;
+            break;
+        case "TAG":
+        case 6:
+            message.gameMode = 6;
+            break;
+        case "WARIO_WARE":
+        case 8:
+            message.gameMode = 8;
+            break;
         }
         return message;
     };
@@ -1079,15 +1231,33 @@ $root.ServerHandshake = (function() {
         var object = {};
         if (options.defaults) {
             object.playerId = 0;
-            object.gameMode = null;
+            object.ip = "";
+            object.port = 0;
+            object.domain = "";
+            object.name = "";
+            object.description = "";
             object.playerList = null;
+            object.countryCode = "";
+            object.gameMode = options.enums === String ? "NONE" : 0;
         }
         if (message.playerId != null && message.hasOwnProperty("playerId"))
             object.playerId = message.playerId;
-        if (message.gameMode != null && message.hasOwnProperty("gameMode"))
-            object.gameMode = $root.GameMode.toObject(message.gameMode, options);
+        if (message.ip != null && message.hasOwnProperty("ip"))
+            object.ip = message.ip;
+        if (message.port != null && message.hasOwnProperty("port"))
+            object.port = message.port;
+        if (message.domain != null && message.hasOwnProperty("domain"))
+            object.domain = message.domain;
+        if (message.name != null && message.hasOwnProperty("name"))
+            object.name = message.name;
+        if (message.description != null && message.hasOwnProperty("description"))
+            object.description = message.description;
         if (message.playerList != null && message.hasOwnProperty("playerList"))
             object.playerList = $root.PlayerListUpdate.toObject(message.playerList, options);
+        if (message.countryCode != null && message.hasOwnProperty("countryCode"))
+            object.countryCode = message.countryCode;
+        if (message.gameMode != null && message.hasOwnProperty("gameMode"))
+            object.gameMode = options.enums === String ? $root.GameModeType[message.gameMode] : message.gameMode;
         return object;
     };
 
@@ -1111,7 +1281,7 @@ $root.GameMode = (function() {
      * Properties of a GameMode.
      * @exports IGameMode
      * @interface IGameMode
-     * @property {GameMode.GameModeType|null} [gameMode] GameMode gameMode
+     * @property {GameModeType|null} [gameMode] GameMode gameMode
      */
 
     /**
@@ -1131,7 +1301,7 @@ $root.GameMode = (function() {
 
     /**
      * GameMode gameMode.
-     * @member {GameMode.GameModeType} gameMode
+     * @member {GameModeType} gameMode
      * @memberof GameMode
      * @instance
      */
@@ -1317,7 +1487,7 @@ $root.GameMode = (function() {
         if (options.defaults)
             object.gameMode = options.enums === String ? "NONE" : 0;
         if (message.gameMode != null && message.hasOwnProperty("gameMode"))
-            object.gameMode = options.enums === String ? $root.GameMode.GameModeType[message.gameMode] : message.gameMode;
+            object.gameMode = options.enums === String ? $root.GameModeType[message.gameMode] : message.gameMode;
         return object;
     };
 
@@ -1332,33 +1502,33 @@ $root.GameMode = (function() {
         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
     };
 
-    /**
-     * GameModeType enum.
-     * @name GameMode.GameModeType
-     * @enum {string}
-     * @property {number} NONE=0 NONE value
-     * @property {number} DEFAULT=1 DEFAULT value
-     * @property {number} THIRD_PERSON_SHOOTER=2 THIRD_PERSON_SHOOTER value
-     * @property {number} INTERACTIONLESS=3 INTERACTIONLESS value
-     * @property {number} PROP_HUNT=4 PROP_HUNT value
-     * @property {number} BOSS_RUSH=5 BOSS_RUSH value
-     * @property {number} TAG=6 TAG value
-     * @property {number} WARIO_WARE=8 WARIO_WARE value
-     */
-    GameMode.GameModeType = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[0] = "NONE"] = 0;
-        values[valuesById[1] = "DEFAULT"] = 1;
-        values[valuesById[2] = "THIRD_PERSON_SHOOTER"] = 2;
-        values[valuesById[3] = "INTERACTIONLESS"] = 3;
-        values[valuesById[4] = "PROP_HUNT"] = 4;
-        values[valuesById[5] = "BOSS_RUSH"] = 5;
-        values[valuesById[6] = "TAG"] = 6;
-        values[valuesById[8] = "WARIO_WARE"] = 8;
-        return values;
-    })();
-
     return GameMode;
+})();
+
+/**
+ * GameModeType enum.
+ * @exports GameModeType
+ * @enum {string}
+ * @property {number} NONE=0 NONE value
+ * @property {number} DEFAULT=1 DEFAULT value
+ * @property {number} THIRD_PERSON_SHOOTER=2 THIRD_PERSON_SHOOTER value
+ * @property {number} INTERACTIONLESS=3 INTERACTIONLESS value
+ * @property {number} PROP_HUNT=4 PROP_HUNT value
+ * @property {number} BOSS_RUSH=5 BOSS_RUSH value
+ * @property {number} TAG=6 TAG value
+ * @property {number} WARIO_WARE=8 WARIO_WARE value
+ */
+$root.GameModeType = (function() {
+    var valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "NONE"] = 0;
+    values[valuesById[1] = "DEFAULT"] = 1;
+    values[valuesById[2] = "THIRD_PERSON_SHOOTER"] = 2;
+    values[valuesById[3] = "INTERACTIONLESS"] = 3;
+    values[valuesById[4] = "PROP_HUNT"] = 4;
+    values[valuesById[5] = "BOSS_RUSH"] = 5;
+    values[valuesById[6] = "TAG"] = 6;
+    values[valuesById[8] = "WARIO_WARE"] = 8;
+    return values;
 })();
 
 $root.PlayerUpdate = (function() {
@@ -2538,7 +2708,6 @@ $root.ServerToken = (function() {
      * @exports IServerToken
      * @interface IServerToken
      * @property {ServerToken.TokenType|null} [tokenType] ServerToken tokenType
-     * @property {string|null} [signature] ServerToken signature
      */
 
     /**
@@ -2563,14 +2732,6 @@ $root.ServerToken = (function() {
      * @instance
      */
     ServerToken.prototype.tokenType = 0;
-
-    /**
-     * ServerToken signature.
-     * @member {string} signature
-     * @memberof ServerToken
-     * @instance
-     */
-    ServerToken.prototype.signature = "";
 
     /**
      * Creates a new ServerToken instance using the specified properties.
@@ -2598,8 +2759,6 @@ $root.ServerToken = (function() {
             writer = $Writer.create();
         if (message.tokenType != null && message.hasOwnProperty("tokenType"))
             writer.uint32(/* id 1, wireType 0 =*/8).int32(message.tokenType);
-        if (message.signature != null && message.hasOwnProperty("signature"))
-            writer.uint32(/* id 2, wireType 2 =*/18).string(message.signature);
         return writer;
     };
 
@@ -2636,9 +2795,6 @@ $root.ServerToken = (function() {
             switch (tag >>> 3) {
             case 1:
                 message.tokenType = reader.int32();
-                break;
-            case 2:
-                message.signature = reader.string();
                 break;
             default:
                 reader.skipType(tag & 7);
@@ -2683,9 +2839,6 @@ $root.ServerToken = (function() {
             case 1:
                 break;
             }
-        if (message.signature != null && message.hasOwnProperty("signature"))
-            if (!$util.isString(message.signature))
-                return "signature: string expected";
         return null;
     };
 
@@ -2711,8 +2864,6 @@ $root.ServerToken = (function() {
             message.tokenType = 1;
             break;
         }
-        if (object.signature != null)
-            message.signature = String(object.signature);
         return message;
     };
 
@@ -2729,14 +2880,10 @@ $root.ServerToken = (function() {
         if (!options)
             options = {};
         var object = {};
-        if (options.defaults) {
+        if (options.defaults)
             object.tokenType = options.enums === String ? "GRANT" : 0;
-            object.signature = "";
-        }
         if (message.tokenType != null && message.hasOwnProperty("tokenType"))
             object.tokenType = options.enums === String ? $root.ServerToken.TokenType[message.tokenType] : message.tokenType;
-        if (message.signature != null && message.hasOwnProperty("signature"))
-            object.signature = message.signature;
         return object;
     };
 
