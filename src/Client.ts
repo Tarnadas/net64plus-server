@@ -182,7 +182,8 @@ export class Client {
     this.checkRequiredObjects(playerData)
     this.checkRequiredObjects(playerData!.dataLength, playerData!.playerBytes)
     this.checkRequiredObjects(playerData!.playerBytes![0], playerData!.playerBytes![0].playerData)
-    this.player.playerData = playerData!.playerBytes![0].playerData!
+    if (playerData!.playerBytes![0].playerData![3] !== this.id) return
+    this.player.playerData = new Uint8Array(playerData!.playerBytes![0].playerData!)
   }
 
   private onMetaData (messageData: IClientServer) {
