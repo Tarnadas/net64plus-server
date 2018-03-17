@@ -162,11 +162,12 @@ export class WebSocketServer {
         messageType: ServerClient.MessageType.PLAYER_DATA,
         playerData: {
           dataLength: 0x1C,
-          playerLength: this.players.filter(player => player).length,
-          playerData: this.players
+          playerBytes: this.players
             .filter(player => player && player.playerData[3] !== 0)
-            .map(player => player.playerData)
-            .reduce((concatenated, buffer) => new Uint8Array([...concatenated, ...buffer]), new Uint8Array())
+            .map(player => ({
+              playerId: player.client.id,
+              playerData: player.playerData
+            }))
         }
       }
     }

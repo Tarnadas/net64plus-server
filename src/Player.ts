@@ -19,7 +19,7 @@ export class Player {
 
   constructor (public client: Client, public username: string, characterId: number) {
     this.characterId = characterId
-    this.playerData = Buffer.alloc(0x18)
+    this.playerData = Buffer.alloc(0x1C)
     this.toJSON = this.toJSON
   }
 

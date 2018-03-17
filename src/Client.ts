@@ -180,8 +180,9 @@ export class Client {
     if (!this.player) return
     const playerData = messageData.playerData
     this.checkRequiredObjects(playerData)
-    this.checkRequiredObjects(playerData!.dataLength, playerData!.playerData)
-    this.player.playerData = playerData!.playerData!
+    this.checkRequiredObjects(playerData!.dataLength, playerData!.playerBytes)
+    this.checkRequiredObjects(playerData!.playerBytes![0], playerData!.playerBytes![0].playerData)
+    this.player.playerData = playerData!.playerBytes![0].playerData!
   }
 
   private onMetaData (messageData: IClientServer) {
