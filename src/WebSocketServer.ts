@@ -22,16 +22,16 @@ import {
   GameModeType
 } from './proto/ServerClientMessage'
 
-let Server: typeof WebSocket.Server
+let WSServer: typeof WebSocket.Server
 if (process.env.TARGET_ENV === 'win32') {
-  Server = require('../compile/uws').Server
+  WSServer = require('../compile/uws').Server
 } else {
-  Server = require('uws').Server
+  WSServer = require('uws').Server
 }
 
 export class WebSocketServer {
   public clients: Client[] = []
-  
+
   public players: Player[] = []
 
   private server?: WebSocket.Server
@@ -51,7 +51,7 @@ export class WebSocketServer {
   private description: string
 
   private countryCode: string
-  
+
   constructor (
     { port, name, domain, description }: Settings,
     { ip, countryCode }: Server
@@ -67,7 +67,7 @@ export class WebSocketServer {
   }
 
   private init (): void {
-    this.server = new Server({ port: this.port }, () => {
+    this.server = new WSServer({ port: this.port }, () => {
       console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
       if (process.env.TARGET_ENV === 'win32') {
         console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
