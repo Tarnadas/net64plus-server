@@ -5,6 +5,7 @@ import * as zlib from 'zlib'
 import { Client } from './Client'
 import { Player } from './Player'
 import { MetaData } from './MetaData'
+import { Command } from './Command'
 import { ConnectionError } from './models/Connection.model'
 import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
@@ -34,9 +35,13 @@ export class WebSocketServer {
 
   public players: Player[] = []
 
+  public gameMode = 1;
+
   private server?: WebSocket.Server
 
   private metaData: MetaData = new MetaData()
+
+  private command: Command = new Command()
 
   private tokenHolder?: Player // TODO
 
@@ -106,7 +111,7 @@ export class WebSocketServer {
           name: this.name,
           description: this.description,
           countryCode: this.countryCode,
-          gameMode: GameModeType.DEFAULT, // TODO
+          gameMode: this.gameMode,
           playerList: {
             playerUpdates: this.players.filter(player => player).map(player => ({
               player: {
@@ -138,6 +143,13 @@ export class WebSocketServer {
     }
     const handshakeMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(handshake)).finish()
     client.sendMessage(handshakeMessage)
+  }
+
+  public broadcastMessage (message: Uint8Array): void {
+    for (const i in this.players) {
+      const player = this.players[i]
+      player.client.sendMessage(message)
+    }
   }
 
   public broadcastData (): void {
@@ -235,6 +247,31 @@ export class WebSocketServer {
     }
     const chatMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(chat)).finish()
     this.clients[receiverId].sendMessage(chatMessage)
+  }
+
+  public onCommandChatMessage (client: Client, message: string, args: string[]): void {
+    switch (message) {
+      case 'gamemode':
+        this.command.onGameModeCommand(client, args)
+        break
+      default:
+        this.onUnknownCommand(client)
+    }
+  }
+
+  private onUnknownCommand (client: Client): void {
+    const unknownCommand: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.CHAT,
+        chat: {
+          chatType: Chat.ChatType.COMMAND,
+          message: 'Unknown command'
+        }
+      }
+    }
+    const unknownCommandMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(unknownCommand)).finish()
+    client.sendMessage(unknownCommandMessage)
   }
 
   public grantNewServerToken (): void {

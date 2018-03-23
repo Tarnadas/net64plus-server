@@ -11,7 +11,7 @@
     "build:compile": "webpack --env=compile",
     "compile": "npm run build && nexe ./dist",
     "nexe": "npm run build:compile && node ./build",
-    "test": "mocha"
+    "test": "jest spec"
   },
   "repository": {
     "type": "git",
@@ -33,6 +33,25 @@
     "url": "https://github.com/Tarnadas/net64plus-ded/issues"
   },
   "homepage": "https://github.com/Tarnadas/net64plus-ded#readme",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{ts,tsx}",
+      "!**/*.{d,model}.{ts,tsx}"
+    ]
+  },
   "dependencies": {
     "axios": "^0.17.1",
     "farmhash": "^2.0.5",
@@ -40,6 +59,7 @@
     "uws": "^9.14.0"
   },
   "devDependencies": {
+    "@types/jest": "^22.2.0",
     "@types/uws": "^0.13.1",
     "awesome-typescript-loader": "^3.4.1",
     "babel-core": "^6.26.0",

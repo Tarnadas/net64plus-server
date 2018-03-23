@@ -11,8 +11,10 @@ import { Server } from './models/Server.model'
 const UPDATE_INTERVAL = 128
 const URL_IP_API = 'http://freegeoip.net/json/'
 
-export let gameMode = 1
 export let webSocketServer: WebSocketServer
+export const setWebSocketServer = (server: WebSocketServer) => {
+  webSocketServer = server
+}
 
 let settings = DEFAULT_SETTINGS
 if (process.env.TARGET_ENV !== 'win32') {
@@ -52,7 +54,7 @@ const init = async () => {
     }
     const webHook = new WebHook(settings, serverData)
   }
-  
+
   let performRestart = false
   const main = () => {
     if (performRestart) {
@@ -64,7 +66,6 @@ const init = async () => {
   }
   setInterval(main, UPDATE_INTERVAL)
 })()
-
 
 /* process.on('uncaughtException', (err: Error) => {
   performRestart = true

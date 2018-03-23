@@ -208,6 +208,11 @@ export class Client {
         this.checkRequiredObjects(chat!.private!.receiverId)
         this.server.onPrivateChatMessage(this, chat!.message!, chat!.private!.receiverId!)
         break
+      case Chat.ChatType.COMMAND:
+        this.checkRequiredObjects(chat!.command)
+        this.checkRequiredObjects(chat!.command!.arguments)
+        this.server.onCommandChatMessage(this, chat!.message!, chat!.command!.arguments!)
+        break
     }
   }
 
