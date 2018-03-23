@@ -1,4 +1,6 @@
 import { webSocketServer } from '.'
+import { Client } from './Client'
+import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMessage } from './proto/ServerClientMessage'
 
 export class Vote {
   public static lastVotes: {[key: string]: number} = {}
@@ -28,11 +30,24 @@ export class Vote {
     this.onSuccess(winners[Math.floor(Math.random() * winners.length)])
   }
 
-  public acceptVote (clientId: number, vote: number): void {
+  public acceptVote (client: Client, vote: number): void {
+    const clientId = client.id
     if (this.clientsAlreadyVoted.includes(clientId)) return
+    const command: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.CHAT,
+        chat: {
+          chatType: Chat.ChatType.COMMAND,
+          message: 'Vote accepted!'
+        }
+      }
+    }
+    const commandMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(command)).finish()
+    client.sendMessage(commandMessage)
     this.clientsAlreadyVoted.push(clientId)
     this.votes[vote] = (this.votes[vote] || 0) + 1
-    const clientsWithoutVotes = webSocketServer.clients.length - this.clientsAlreadyVoted.length
+    const clientsWithoutVotes = webSocketServer.clients.filter(client => client).length - this.clientsAlreadyVoted.length
     if (clientsWithoutVotes === 0) {
       this.onVoteEnd()
       clearTimeout(this.timer)

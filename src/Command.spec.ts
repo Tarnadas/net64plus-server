@@ -1,4 +1,4 @@
-import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE } from './Command'
+import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE } from './Command'
 import { webSocketServer, setWebSocketServer } from '.'
 import { Client } from './Client'
 import { Vote } from './Vote'
@@ -28,6 +28,7 @@ describe('Command', () => {
       clients: [],
       broadcastMessage: jest.fn()
     } as any)
+    addMockClient(undefined as any)
     console.info = jest.fn()
     command = new Command()
     Vote.lastVotes = {}
@@ -58,6 +59,7 @@ describe('Command', () => {
       expect(webSocketServer.broadcastMessage).toHaveBeenCalledWith(expectedMessage)
       expect(webSocketServer.gameMode).toEqual(1)
     })
+
     it('should change game mode after all clients voted', () => {
       const mockClient0: Client = new ClientMock(1, {}, {}) as any
       addMockClient(mockClient0)
@@ -201,6 +203,25 @@ describe('Command', () => {
           chat: {
             chatType: Chat.ChatType.COMMAND,
             message: TOO_MANY_ARGS_MESSAGE
+          }
+        }
+      }
+      const expectedMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(message)).finish()
+
+      expect(mockClient.sendMessage).toHaveBeenCalledWith(expectedMessage)
+    })
+
+    it('should not work, if gamemode is already running', () => {
+      webSocketServer.gameMode = 1
+      const mockClient: Client = new ClientMock(1, {}, {}) as any
+      command.onGameModeCommand(mockClient, ['1'])
+      const message: IServerClientMessage = {
+        compression: Compression.NONE,
+        data: {
+          messageType: ServerClient.MessageType.CHAT,
+          chat: {
+            chatType: Chat.ChatType.COMMAND,
+            message: GAMEMODE_ALREADY_RUNNING_MESSAGE
           }
         }
       }
