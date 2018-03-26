@@ -23,7 +23,12 @@ export const GAMEMODE_ALREADY_RUNNING_MESSAGE = 'Gamemode is already running.'
 export class Command {
   private votesInProgress: {[key: string]: Vote} = {}
 
+  // eslint-disable-next-line no-useless-constructor
+  constructor (private enableGamemodeVote: boolean) {
+  }
+
   public onGameModeCommand (client: Client, args: string[]): void {
+    if (!this.enableGamemodeVote) return
     if (args.length === 0) {
       this.sendUsageMessage(client)
       return

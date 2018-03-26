@@ -1,6 +1,8 @@
 {
   "port": 3678,
   "enableWebHook": false,
+  "gamemode": 1,
+  "enableGamemodeVote": true,
   "name": "A Net64+ Server",
   "domain": "",
   "description": "The **best** Net64+ server ever\n\n:unicorn_face:",

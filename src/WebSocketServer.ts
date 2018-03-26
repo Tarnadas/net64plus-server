@@ -35,13 +35,13 @@ export class WebSocketServer {
 
   public players: Player[] = []
 
-  public gameMode = 1;
+  public gameMode: number;
 
   private server?: WebSocket.Server
 
   private metaData: MetaData = new MetaData()
 
-  private command: Command = new Command()
+  private command: Command
 
   private tokenHolder?: Player // TODO
 
@@ -58,15 +58,17 @@ export class WebSocketServer {
   private countryCode: string
 
   constructor (
-    { port, name, domain, description }: Settings,
+    { port, gamemode, enableGamemodeVote, name, domain, description }: Settings,
     { ip, countryCode }: Server
   ) {
+    this.gameMode = gamemode
     this.ip = ip
     this.port = port
     this.name = name
     this.domain = domain
     this.description = description
     this.countryCode = countryCode
+    this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
     this.init()
   }

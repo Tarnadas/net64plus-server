@@ -30,11 +30,19 @@ describe('Command', () => {
     } as any)
     addMockClient(undefined as any)
     console.info = jest.fn()
-    command = new Command()
+    command = new Command(true)
     Vote.lastVotes = {}
   })
 
   describe('.onGameModeCommand', () => {
+    it('should be disabled, if enableGamemodeVote is false', () => {
+      command = new Command(false)
+      const mockClient: Client = new ClientMock(1, {}, {}) as any
+      addMockClient(mockClient)
+      command.onGameModeCommand(mockClient, ['1'])
+      expect(webSocketServer.broadcastMessage).not.toHaveBeenCalled()
+    })
+
     it('should change game mode after vote has passed', () => {
       const mockClient0: Client = new ClientMock(1, {}, {}) as any
       addMockClient(mockClient0)
