@@ -17,18 +17,22 @@ export default class Client {
   }
 
   onMessage (msg) {
-    const bytes = new Uint8Array(msg)
-    if (bytes[0] === PACKET_TYPE.PING) {
-      // just send it back
-      this.ws.send(msg)
-    } else if (bytes[0] === PACKET_TYPE.CHAT_MESSAGE) {
-      this.onChatMessage(msg)
-    } else if (bytes[0] === PACKET_TYPE.HANDSHAKE) {
-      this.onHandshake(msg)
-    } else if (bytes[0] === PACKET_TYPE.PLAYER_DATA) {
-      this.onPlayerData(msg)
-    } else if (bytes[0] === PACKET_TYPE.CHARACTER_SWITCH) {
-      this.onCharacterSwitch(msg)
+    try {
+      const bytes = new Uint8Array(msg)
+      if (bytes[0] === PACKET_TYPE.PING) {
+        // just send it back
+        this.ws.send(msg)
+      } else if (bytes[0] === PACKET_TYPE.CHAT_MESSAGE) {
+        this.onChatMessage(msg)
+      } else if (bytes[0] === PACKET_TYPE.HANDSHAKE) {
+        this.onHandshake(msg)
+      } else if (bytes[0] === PACKET_TYPE.PLAYER_DATA) {
+        this.onPlayerData(msg)
+      } else if (bytes[0] === PACKET_TYPE.CHARACTER_SWITCH) {
+        this.onCharacterSwitch(msg)
+      }
+    } catch (err) {
+      console.error(err)
     }
   }
 
