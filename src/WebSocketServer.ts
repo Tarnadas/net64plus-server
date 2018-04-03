@@ -70,10 +70,6 @@ export class WebSocketServer {
     this.countryCode = countryCode
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
-    this.init()
-  }
-
-  private init (): void {
     this.server = new WSServer({ port: this.port }, () => {
       console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
       if (process.env.TARGET_ENV === 'win32') {
@@ -85,12 +81,6 @@ export class WebSocketServer {
     this.metaData = new MetaData()
     this.clients = []
     this.players = []
-  }
-
-  public restart (): void {
-    this.server!.close()
-    delete this.server
-    this.init()
   }
 
   public addPlayer (player: Player): void {
@@ -312,7 +302,7 @@ export class WebSocketServer {
     if (process.env.NODE_ENV === 'development') {
       console.info(`A new client connected and received ID: ${id}`)
     }
-    this.clients[id] = new Client(id, this, ws)
+    this.clients[id] = new Client(id, ws)
     const activeUsers = this.clients.filter(client => client).length
     console.info(`Active users: ${activeUsers}/24`)
   }

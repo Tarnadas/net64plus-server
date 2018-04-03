@@ -12,9 +12,6 @@ const UPDATE_INTERVAL = 128
 const URL_IP_API = 'http://freegeoip.net/json/'
 
 export let webSocketServer: WebSocketServer
-export const setWebSocketServer = (server: WebSocketServer) => {
-  webSocketServer = server
-}
 
 let settings = DEFAULT_SETTINGS
 if (process.env.TARGET_ENV !== 'win32') {
@@ -55,19 +52,13 @@ const init = async () => {
     const webHook = new WebHook(settings, serverData)
   }
 
-  let performRestart = false
   const main = () => {
-    if (performRestart) {
-      webSocketServer.restart()
-      performRestart = false
-      return
-    }
     webSocketServer.broadcastData()
   }
   setInterval(main, UPDATE_INTERVAL)
 })()
 
-/* process.on('uncaughtException', (err: Error) => {
-  performRestart = true
+process.on('uncaughtException', (err: Error) => {
   console.warn(`An unexpected error occured and the server is performing an automatic restart. Please report this issue:\n\n${err}`)
-}) */
+  process.exit(1)
+})

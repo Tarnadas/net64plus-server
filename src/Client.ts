@@ -9,15 +9,25 @@ import {
 } from './proto/ServerClientMessage'
 import { ClientServerMessage, ClientServer, IClientServer, IClientHandshake, Compression, Chat } from './proto/ClientServerMessage'
 
+export const CONNECTION_TIMEOUT = 10000
+
 export class Client {
   public player?: Player
 
-  constructor (public id: number, private server: WebSocketServer, private ws: WebSocket) {
+  private connectionTimeout?: NodeJS.Timer
+
+  constructor (public id: number, private ws: WebSocket) {
     this.id = id
-    this.server = server
     this.ws = ws
-    ws.on('close', this.onDisconnect.bind(this, server))
+    ws.on('close', this.onDisconnect.bind(this))
     ws.on('message', this.onMessage.bind(this))
+    this.connectionTimeout = setTimeout(() => {
+      this.connectionTimeout = undefined
+      this.onDisconnect()
+      if (process.env.NODE_ENV === 'development') {
+        console.info('A player timed out on handshake')
+      }
+    }, CONNECTION_TIMEOUT)
   }
 
   public sendMessage (message: Uint8Array): void {
@@ -27,21 +37,20 @@ export class Client {
   }
 
   private sendHandshake (): void {
-    this.server.sendHandshake(this)
+    webSocketServer.sendHandshake(this)
   }
 
-  private onDisconnect (server: WebSocketServer): void {
-    if (webSocketServer !== server) return
+  private onDisconnect (): void {
     let shouldGrantNewToken = false
-    if (this.player && this.server.players[this.id] === this.player) {
+    if (this.player && webSocketServer.players[this.id] === this.player) {
       shouldGrantNewToken = true
     }
-    delete this.server.clients[this.id]
-    delete this.server.players[this.id]
+    delete webSocketServer.clients[this.id]
+    delete webSocketServer.players[this.id]
     if (shouldGrantNewToken) {
-      this.server.grantNewServerToken()
+      webSocketServer.grantNewServerToken()
     }
-    const activeUsers = this.server.clients.filter(client => client).length
+    const activeUsers = webSocketServer.clients.filter(client => client).length
     console.info(`Active users: ${activeUsers}/24`)
   }
 
@@ -177,6 +186,10 @@ export class Client {
   }
 
   private onPlayerData (messageData: IClientServer) {
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout)
+      this.connectionTimeout = undefined
+    }
     if (!this.player) return
     const playerData = messageData.playerData
     this.checkRequiredObjects(playerData)
@@ -191,7 +204,7 @@ export class Client {
     this.checkRequiredObjects(metaData)
     this.checkRequiredObjects(metaData!.metaData)
     for (const meta of metaData!.metaData!) {
-      this.server.addMeta(meta)
+      webSocketServer.addMeta(meta)
     }
   }
 
@@ -201,17 +214,17 @@ export class Client {
     this.checkRequiredObjects(chat!.message)
     switch (chat!.chatType) {
       case Chat.ChatType.GLOBAL:
-        this.server.onGlobalChatMessage(this, chat!.message!)
+        webSocketServer.onGlobalChatMessage(this, chat!.message!)
         break
       case Chat.ChatType.PRIVATE:
         this.checkRequiredObjects(chat!.private)
         this.checkRequiredObjects(chat!.private!.receiverId)
-        this.server.onPrivateChatMessage(this, chat!.message!, chat!.private!.receiverId!)
+        webSocketServer.onPrivateChatMessage(this, chat!.message!, chat!.private!.receiverId!)
         break
       case Chat.ChatType.COMMAND:
         this.checkRequiredObjects(chat!.command)
         this.checkRequiredObjects(chat!.command!.arguments)
-        this.server.onCommandChatMessage(this, chat!.message!, chat!.command!.arguments!)
+        webSocketServer.onCommandChatMessage(this, chat!.message!, chat!.command!.arguments!)
         break
     }
   }
