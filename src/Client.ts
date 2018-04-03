@@ -1,5 +1,7 @@
 import * as WebSocket from 'uws'
 
+import * as zlib from 'zlib'
+
 import { webSocketServer } from '.'
 import { Player } from './Player'
 import { WebSocketServer } from './WebSocketServer'
@@ -10,6 +12,8 @@ import {
 import { ClientServerMessage, ClientServer, IClientServer, IClientHandshake, Compression, Chat } from './proto/ClientServerMessage'
 
 export const CONNECTION_TIMEOUT = 10000
+
+export const DECOMPRESSION_ERROR = 'Your message could not be decompressed'
 
 export class Client {
   public player?: Player
@@ -60,15 +64,36 @@ export class Client {
    * @param {ArrayBuffer} data - The binary message to handle
    * @throws {Error} Rethrows on internal server error while in production mode, so that it can be handled by a global Error Handler
    */
-  private onMessage (data: ArrayBuffer): void {
+  private async onMessage (data: ArrayBuffer): Promise<void> {
     const buffer = new Uint8Array(data)
     const message = ClientServerMessage.decode(buffer)
-    if (message.compression === Compression.ZSTD) {
-      // TODO compression
+    let messageData: IClientServer | null | undefined
+    try {
+      switch (message.compression) {
+        case Compression.ZSTD:
+          // TODO
+          break
+        case Compression.GZIP:
+          this.checkRequiredObjects(message.compressedData)
+          const uncompressedData = await new Promise<Buffer>((resolve, reject) => {
+            zlib.gunzip(message.compressedData! as Buffer, (err, result) => {
+              if (err) reject(err)
+              resolve(result)
+            })
+          })
+          messageData = ClientServer.decode(uncompressedData)
+          break
+        default:
+          messageData = message.data
+      }
+    } catch (err) {
+      this.sendBadRequest(new ConnectionError(
+        DECOMPRESSION_ERROR,
+        ErrorProto.ErrorType.BAD_REQUEST
+      ))
       return
     }
     try {
-      const messageData = message.data
       this.checkRequiredObjects(messageData)
       switch (messageData!.messageType) {
         case ClientServer.MessageType.HANDSHAKE:
