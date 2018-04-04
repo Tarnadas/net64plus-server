@@ -37,15 +37,14 @@ const init = async () => {
       longitude: res.longitude
     }
   } catch (err) {
-    console.error('It looks like you are offline. The server won\'t be able to start until you have an internet connection.')
-    throw err
+    console.warn('It looks like you are offline. The server will be starting in offline mode')
   }
 }
 
 (async () => {
-  let serverData: Server = await init()
+  let serverData: Server | undefined = await init()
   webSocketServer = new WebSocketServer(settings, serverData)
-  if (settings.enableWebHook) {
+  if (settings.enableWebHook && serverData) {
     if (!settings.apiKey) {
       throw new Error('You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
     }
