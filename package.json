@@ -11,6 +11,7 @@
     "build:compile": "webpack --env=compile",
     "compile": "npm run build && nexe ./dist",
     "nexe": "npm run build:compile && node ./build",
+    "lint": "eslint src/ --ext ts",
     "test": "jest"
   },
   "repository": {

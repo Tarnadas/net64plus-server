@@ -11,6 +11,7 @@
     "indent": "off",
     "indent-legacy": ["error", 2, { "SwitchCase": 1 }],
     "no-triple-slash-reference": "off",
+    "no-useless-constructor": "off",
     "jsdoc/check-param-names": 1,
     "jsdoc/check-tag-names": 1,
     "jsdoc/check-types": 1,
