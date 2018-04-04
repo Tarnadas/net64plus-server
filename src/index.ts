@@ -8,7 +8,7 @@ import { WebHook } from './WebHook'
 import { DEFAULT_SETTINGS } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
-const UPDATE_INTERVAL = 128
+const UPDATE_INTERVAL = 32
 const URL_IP_API = 'http://freegeoip.net/json/'
 
 export let webSocketServer: WebSocketServer
