@@ -13,12 +13,22 @@ import { ClientServerMessage, ClientServer, IClientServer, IClientHandshake, Com
 
 export const CONNECTION_TIMEOUT = 10000
 
+export const AFK_TIMEOUT = 10000
+
+export const AFK_TIMEOUT_COUNT = 30
+
 export const DECOMPRESSION_ERROR = 'Your message could not be decompressed'
 
 export class Client {
   public player?: Player
 
   private connectionTimeout?: NodeJS.Timer
+
+  private afkTimeout?: NodeJS.Timer
+
+  private afkTimerCount = 0
+
+  private previousPlayerLocation = 0
 
   constructor (public id: number, private ws: WebSocket) {
     this.id = id
@@ -27,11 +37,38 @@ export class Client {
     ws.on('message', this.onMessage.bind(this))
     this.connectionTimeout = setTimeout(() => {
       this.connectionTimeout = undefined
-      this.onDisconnect()
+      if (this.afkTimeout) {
+        clearTimeout(this.afkTimeout)
+        this.afkTimeout = undefined
+      }
+      this.ws.close()
       if (process.env.NODE_ENV === 'development') {
         console.info('A player timed out on handshake')
       }
     }, CONNECTION_TIMEOUT)
+    this.afkTimeout = setInterval(this.afkTimer, AFK_TIMEOUT)
+  }
+
+  private afkTimer = () => {
+    if (!this.player) return
+    const playerLocation = this.player.playerData.slice(6, 12).reduce(
+      (sum: number, byte: number) => sum + byte, 0
+    )
+    if (this.previousPlayerLocation !== playerLocation) {
+      this.previousPlayerLocation = playerLocation
+      return
+    }
+    this.afkTimerCount++
+    if (this.afkTimerCount < AFK_TIMEOUT_COUNT) return
+    this.afkTimeout = undefined
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout)
+      this.connectionTimeout = undefined
+    }
+    this.ws.close()
+    if (process.env.NODE_ENV === 'development') {
+      console.info('A player timed out because of inactivity')
+    }
   }
 
   public sendMessage (message: Uint8Array): void {
@@ -121,7 +158,7 @@ export class Client {
           )
       }
     } catch (err) {
-      if (err instanceof ConnectionError) {
+      if (Object.getPrototypeOf(ConnectionError).isPrototypeOf(err)) {
         this.sendBadRequest(err)
         return
       }
@@ -140,10 +177,10 @@ export class Client {
    * @throws {ConnectionError} Client sent a bad request
    */
   private checkRequiredObjects (...objects: any[]): void {
-    for (const object in objects) {
+    for (const object of objects) {
       if (object == null) {
         throw new ConnectionError(
-          `${Object.getPrototypeOf(object)} object is missing`,
+          'A required object is missing in the received message',
           ErrorProto.ErrorType.BAD_REQUEST
         )
       }
@@ -219,7 +256,8 @@ export class Client {
     const playerData = messageData.playerData
     this.checkRequiredObjects(playerData)
     this.checkRequiredObjects(playerData!.dataLength, playerData!.playerBytes)
-    this.checkRequiredObjects(playerData!.playerBytes![0], playerData!.playerBytes![0].playerData)
+    this.checkRequiredObjects(playerData!.playerBytes![0])
+    this.checkRequiredObjects(playerData!.playerBytes![0].playerData)
     if (playerData!.playerBytes![0].playerData![3] !== this.id) return
     this.player.playerData = new Uint8Array(playerData!.playerBytes![0].playerData!)
   }

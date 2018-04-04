@@ -1,7 +1,7 @@
 import * as zlib from 'zlib'
 
 import { webSocketServer } from '.'
-import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR } from './Client'
+import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT } from './Client'
 import { IClientServerMessage, Compression, ClientServer, ClientServerMessage } from './proto/ClientServerMessage'
 import { IServerClientMessage, ServerClient, ServerClientMessage, ServerMessage, Error as ErrorProto } from './proto/ServerClientMessage'
 
@@ -29,10 +29,15 @@ describe('Client', () => {
       on: (type: string, callback: () => void) => {
         fnMocks[type] = callback
       },
-      send: jest.fn()
+      send: jest.fn(),
+      close: jest.fn()
     }
     client = new Client(1, wsMock)
     addClient(client)
+  })
+
+  beforeEach(() => {
+    expect(webSocketServer.clients[client.id]).toBeDefined()
   })
 
   describe('#ws', () => {
@@ -107,9 +112,48 @@ describe('Client', () => {
   })
 
   it('should automatically disconnect, if no handshake and player data gets received in timeout interval', () => {
-    expect(webSocketServer.clients[client.id]).toBeDefined()
     jest.advanceTimersByTime(CONNECTION_TIMEOUT)
 
-    expect(webSocketServer.clients[client.id]).toBeUndefined()
+    expect(wsMock.close).toHaveBeenCalled()
+  })
+
+  it('should kick player on inactivity', async () => {
+    const message: IClientServerMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ClientServer.MessageType.PLAYER_DATA,
+        playerData: {}
+      }
+    }
+    const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+    client.player = {
+      playerData: new Uint8Array('0'.repeat(12).split('').map(c => Number(c)))
+    } as any
+
+    await fnMocks.message(encodedMessage)
+    jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT)
+
+    expect(wsMock.close).toHaveBeenCalled()
+  })
+
+  it('should not kick player on activity', async () => {
+    const message: IClientServerMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ClientServer.MessageType.PLAYER_DATA,
+        playerData: {}
+      }
+    }
+    const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+    client.player = {
+      playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
+    } as any
+
+    await fnMocks.message(encodedMessage)
+    jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT - 1)
+    client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
+    jest.advanceTimersByTime(1)
+
+    expect(wsMock.close).not.toHaveBeenCalled()
   })
 })
