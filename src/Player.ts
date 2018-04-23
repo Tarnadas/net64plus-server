@@ -1,10 +1,22 @@
 import { Client } from './Client'
 import { Characters } from './models/Characters.model'
+import { webSocketServer } from '.'
 
 export class Player {
   public characterName!: string
 
-  public playerData: Uint8Array
+  private _playerData!: Uint8Array
+
+  public get playerData (): Uint8Array {
+    return this._playerData
+  }
+
+  public set playerData (playerData: Uint8Array) {
+    if (this.client.id === 1) {
+      playerData[0x16] = webSocketServer.gameMode
+    }
+    this._playerData = playerData
+  }
 
   private _characterId!: number
 
