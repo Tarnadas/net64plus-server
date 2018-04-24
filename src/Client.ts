@@ -37,10 +37,6 @@ export class Client {
     ws.on('message', this.onMessage.bind(this))
     this.connectionTimeout = setTimeout(() => {
       this.connectionTimeout = undefined
-      if (this.afkTimeout) {
-        clearTimeout(this.afkTimeout)
-        this.afkTimeout = undefined
-      }
       this.ws.close()
       if (process.env.NODE_ENV === 'development') {
         console.info('A player timed out on handshake')
@@ -50,7 +46,9 @@ export class Client {
   }
 
   private afkTimer = () => {
-    if (!this.player) return
+    if (!this.player) {
+      return
+    }
     const playerLocation = this.player.playerData.slice(6, 12).reduce(
       (sum: number, byte: number) => sum + byte, 0
     )
@@ -60,11 +58,6 @@ export class Client {
     }
     this.afkTimerCount++
     if (this.afkTimerCount < AFK_TIMEOUT_COUNT) return
-    this.afkTimeout = undefined
-    if (this.connectionTimeout) {
-      clearTimeout(this.connectionTimeout)
-      this.connectionTimeout = undefined
-    }
     this.ws.close()
     if (process.env.NODE_ENV === 'development') {
       console.info('A player timed out because of inactivity')
@@ -88,6 +81,12 @@ export class Client {
     }
     delete webSocketServer.clients[this.id]
     delete webSocketServer.players[this.id]
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout)
+    }
+    if (this.afkTimeout) {
+      clearInterval(this.afkTimeout)
+    }
     if (shouldGrantNewToken) {
       webSocketServer.grantNewServerToken()
     }
