@@ -13,6 +13,7 @@ import {
   ServerClientMessage,
   IServerClientMessage,
   ServerClient,
+  IServerClient,
   ServerMessage,
   ConnectionDenied,
   ServerToken,
@@ -29,6 +30,8 @@ if (process.env.TARGET_ENV === 'win32') {
 } else {
   WSServer = require('uws').Server
 }
+
+export const PLAYER_DATA_COMPRESSION_THRESHOLD = 3
 
 export class WebSocketServer {
   public clients: Client[] = []
@@ -145,8 +148,8 @@ export class WebSocketServer {
     }
   }
 
-  public broadcastData (): void {
-    const playerDataMessage = this.getPlayerData()
+  public async broadcastData (): Promise<void> {
+    const playerDataMessage = await this.getPlayerData()
     const metaDataMessage = this.getMetaData()
     for (const i in this.players) {
       const player = this.players[i]
@@ -160,23 +163,40 @@ export class WebSocketServer {
     }
   }
 
-  private getPlayerData (): Uint8Array {
-    const playerData: IServerClientMessage = {
-      compression: Compression.NONE,
-      data: {
-        messageType: ServerClient.MessageType.PLAYER_DATA,
-        playerData: {
-          dataLength: 0x1C,
-          playerBytes: this.players
-            .filter(player => player && player.playerData[3] !== 0)
-            .map(player => ({
-              playerId: player.client.id,
-              playerData: player.playerData
-            }))
-        }
+  private async getPlayerData (): Promise<Uint8Array> {
+    const playersWithPlayerData = this.players
+      .filter(player => player && player.playerData[3] !== 0)
+    const data = {
+      messageType: ServerClient.MessageType.PLAYER_DATA,
+      playerData: {
+        dataLength: 0x1C,
+        playerBytes: playersWithPlayerData
+          .map(player => ({
+            playerId: player.client.id,
+            playerData: player.playerData
+          }))
       }
     }
+    const playerData: IServerClientMessage = playersWithPlayerData.length >= PLAYER_DATA_COMPRESSION_THRESHOLD
+      ? {
+        compression: Compression.GZIP,
+        compressedData: await this.getCompressedPlayerData(data)
+      }
+      : {
+        compression: Compression.NONE,
+        data
+      }
     return ServerClientMessage.encode(ServerClientMessage.fromObject(playerData)).finish()
+  }
+
+  private getCompressedPlayerData (playerData: IServerClient): Promise<Buffer> {
+    const dataBuffer = ServerClient.encode(ServerClient.fromObject(playerData)).finish()
+    return new Promise((resolve, reject) => {
+      zlib.gzip(dataBuffer as Buffer, (err, compressedDataBuffer) => {
+        if (err) reject(err)
+        resolve(compressedDataBuffer)
+      })
+    })
   }
 
   private getMetaData (): Uint8Array | undefined {
