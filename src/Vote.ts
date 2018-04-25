@@ -11,7 +11,7 @@ export class Vote {
 
   private timer: NodeJS.Timer
 
-  constructor (private timeout: number, private onSuccess: (winner: number) => void) {
+  constructor (private timeout: number, private onSuccess: (winner: number) => void, private onReject: () => void) {
     this.timer = setTimeout(this.onVoteEnd, timeout)
   }
 
@@ -27,7 +27,11 @@ export class Vote {
         winners.push(i)
       }
     }
-    this.onSuccess(winners[Math.floor(Math.random() * winners.length)])
+    if (maxVote >= Math.floor(webSocketServer.clients.length / 2)) {
+      this.onSuccess(winners[Math.floor(Math.random() * winners.length)])
+    } else {
+      this.onReject()
+    }
   }
 
   public acceptVote (client: Client, vote: number): void {

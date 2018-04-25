@@ -6,7 +6,7 @@ import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMess
 export const GAMEMODE_VOTE_TIME = 30000
 export const SECONDS_UNTIL_NEXT_GAMEMODE_VOTE = 300
 export const GAMEMODE_VOTE_STARTED = 'A vote to change gamemode has started. You have 1min to vote with /gamemode <gamemodeID>'
-export const USAGE_MESSAGE = '**Usage:**\n\n/gamemode <gamemodeID>\n\n' +
+export const GAMEMODE_USAGE_MESSAGE = '**Usage:**\n\n/gamemode <gamemodeID>\n\n' +
   '**Description:**\n\nYou can start a vote for a new gamemode once every 5min. Available gamemodes are:\n\n' +
   'DEFAULT = 1\n\n' +
   'THIRD_PERSON_SHOOTER = 2\n\n' +
@@ -19,6 +19,7 @@ export const TOO_MANY_ARGS_MESSAGE = 'Too many arguments. Please type "/gamemode
 export const NAN_MESSAGE = 'The first argument must be a number.'
 export const GAMEMODE_UNKNOWN_MESSAGE = 'Gamemode unknown. Please type "/gamemode" for a list of available gamemodes.'
 export const GAMEMODE_ALREADY_RUNNING_MESSAGE = 'Gamemode is already running.'
+export const GAMEMODE_NOT_ENOUGH_VOTES = 'Gamemode vote passed with too few votes.'
 
 export class Command {
   private votesInProgress: {[key: string]: Vote} = {}
@@ -66,7 +67,7 @@ export class Command {
         messageType: ServerClient.MessageType.CHAT,
         chat: {
           chatType: Chat.ChatType.COMMAND,
-          message: USAGE_MESSAGE
+          message: GAMEMODE_USAGE_MESSAGE
         }
       }
     }
@@ -162,7 +163,7 @@ export class Command {
   private acceptGameModeVote (client: Client, selectedGameMode: number): void {
     let vote: Vote = this.votesInProgress['gameMode']
     if (!vote) {
-      vote = new Vote(GAMEMODE_VOTE_TIME, this.changeGameMode)
+      vote = new Vote(GAMEMODE_VOTE_TIME, this.changeGameMode, this.sendTooFewGameModeVotes)
       this.votesInProgress['gameMode'] = vote
       const command: IServerClientMessage = {
         compression: Compression.NONE,
@@ -200,5 +201,20 @@ export class Command {
     const commandMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(command)).finish()
     webSocketServer.broadcastMessage(commandMessage)
     console.info(`Gamemode successfully changed to ${selectedGameMode}`)
+  }
+
+  private sendTooFewGameModeVotes = () => {
+    const command: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.CHAT,
+        chat: {
+          chatType: Chat.ChatType.COMMAND,
+          message: GAMEMODE_NOT_ENOUGH_VOTES
+        }
+      }
+    }
+    const commandMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(command)).finish()
+    webSocketServer.broadcastMessage(commandMessage)
   }
 }

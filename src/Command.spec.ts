@@ -1,4 +1,4 @@
-import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE } from './Command'
+import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE, GAMEMODE_NOT_ENOUGH_VOTES } from './Command'
 import { webSocketServer } from '.'
 import { Client } from './Client'
 import { Vote } from './Vote'
@@ -23,12 +23,13 @@ describe('Command', () => {
 
   beforeEach(() => {
     jest.useFakeTimers()
-    webSocketServer! = {
+    // @ts-ignore
+    webSocketServer = {
       gameMode: 0,
       clients: [],
       broadcastMessage: jest.fn()
-    } as any
-    addMockClient(undefined as any)
+    }
+    addMockClient(undefined!)
     console.info = jest.fn()
     command = new Command(true)
     Vote.lastVotes = {}
@@ -129,6 +130,41 @@ describe('Command', () => {
       jest.advanceTimersByTime(GAMEMODE_VOTE_TIME)
       expect(webSocketServer.broadcastMessage).toHaveBeenLastCalledWith(expectedMessage)
       expect(webSocketServer.gameMode).toEqual(2)
+    })
+
+    it('should not change game mode if not enough players have voted', () => {
+      const mockClient0: Client = new ClientMock(1, {}, {}) as any
+      addMockClient(mockClient0)
+      const mockClient1: Client = new ClientMock(2, {}, {}) as any
+      addMockClient(mockClient1)
+      const mockClient2: Client = new ClientMock(3, {}, {}) as any
+      addMockClient(mockClient2)
+      const mockClient3: Client = new ClientMock(4, {}, {}) as any
+      addMockClient(mockClient3)
+      const mockClient4: Client = new ClientMock(5, {}, {}) as any
+      addMockClient(mockClient4)
+      const mockClient5: Client = new ClientMock(6, {}, {}) as any
+      addMockClient(mockClient5)
+      const mockClient6: Client = new ClientMock(7, {}, {}) as any
+      addMockClient(mockClient6)
+      command.onGameModeCommand(mockClient0, ['1'])
+      command.onGameModeCommand(mockClient1, ['1'])
+      command.onGameModeCommand(mockClient2, ['1'])
+      const message: IServerClientMessage = {
+        compression: Compression.NONE,
+        data: {
+          messageType: ServerClient.MessageType.CHAT,
+          chat: {
+            chatType: Chat.ChatType.COMMAND,
+            message: GAMEMODE_NOT_ENOUGH_VOTES
+          }
+        }
+      }
+      const expectedMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(message)).finish()
+
+      jest.advanceTimersByTime(GAMEMODE_VOTE_TIME)
+      expect(webSocketServer.broadcastMessage).toHaveBeenLastCalledWith(expectedMessage)
+      expect(webSocketServer.gameMode).toEqual(0)
     })
 
     it('should accept one vote per client', () => {
