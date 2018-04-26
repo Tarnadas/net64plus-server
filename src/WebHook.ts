@@ -10,6 +10,8 @@ const URL_API = 'https://smmdb.ddns.net/api/net64server'
 const apiKey = Symbol('apiKey')
 
 export class WebHook {
+  private version: string
+
   private ip: string
 
   private port: number
@@ -34,6 +36,7 @@ export class WebHook {
     { name, domain, description, port, apiKey }: Settings,
     { ip, country, countryCode, latitude, longitude }: Server
   ) {
+    this.version = process.env.VERSION!
     this.ip = ip
     this.port = port
     this.domain = domain
@@ -71,6 +74,9 @@ export class WebHook {
   }
 
   private toJSON () {
-    return Object.assign(this, { players: webSocketServer.players.filter(player => player) })
+    return Object.assign(this, {
+      players: webSocketServer.players.filter(player => player),
+      gameMode: webSocketServer.gameMode || 0
+    })
   }
 }
