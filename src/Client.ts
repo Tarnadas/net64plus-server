@@ -240,10 +240,31 @@ export class Client {
   }
 
   private onPlayerUpdate (messageData: IClientServer): void {
+    if (this.player == null) return
     const player = messageData.player
     this.checkRequiredObjects(player)
-    if (player!.characterId == null || this.player == null) return
-    this.player.characterId = player!.characterId!
+    let hasChanged = false
+    if (player!.characterId != null) {
+      this.player.characterId = player!.characterId!
+      hasChanged = true
+    }
+    if (player!.username != null) {
+      this.player.username = player!.username!
+      hasChanged = true
+    }
+    if (!hasChanged) return
+    const playerMsg: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.PLAYER_UPDATE,
+        playerUpdate: {
+          player: this.player,
+          playerId: this.id
+        }
+      }
+    }
+    const playerMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(playerMsg)).finish()
+    webSocketServer.broadcastMessage(playerMessage)
   }
 
   private onPlayerData (messageData: IClientServer) {
