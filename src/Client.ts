@@ -75,20 +75,12 @@ export class Client {
   }
 
   private onDisconnect (): void {
-    let shouldGrantNewToken = false
-    if (this.player && webSocketServer.players[this.id] === this.player) {
-      shouldGrantNewToken = true
-    }
-    delete webSocketServer.clients[this.id]
-    delete webSocketServer.players[this.id]
+    webSocketServer.removePlayer(this.id)
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout)
     }
     if (this.afkTimeout) {
       clearInterval(this.afkTimeout)
-    }
-    if (shouldGrantNewToken) {
-      webSocketServer.grantNewServerToken()
     }
     const activeUsers = webSocketServer.clients.filter(client => client).length
     console.info(`Active users: ${activeUsers}/24`)

@@ -14,6 +14,7 @@ import {
   IServerClientMessage,
   ServerClient,
   IServerClient,
+  IPlayerUpdate,
   ServerMessage,
   ConnectionDenied,
   ServerToken,
@@ -39,6 +40,8 @@ export class WebSocketServer {
   public players: Player[] = []
 
   public gameMode: number
+
+  public playerWithToken?: Player
 
   private isOffline: boolean
 
@@ -88,10 +91,53 @@ export class WebSocketServer {
   }
 
   public addPlayer (player: Player): void {
-    this.players[player.client.id] = player
-    if (player.client.id === 1) {
+    const playerId = player.client.id
+    this.players[playerId] = player
+    if (!this.playerWithToken) {
+      this.grantNewServerToken(player)
+    }
+    this.broadcastPlayerListMessage()
+  }
+
+  public removePlayer (clientId: number): void {
+    delete this.clients[clientId]
+    const playerToRemove = this.players[clientId]
+    let shouldGrantNewToken = false
+    if (playerToRemove === this.playerWithToken) {
+      delete this.playerWithToken
+      shouldGrantNewToken = true
+    }
+    delete this.players[clientId]
+    if (shouldGrantNewToken) {
       this.grantNewServerToken()
     }
+    this.broadcastPlayerListMessage()
+  }
+
+  private broadcastPlayerListMessage (): void {
+    const playerMsg: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.PLAYER_LIST_UPDATE,
+        playerListUpdate: {
+          playerUpdates: this.generatePlayerUpdates()
+        }
+      }
+    }
+    const playerMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(playerMsg)).finish()
+    this.broadcastMessage(playerMessage)
+  }
+
+  private generatePlayerUpdates (): IPlayerUpdate[] {
+    return this.players
+      .filter(player => player)
+      .map(player => ({
+        player: {
+          username: player.username,
+          characterId: player.characterId
+        },
+        playerId: player.client.id
+      }))
   }
 
   public sendHandshake (client: Client): void {
@@ -109,13 +155,7 @@ export class WebSocketServer {
           countryCode: this.countryCode,
           gameMode: this.gameMode,
           playerList: {
-            playerUpdates: this.players.filter(player => player).map(player => ({
-              player: {
-                username: player.username,
-                characterId: player.characterId
-              },
-              playerId: player.client.id
-            }))
+            playerUpdates: this.generatePlayerUpdates()
           }
         }
       }
@@ -287,28 +327,38 @@ export class WebSocketServer {
     client.sendMessage(unknownCommandMessage)
   }
 
-  public grantNewServerToken (): void {
+  private grantNewServerToken (playerToGrant?: Player): void {
+    if (playerToGrant) {
+      this.grantTokenToPlayer(playerToGrant)
+      return
+    }
     for (const i in this.players) {
       const player = this.players[i]
-      const serverToken: IServerClientMessage = {
-        compression: Compression.NONE,
-        data: {
-          messageType: ServerClient.MessageType.SERVER_MESSAGE,
-          serverMessage: {
-            messageType: ServerMessage.MessageType.SERVER_TOKEN,
-            serverToken: {
-              tokenType: ServerToken.TokenType.GRANT
-            }
+      if (!player) continue
+      this.grantTokenToPlayer(player)
+      return
+    }
+  }
+
+  private grantTokenToPlayer (playerToGrant: Player): void {
+    const serverToken: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.SERVER_MESSAGE,
+        serverMessage: {
+          messageType: ServerMessage.MessageType.SERVER_TOKEN,
+          serverToken: {
+            tokenType: ServerToken.TokenType.GRANT
           }
         }
       }
-      const serverTokenMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverToken)).finish()
-      player.client.sendMessage(serverTokenMessage)
-      if (process.env.NODE_ENV === 'development') {
-        console.info(`New server token has been granted to player [${player.client.id}] ${player.username}`)
-      }
-      return
     }
+    const serverTokenMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverToken)).finish()
+    playerToGrant.client.sendMessage(serverTokenMessage)
+    if (process.env.NODE_ENV === 'development') {
+      console.info(`New server token has been granted to player [${playerToGrant.client.id}] ${playerToGrant.username}`)
+    }
+    this.playerWithToken = playerToGrant
   }
 
   private onConnection (ws: WebSocket): void {
