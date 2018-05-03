@@ -17,7 +17,6 @@ import {
   IPlayerUpdate,
   ServerMessage,
   ConnectionDenied,
-  ServerToken,
   Compression,
   Chat,
   Error as ErrorProto,
@@ -164,21 +163,21 @@ export class WebSocketServer {
     client.sendMessage(handshakeMessage)
   }
 
-  public sendServerToken (client: Client, tokenType: boolean = true): void {
-    const handshake: IServerClientMessage = {
-      compression: Compression.NONE,
-      data: {
-        messageType: ServerClient.MessageType.SERVER_MESSAGE,
-        serverMessage: {
-          messageType: ServerMessage.MessageType.SERVER_TOKEN,
-          serverToken: {
-            tokenType: tokenType ? ServerToken.TokenType.GRANT : ServerToken.TokenType.LOSE
-          }
-        }
-      }
+  public reorderPlayers (): void {
+    const newClients: Client[] = []
+    const newPlayers: Player[] = []
+    let j = 1
+    for (let i in this.clients) {
+      if (!this.clients[i]) continue
+      newClients[j] = this.clients[i]
+      newClients[j].id = j
+      newPlayers[j++] = this.players[i]
     }
-    const handshakeMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(handshake)).finish()
-    client.sendMessage(handshakeMessage)
+    this.clients = newClients
+    this.players = newPlayers
+    for (let id = 2; id < this.clients.length; id++) {
+      this.clients[id].sendPlayerReorder(id)
+    }
   }
 
   public broadcastMessage (message: Uint8Array): void {
@@ -332,10 +331,15 @@ export class WebSocketServer {
       this.grantTokenToPlayer(playerToGrant)
       return
     }
-    for (const i in this.players) {
-      const player = this.players[i]
-      if (!player) continue
-      this.grantTokenToPlayer(player)
+    for (let i = this.players.length; i >= 0; i--) {
+      playerToGrant = this.players[i]
+      if (!playerToGrant) continue
+      this.grantTokenToPlayer(playerToGrant)
+      this.clients[1] = playerToGrant.client
+      this.players[1] = playerToGrant
+      this.clients[1].id = 1
+      delete this.clients[i]
+      delete this.players[i]
       return
     }
   }
@@ -346,9 +350,10 @@ export class WebSocketServer {
       data: {
         messageType: ServerClient.MessageType.SERVER_MESSAGE,
         serverMessage: {
-          messageType: ServerMessage.MessageType.SERVER_TOKEN,
-          serverToken: {
-            tokenType: ServerToken.TokenType.GRANT
+          messageType: ServerMessage.MessageType.PLAYER_REORDER,
+          playerReorder: {
+            playerId: 1,
+            grantToken: true
           }
         }
       }

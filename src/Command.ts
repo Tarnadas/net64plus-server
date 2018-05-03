@@ -185,8 +185,8 @@ export class Command {
     delete this.votesInProgress['gameMode']
     Vote.lastVotes['gameMode'] = Date.now()
     webSocketServer.gameMode = selectedGameMode
-    const message = ''
-    const command: IServerClientMessage = {
+    webSocketServer.reorderPlayers()
+    const gameMode: IServerClientMessage = {
       compression: Compression.NONE,
       data: {
         messageType: ServerClient.MessageType.SERVER_MESSAGE,
@@ -198,8 +198,8 @@ export class Command {
         }
       }
     }
-    const commandMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(command)).finish()
-    webSocketServer.broadcastMessage(commandMessage)
+    const gameModeMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(gameMode)).finish()
+    webSocketServer.broadcastMessage(gameModeMessage)
     console.info(`Gamemode successfully changed to ${selectedGameMode}`)
   }
 

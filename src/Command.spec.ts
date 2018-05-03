@@ -1,18 +1,10 @@
 import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE, GAMEMODE_NOT_ENOUGH_VOTES } from './Command'
 import { webSocketServer } from '.'
 import { Client } from './Client'
+import { ClientMock } from './Client.mock'
 import { Vote } from './Vote'
 import { IServerClientMessage, Compression, ServerClient, ServerMessage, ServerClientMessage } from './proto/ServerClientMessage'
 import { Chat } from './proto/ClientServerMessage'
-
-class ClientMock implements Partial<Client> {
-  constructor (public id: number, private server: any, private ws: any) {
-    this.id = id
-    this.server = server
-    this.ws = ws
-  }
-  public sendMessage = jest.fn()
-}
 
 const addMockClient = (client: Client) => {
   webSocketServer.clients.push(client)
@@ -27,7 +19,8 @@ describe('Command', () => {
     webSocketServer = {
       gameMode: 0,
       clients: [],
-      broadcastMessage: jest.fn()
+      broadcastMessage: jest.fn(),
+      reorderPlayers: jest.fn()
     }
     addMockClient(undefined!)
     console.info = jest.fn()

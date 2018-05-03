@@ -70,6 +70,23 @@ export class Client {
     })
   }
 
+  public sendPlayerReorder (playerId: number): void {
+    const handshake: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.SERVER_MESSAGE,
+        serverMessage: {
+          messageType: ServerMessage.MessageType.PLAYER_REORDER,
+          playerReorder: {
+            playerId
+          }
+        }
+      }
+    }
+    const handshakeMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(handshake)).finish()
+    this.sendMessage(handshakeMessage)
+  }
+
   private sendHandshake (): void {
     webSocketServer.sendHandshake(this)
   }
