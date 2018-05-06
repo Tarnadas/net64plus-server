@@ -1,5 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
+const MinifyPlugin = require('babel-minify-webpack-plugin')
 
 const [ major, minor, patch ] = process.env.npm_package_compatVersion.split('.')
 
@@ -11,7 +12,7 @@ module.exports = [
       filename: 'index.js',
       path: path.join(__dirname, 'dist')
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
     node: {
       __dirname: false,
       __filename: false
@@ -24,7 +25,8 @@ module.exports = [
         MINOR: minor,
         PATCH: patch
       }),
-      new webpack.IgnorePlugin(/^\.\.\/compile\/uws$/)
+      new webpack.IgnorePlugin(/^\.\.\/compile\/uws$/),
+      new MinifyPlugin()
     ],
     resolve: {
       extensions: [ '.js', '.ts', '.json' ]
