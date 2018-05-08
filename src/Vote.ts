@@ -29,7 +29,7 @@ export class Vote {
       }
     }
     const voteAmount = voteEntries.reduce((sum, vote) => sum + vote[1], 0)
-    if (voteAmount >= Math.floor(webSocketServer.clients.length / 2)) {
+    if (voteAmount >= Math.ceil(webSocketServer.clients.filter(client => !!client).length / 2)) {
       this.onSuccess(winners[Math.floor(Math.random() * winners.length)])
     } else {
       this.onReject()
