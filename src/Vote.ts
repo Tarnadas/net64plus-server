@@ -18,7 +18,8 @@ export class Vote {
   private onVoteEnd = () => {
     let winners: number[] = []
     let maxVote = 0
-    for (const [key, vote] of Object.entries(this.votes)) {
+    const voteEntries = Object.entries(this.votes)
+    for (const [key, vote] of voteEntries) {
       const i = Number(key)
       if (vote > maxVote) {
         maxVote = vote
@@ -27,7 +28,8 @@ export class Vote {
         winners.push(i)
       }
     }
-    if (maxVote >= Math.floor(webSocketServer.clients.length / 2)) {
+    const voteAmount = voteEntries.reduce((sum, vote) => sum + vote[1], 0)
+    if (voteAmount >= Math.floor(webSocketServer.clients.length / 2)) {
       this.onSuccess(winners[Math.floor(Math.random() * winners.length)])
     } else {
       this.onReject()
