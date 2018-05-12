@@ -49,11 +49,13 @@ export class Client {
     if (!this.player) {
       return
     }
-    const playerLocation = this.player.playerData.slice(6, 12).reduce(
+    const playerLocation = this.player.playerData.slice(6, 12)
+    const playerLocationHash = playerLocation.reduce(
       (sum: number, byte: number) => sum + byte, 0
     )
-    if (this.previousPlayerLocation !== playerLocation) {
-      this.previousPlayerLocation = playerLocation
+    if (this.previousPlayerLocation !== playerLocationHash) {
+      this.afkTimerCount = 0
+      this.previousPlayerLocation = playerLocationHash
       return
     }
     this.afkTimerCount++

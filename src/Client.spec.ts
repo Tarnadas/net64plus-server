@@ -21,7 +21,8 @@ describe('Client', () => {
 
   beforeEach(() => {
     fnMocks = {}
-    webSocketServer! = {
+    // @ts-ignore
+    webSocketServer = {
       clients: [],
       players: []
     } as any
@@ -38,6 +39,12 @@ describe('Client', () => {
 
   beforeEach(() => {
     expect(webSocketServer.clients[client.id]).toBeDefined()
+  })
+
+  it('should automatically disconnect, if no handshake and player data gets received in timeout interval', () => {
+    jest.advanceTimersByTime(CONNECTION_TIMEOUT)
+
+    expect(wsMock.close).toHaveBeenCalled()
   })
 
   describe('#ws', () => {
@@ -111,49 +118,68 @@ describe('Client', () => {
     })
   })
 
-  it('should automatically disconnect, if no handshake and player data gets received in timeout interval', () => {
-    jest.advanceTimersByTime(CONNECTION_TIMEOUT)
-
-    expect(wsMock.close).toHaveBeenCalled()
-  })
-
-  it('should kick player on inactivity', async () => {
-    const message: IClientServerMessage = {
-      compression: Compression.NONE,
-      data: {
-        messageType: ClientServer.MessageType.PLAYER_DATA,
-        playerData: {}
+  describe('#afkTimeout', () => {
+    it('should kick player on inactivity', async () => {
+      const message: IClientServerMessage = {
+        compression: Compression.NONE,
+        data: {
+          messageType: ClientServer.MessageType.PLAYER_DATA,
+          playerData: {}
+        }
       }
-    }
-    const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
-    client.player = {
-      playerData: new Uint8Array('0'.repeat(12).split('').map(c => Number(c)))
-    } as any
+      const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+      client.player = {
+        playerData: new Uint8Array('0'.repeat(12).split('').map(c => Number(c)))
+      } as any
 
-    await fnMocks.message(encodedMessage)
-    jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT)
+      await fnMocks.message(encodedMessage)
+      jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT)
 
-    expect(wsMock.close).toHaveBeenCalled()
-  })
+      expect(wsMock.close).toHaveBeenCalled()
+    })
 
-  it('should not kick player on activity', async () => {
-    const message: IClientServerMessage = {
-      compression: Compression.NONE,
-      data: {
-        messageType: ClientServer.MessageType.PLAYER_DATA,
-        playerData: {}
+    it('should not kick player on activity', async () => {
+      const message: IClientServerMessage = {
+        compression: Compression.NONE,
+        data: {
+          messageType: ClientServer.MessageType.PLAYER_DATA,
+          playerData: {}
+        }
       }
-    }
-    const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
-    client.player = {
-      playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
-    } as any
+      const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+      client.player = {
+        playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
+      } as any
 
-    await fnMocks.message(encodedMessage)
-    jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT - 1)
-    client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
-    jest.advanceTimersByTime(1)
+      await fnMocks.message(encodedMessage)
+      jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT - 1)
+      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
+      jest.advanceTimersByTime(1)
 
-    expect(wsMock.close).not.toHaveBeenCalled()
+      expect(wsMock.close).not.toHaveBeenCalled()
+    })
+
+    it('should not kick player on partial inactivity', async () => {
+      const message: IClientServerMessage = {
+        compression: Compression.NONE,
+        data: {
+          messageType: ClientServer.MessageType.PLAYER_DATA,
+          playerData: {}
+        }
+      }
+      const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+      client.player = {
+        playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
+      } as any
+
+      await fnMocks.message(encodedMessage)
+      jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
+      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
+      jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
+      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0 ])
+      jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
+
+      expect(wsMock.close).not.toHaveBeenCalled()
+    })
   })
 })

@@ -1,6 +1,6 @@
 {
   "name": "net64plus-ded",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "compatVersion": "1.0.0.",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
@@ -85,6 +85,7 @@
     "typescript": "^2.7.2",
     "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.6.0",
+    "webpack-obfuscator": "^0.16.0"
   }
 }
