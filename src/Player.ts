@@ -2,6 +2,8 @@ import { Client } from './Client'
 import { Characters } from './models/Characters.model'
 import { webSocketServer } from '.'
 
+export const PLAYER_DATA_LENGTH = 0x1C
+
 export class Player {
   public characterName!: string
 
@@ -31,7 +33,7 @@ export class Player {
 
   constructor (public client: Client, public username: string, characterId: number) {
     this.characterId = characterId
-    this.playerData = Buffer.alloc(0x1C)
+    this.playerData = Buffer.alloc(PLAYER_DATA_LENGTH)
     this.toJSON = this.toJSON
   }
 

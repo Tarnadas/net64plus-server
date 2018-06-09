@@ -3,7 +3,7 @@ import * as WebSocket from 'uws'
 import * as zlib from 'zlib'
 
 import { webSocketServer } from '.'
-import { Player } from './Player'
+import { Player, PLAYER_DATA_LENGTH } from './Player'
 import { WebSocketServer } from './WebSocketServer'
 import { ConnectionError } from './models/Connection.model'
 import {
@@ -18,6 +18,11 @@ export const AFK_TIMEOUT = 10000
 export const AFK_TIMEOUT_COUNT = 30
 
 export const DECOMPRESSION_ERROR = 'Your message could not be decompressed'
+
+export const MAX_LENGTH_CHAT_MESSAGE = 100
+
+const escapeHTML = require('escape-html')
+const FilterXSS = require('xss')
 
 export class Client {
   public player?: Player
@@ -180,13 +185,17 @@ export class Client {
     }
   }
 
+  private onBadMessage (): void {
+    this.ws.close()
+  }
+
   /**
    * Checks whether given objects are defined.
    *
    * @param {any[]} objects - Objects to check
    * @throws {ConnectionError} Client sent a bad request
    */
-  private checkRequiredObjects (...objects: any[]): void {
+  private checkRequiredObjects (...objects: any[]): void | never {
     for (const object of objects) {
       if (object == null) {
         throw new ConnectionError(
@@ -207,13 +216,31 @@ export class Client {
       let handshake = messageData.handshake
       this.checkRequiredObjects(handshake)
       handshake = handshake as IClientHandshake
-      this.checkRequiredObjects(handshake.major, handshake!.minor, handshake!.characterId, handshake!.username)
-      // TODO add checks for invalid characterId and username
-      if (this.isClientUsingWrongVersion(handshake!)) {
+      this.checkRequiredObjects(handshake.major, handshake.minor, handshake.characterId, handshake.username)
+      const characterId = handshake.characterId!
+      if (
+        typeof characterId !== 'number' ||
+        characterId < 0 ||
+        characterId > 11
+      ) {
+        this.onBadMessage()
+        return
+      }
+      const username = handshake.username!
+      const checkedUsername = username.replace(/\W/g, '')
+      if (
+        username !== checkedUsername ||
+        username.length < 3 ||
+        username.length > 24
+      ) {
+        this.onBadMessage()
+        return
+      }
+      if (this.isClientUsingWrongVersion(handshake)) {
         this.sendWrongVersionMessage()
         return
       }
-      this.player = new Player(this, handshake!.username!, handshake!.characterId!)
+      this.player = new Player(this, username, characterId)
       webSocketServer.addPlayer(this.player)
       this.sendHandshake()
     } catch (err) {
@@ -290,7 +317,12 @@ export class Client {
     this.checkRequiredObjects(playerData!.playerBytes![0])
     this.checkRequiredObjects(playerData!.playerBytes![0].playerData)
     if (playerData!.playerBytes![0].playerData![3] !== this.id) return
-    this.player.playerData = new Uint8Array(playerData!.playerBytes![0].playerData!)
+    const data = playerData!.playerBytes![0].playerData!
+    if (data.length !== PLAYER_DATA_LENGTH) {
+      this.onBadMessage()
+      return
+    }
+    this.player.playerData = new Uint8Array(data)
   }
 
   private onMetaData (messageData: IClientServer) {
@@ -306,19 +338,30 @@ export class Client {
     const chat = messageData.chat
     this.checkRequiredObjects(chat)
     this.checkRequiredObjects(chat!.message)
+    const message = chat!.message!
+    if (message.length > MAX_LENGTH_CHAT_MESSAGE) {
+      this.onBadMessage()
+      return
+    }
+    const escapedMessage = escapeHTML(message)
+    const sanitizedMessage = FilterXSS(escapedMessage)
+    if (escapedMessage !== sanitizedMessage) {
+      this.onBadMessage()
+      return
+    }
     switch (chat!.chatType) {
       case Chat.ChatType.GLOBAL:
-        webSocketServer.onGlobalChatMessage(this, chat!.message!)
+        webSocketServer.onGlobalChatMessage(this, message)
         break
       case Chat.ChatType.PRIVATE:
         this.checkRequiredObjects(chat!.private)
         this.checkRequiredObjects(chat!.private!.receiverId)
-        webSocketServer.onPrivateChatMessage(this, chat!.message!, chat!.private!.receiverId!)
+        webSocketServer.onPrivateChatMessage(this, message, chat!.private!.receiverId!)
         break
       case Chat.ChatType.COMMAND:
         this.checkRequiredObjects(chat!.command)
         this.checkRequiredObjects(chat!.command!.arguments)
-        webSocketServer.onCommandChatMessage(this, chat!.message!, chat!.command!.arguments!)
+        webSocketServer.onCommandChatMessage(this, message, chat!.command!.arguments!)
         break
     }
   }
