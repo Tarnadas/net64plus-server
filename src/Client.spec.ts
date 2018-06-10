@@ -1,9 +1,12 @@
 import * as zlib from 'zlib'
 
 import { webSocketServer } from '.'
-import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT } from './Client'
-import { IClientServerMessage, Compression, ClientServer, ClientServerMessage } from './proto/ClientServerMessage'
+import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT, MAX_LENGTH_CHAT_MESSAGE } from './Client'
+import { IClientServerMessage, Compression, ClientServer, ClientServerMessage, Chat } from './proto/ClientServerMessage'
 import { IServerClientMessage, ServerClient, ServerClientMessage, ServerMessage, Error as ErrorProto } from './proto/ServerClientMessage'
+import {
+  MESSAGES_PER_HALF_MINUTE_THRESHOLD, MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD, MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD, SPAM_NOTIFICATION_MESSAGE, warningLevelMuteMapping
+} from './Identity'
 
 const addClient = (client: Client) => {
   webSocketServer.clients[client.id] = client
@@ -12,7 +15,7 @@ const addClient = (client: Client) => {
 describe('Client', () => {
   let client: Client
   let wsMock: any
-  let fnMocks: {[key: string]: (...args: any[]) => void}
+  let fnMocks: {[key: string]: (...args: any[]) => Promise<void>}
 
   beforeEach(() => {
     jest.useFakeTimers()
@@ -24,10 +27,11 @@ describe('Client', () => {
     // @ts-ignore
     webSocketServer = {
       clients: [],
-      players: []
+      players: [],
+      onGlobalChatMessage: jest.fn()
     } as any
     wsMock = {
-      on: (type: string, callback: () => void) => {
+      on: (type: string, callback: () => Promise<void>) => {
         fnMocks[type] = callback
       },
       send: jest.fn(),
@@ -99,7 +103,7 @@ describe('Client', () => {
         })
       })
 
-      describe('onPing', () => {
+      describe('#onPing', () => {
         it('should send message back', async () => {
           const message: IClientServerMessage = {
             compression: Compression.NONE,
@@ -113,6 +117,156 @@ describe('Client', () => {
           await fnMocks.message(encodedMessage)
 
           expect(wsMock.send).toHaveBeenCalledWith(new Uint8Array(encodedMessage), { binary: true })
+        })
+      })
+
+      describe('#onChatMessage', () => {
+        it('should send global chat message', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: new Array(MAX_LENGTH_CHAT_MESSAGE + 1).join('a')
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          await fnMocks.message(encodedMessage)
+
+          expect(webSocketServer.onGlobalChatMessage).toHaveBeenCalled()
+        })
+
+        it('should fail if message is too long', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: new Array(MAX_LENGTH_CHAT_MESSAGE + 2).join('a')
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          await fnMocks.message(encodedMessage)
+
+          expect(webSocketServer.onGlobalChatMessage).not.toHaveBeenCalled()
+        })
+
+        it('should have spam protection against large amount of messages', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: ''
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          const messages: Promise<void>[] = []
+          for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD + 1; i++) {
+            messages.push(fnMocks.message(encodedMessage))
+          }
+          await Promise.all(messages)
+
+          expect(webSocketServer.onGlobalChatMessage).toHaveBeenCalledTimes(MESSAGES_PER_HALF_MINUTE_THRESHOLD)
+        })
+
+        it('should have DoS protection against large amount of messages', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: ''
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          const messages: Promise<void>[] = []
+          for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD; i++) {
+            messages.push(fnMocks.message(encodedMessage))
+          }
+          await Promise.all(messages)
+
+          expect(wsMock.close).toHaveBeenCalled()
+        })
+
+        it('should have spam protection against large messages', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: new Array(MAX_LENGTH_CHAT_MESSAGE + 1).join('a')
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          const messages: Promise<void>[] = []
+          for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD; i++) {
+            messages.push(fnMocks.message(encodedMessage))
+          }
+          await Promise.all(messages)
+
+          const expectedAmountOfMessages = Math.ceil(MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD / MAX_LENGTH_CHAT_MESSAGE)
+          expect(webSocketServer.onGlobalChatMessage).toHaveBeenCalledTimes(expectedAmountOfMessages)
+        })
+
+        it('should mute client on too many messages', async () => {
+          const message: IClientServerMessage = {
+            compression: Compression.NONE,
+            data: {
+              messageType: ClientServer.MessageType.CHAT,
+              chat: {
+                chatType: Chat.ChatType.GLOBAL,
+                message: ''
+              }
+            }
+          }
+          const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+          const expectMuteMessageWarningLevel = async (warningLevel: number) => {
+            const messages: Promise<void>[] = []
+            for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD + 1; i++) {
+              messages.push(fnMocks.message(encodedMessage))
+            }
+            await Promise.all(messages)
+
+            const muteMessage: IServerClientMessage = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ClientServer.MessageType.CHAT,
+                chat: {
+                  chatType: Chat.ChatType.GLOBAL,
+                  message: SPAM_NOTIFICATION_MESSAGE(warningLevelMuteMapping[warningLevel])
+                }
+              }
+            }
+            const spamNotificationMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(muteMessage)).finish()
+
+            expect(wsMock.send).toHaveBeenLastCalledWith(spamNotificationMessage, {
+              binary: true
+            })
+
+            jest.advanceTimersByTime(warningLevelMuteMapping[warningLevel] * 1000)
+          }
+
+          for (let i = 0; i < warningLevelMuteMapping.length; i++) {
+            await expectMuteMessageWarningLevel(i)
+          }
+          await expectMuteMessageWarningLevel(0)
         })
       })
     })

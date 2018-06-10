@@ -3,6 +3,7 @@ import * as WebSocket from 'uws'
 import * as zlib from 'zlib'
 
 import { webSocketServer } from '.'
+import { Identity } from './Identity'
 import { Player, PLAYER_DATA_LENGTH } from './Player'
 import { WebSocketServer } from './WebSocketServer'
 import { ConnectionError } from './models/Connection.model'
@@ -25,6 +26,8 @@ const escapeHTML = require('escape-html')
 const FilterXSS = require('xss')
 
 export class Client {
+  private identity: Identity
+
   public player?: Player
 
   private connectionTimeout?: NodeJS.Timer
@@ -38,6 +41,7 @@ export class Client {
   constructor (public id: number, private ws: WebSocket) {
     this.id = id
     this.ws = ws
+    this.identity = Identity.getIdentity(this, (ws as any)._socket.remoteAddress)
     ws.on('close', this.onDisconnect.bind(this))
     ws.on('message', this.onMessage.bind(this))
     this.connectionTimeout = setTimeout(() => {
@@ -48,6 +52,10 @@ export class Client {
       }
     }, CONNECTION_TIMEOUT)
     this.afkTimeout = setInterval(this.afkTimer, AFK_TIMEOUT)
+  }
+
+  public closeConnection (): void {
+    this.ws.close()
   }
 
   private afkTimer = () => {
@@ -99,6 +107,7 @@ export class Client {
   }
 
   private onDisconnect (): void {
+    this.identity.startDeleteTimeout()
     webSocketServer.removePlayer(this.id)
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout)
@@ -186,6 +195,7 @@ export class Client {
   }
 
   private onBadMessage (): void {
+    this.identity.maxWarningLevel()
     this.ws.close()
   }
 
@@ -349,6 +359,11 @@ export class Client {
       this.onBadMessage()
       return
     }
+
+    if (!this.identity.chatProtect(message)) {
+      return
+    }
+
     switch (chat!.chatType) {
       case Chat.ChatType.GLOBAL:
         webSocketServer.onGlobalChatMessage(this, message)
