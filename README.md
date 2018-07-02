@@ -1,6 +1,7 @@
 # Net64+ Server
 
 [![Discord](https://discord.gg/net64)](https://discord.gg/SPZsgSe)
+[![Coverage Status](https://coveralls.io/repos/github/Tarnadas/net64plus-server/badge.svg?branch=master)](https://coveralls.io/github/Tarnadas/net64plus-server?branch=master)
 
 Net64 aka SM64O allows playing Super Mario 64 in an online multiplayer mode. Net64+ is the official continuation of the program and features an integrated server list.
 
