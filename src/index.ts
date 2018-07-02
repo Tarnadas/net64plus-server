@@ -9,7 +9,7 @@ import { DEFAULT_SETTINGS } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
 const UPDATE_INTERVAL = 32
-const URL_IP_API = 'http://freegeoip.net/json/'
+const URL_IP_API = 'http://ip-api.com/json'
 
 export let webSocketServer: WebSocketServer
 
@@ -30,11 +30,11 @@ const init = async () => {
       responseType: 'json'
     })).data
     return {
-      ip: res.ip,
-      country: res.country_name,
-      countryCode: res.country_code,
-      latitude: res.latitude,
-      longitude: res.longitude
+      ip: res.query,
+      country: res.country,
+      countryCode: res.countryCode,
+      latitude: res.lat,
+      longitude: res.lon
     }
   } catch (err) {
     console.warn('It looks like you are offline. The server will be starting in offline mode')
