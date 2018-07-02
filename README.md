@@ -1,6 +1,6 @@
 # Net64+ Server
 
-![[Discord](https://goo.gl/P5niG3)](https://discord.gg/SPZsgSe)
+[![Discord](https://discord.gg/net64)](https://discord.gg/SPZsgSe)
 
 Net64 aka SM64O allows playing Super Mario 64 in an online multiplayer mode. Net64+ is the official continuation of the program and features an integrated server list.
 
