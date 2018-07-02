@@ -17,6 +17,7 @@ fs.writeFileSync(
 nexe.compile({
   input: './compile/index.js',
   output: 'net64plus-server',
+  target: 'windows-x64-8.9.4',
   native: {
     uws: {
       additionalFiles: [
