@@ -16,7 +16,7 @@ fs.writeFileSync(
 
 nexe.compile({
   input: './compile/index.js',
-  output: 'net64plus-ded',
+  output: 'net64plus-server',
   native: {
     uws: {
       additionalFiles: [

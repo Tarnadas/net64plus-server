@@ -4,5 +4,5 @@
 /compile/index.js
 /.idea/
 /coverage/
-net64plus-ded.exe
-net64plus-ded.7z
+*.exe
+*.7z

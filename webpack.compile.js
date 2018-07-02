@@ -1,7 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
 const MinifyPlugin = require('babel-minify-webpack-plugin')
-const JavaScriptObfuscator = require('webpack-obfuscator')
 
 const [ major, minor, patch ] = process.env.npm_package_compatVersion.split('.')
 
@@ -26,9 +25,9 @@ module.exports = [
         MINOR: minor,
         PATCH: patch
       }),
-      new webpack.IgnorePlugin(/^uws$/),
-      new MinifyPlugin(),
-      new JavaScriptObfuscator()
+      new webpack.IgnorePlugin(/^uws$/)
+      // TODO add minification
+      // new MinifyPlugin()
     ],
     resolve: {
       extensions: [ '.js', '.ts', '.json' ]

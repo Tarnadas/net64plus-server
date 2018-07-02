@@ -1,5 +1,5 @@
 {
-  "name": "net64plus-ded",
+  "name": "net64plus-server",
   "version": "2.0.5",
   "compatVersion": "1.0.0.",
   "description": "Net64+ Dedicated Server",
@@ -9,14 +9,13 @@
     "build": "webpack --env=prod",
     "build:dev": "webpack --env=dev",
     "build:compile": "webpack --env=compile",
-    "compile": "npm run build && nexe ./dist",
-    "nexe": "npm run build:compile && node ./build",
+    "compile": "npm run build:compile && node ./build",
     "lint": "eslint src/ --ext ts",
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tarnadas/net64plus-ded.git"
+    "url": "git+https://github.com/Tarnadas/net64plus-server.git"
   },
   "keywords": [
     "net64",
@@ -31,9 +30,9 @@
   "author": "Mario Reder",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Tarnadas/net64plus-ded/issues"
+    "url": "https://github.com/Tarnadas/net64plus-server/issues"
   },
-  "homepage": "https://github.com/Tarnadas/net64plus-ded#readme",
+  "homepage": "https://github.com/Tarnadas/net64plus-server#readme",
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
@@ -87,7 +86,6 @@
     "typescript": "^2.7.2",
     "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
-    "webpack-node-externals": "^1.6.0",
-    "webpack-obfuscator": "^0.16.0"
+    "webpack-node-externals": "^1.6.0"
   }
 }
