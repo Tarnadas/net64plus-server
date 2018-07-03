@@ -13,14 +13,10 @@ addons:
     packages:
       - g++-4.8
 
-before_install:
-  - npm install -g yarn --cache-min 999999999
-
-install:
-  - yarn
-
 jobs:
   include:
-    - stage: Produce Coverage
-      node_js: "8.9.4"
+    - stage: Test
       script: jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
+    - stage: Build
+      script: yarn build
+      
