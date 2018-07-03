@@ -1,11 +1,13 @@
 {
   "parser": "typescript-eslint-parser",
   "extends": [
-    "standard-with-typescript"
+    "standard-with-typescript",
+    "plugin:jest/recommended"
   ],
   "plugins": [
     "typescript",
-    "jsdoc"
+    "jsdoc",
+    "jest"
   ],
   "rules": {
     "indent": "off",
