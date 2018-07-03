@@ -5,7 +5,7 @@ import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEO
 import { IClientServerMessage, Compression, ClientServer, ClientServerMessage, Chat } from './proto/ClientServerMessage'
 import { IServerClientMessage, ServerClient, ServerClientMessage, ServerMessage, Error as ErrorProto } from './proto/ServerClientMessage'
 import {
-  MESSAGES_PER_HALF_MINUTE_THRESHOLD, MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD, MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD, SPAM_NOTIFICATION_MESSAGE, warningLevelMuteMapping
+  MESSAGES_PER_HALF_MINUTE_THRESHOLD, MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD, MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD, SPAM_NOTIFICATION_MESSAGE, warningLevelMuteMapping, Identity
 } from './Identity'
 
 const addClient = (client: Client) => {
@@ -35,7 +35,10 @@ describe('Client', () => {
         fnMocks[type] = callback
       },
       send: jest.fn(),
-      close: jest.fn()
+      close: jest.fn(),
+      _socket: {
+        remoteAddress: '127.0.0.1'
+      }
     }
     client = new Client(1, wsMock)
     addClient(client)
@@ -43,6 +46,10 @@ describe('Client', () => {
 
   beforeEach(() => {
     expect(webSocketServer.clients[client.id]).toBeDefined()
+  })
+
+  beforeEach(() => {
+    Identity.Identities = {}
   })
 
   it('should automatically disconnect, if no handshake and player data gets received in timeout interval', () => {
@@ -249,7 +256,7 @@ describe('Client', () => {
               data: {
                 messageType: ClientServer.MessageType.CHAT,
                 chat: {
-                  chatType: Chat.ChatType.GLOBAL,
+                  chatType: Chat.ChatType.COMMAND,
                   message: SPAM_NOTIFICATION_MESSAGE(warningLevelMuteMapping[warningLevel])
                 }
               }
