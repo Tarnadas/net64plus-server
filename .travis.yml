@@ -1,15 +1,22 @@
 language: node_js
+
 node_js:
   - "8.9.4"
+
 env:
   - CXX=g++-4.8
+
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-before_install:
-  - npm install -g yarn --cache-min 999999999
-install:
-  - yarn
+
+jobs:
+  include:
+    - stage: Test
+      script: jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
+    - stage: Build
+      script: yarn build
+      
