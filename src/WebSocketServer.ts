@@ -42,8 +42,6 @@ export class WebSocketServer {
 
   public playerWithToken?: Player
 
-  private isOffline: boolean
-
   private server?: WebSocket.Server
 
   private metaData: MetaData = new MetaData()
@@ -62,11 +60,12 @@ export class WebSocketServer {
 
   private countryCode: string
 
+  private passwordRequired: boolean
+
   constructor (
-    { port, gamemode, enableGamemodeVote, name, domain, description }: Settings,
+    { port, gamemode, enableGamemodeVote, passwordRequired, name, domain, description }: Settings,
     server?: Server
   ) {
-    this.isOffline = !server
     this.gameMode = gamemode
     this.ip = server ? server.ip : ''
     this.port = port
@@ -74,6 +73,7 @@ export class WebSocketServer {
     this.domain = domain
     this.description = description
     this.countryCode = server ? server.countryCode : 'LAN'
+    this.passwordRequired = passwordRequired
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
     this.server = new WSServer({ port: this.port }, () => {
@@ -155,7 +155,8 @@ export class WebSocketServer {
           gameMode: this.gameMode,
           playerList: {
             playerUpdates: this.generatePlayerUpdates()
-          }
+          },
+          passwordRequired: this.passwordRequired
         }
       }
     }

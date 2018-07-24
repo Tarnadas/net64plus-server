@@ -251,7 +251,7 @@ describe('Client', () => {
             }
             await Promise.all(messages)
 
-            const muteMessage: IServerClientMessage = {
+            const muteMessage: IClientServerMessage = {
               compression: Compression.NONE,
               data: {
                 messageType: ClientServer.MessageType.CHAT,

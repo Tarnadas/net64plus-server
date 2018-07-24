@@ -29,6 +29,7 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
   "enableWebHook": false, // set this to true, if you want your server to be listed
   "gamemode": 1, // the initial gamemode
   "enableGamemodeVote": true, // whether gamemode voting should be enabled
+  "passwordRequired": false, // whether password is required to join this server
   "name": "A Net64+ Server", // display name for public server list
   "domain": "", // domain of your server for public server list. keep it empty, if you don't have a domain
   "description": "The **best** Net64+ server ever\n\n:unicorn_face:", // description for public server list
