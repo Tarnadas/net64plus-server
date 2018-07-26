@@ -20,8 +20,7 @@ import {
   Compression,
   Chat,
   Error as ErrorProto,
-  IMeta,
-  GameModeType
+  IMeta
 } from './proto/ServerClientMessage'
 
 let WSServer: typeof WebSocket.Server
@@ -60,10 +59,12 @@ export class WebSocketServer {
 
   private countryCode: string
 
-  private passwordRequired: boolean
+  public readonly passwordRequired: boolean
+
+  public readonly password: string
 
   constructor (
-    { port, gamemode, enableGamemodeVote, passwordRequired, name, domain, description }: Settings,
+    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description }: Settings,
     server?: Server
   ) {
     this.gameMode = gamemode
@@ -74,6 +75,7 @@ export class WebSocketServer {
     this.description = description
     this.countryCode = server ? server.countryCode : 'LAN'
     this.passwordRequired = passwordRequired
+    this.password = password
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
     this.server = new WSServer({ port: this.port }, () => {
@@ -124,7 +126,7 @@ export class WebSocketServer {
       }
     }
     const playerMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(playerMsg)).finish()
-    this.broadcastMessage(playerMessage)
+    this.broadcastMessageAll(playerMessage)
   }
 
   private generatePlayerUpdates (): IPlayerUpdate[] {
@@ -181,11 +183,30 @@ export class WebSocketServer {
     }
   }
 
+  /**
+   * Broadcast message to all authenticate clients.
+   *
+   * @param {Uint8Array} message - The message to broadcast
+   */
   public broadcastMessage (message: Uint8Array): void {
-    for (const i in this.players) {
-      const player = this.players[i]
-      player.client.sendMessage(message)
-    }
+    this.players
+      .filter(player => player)
+      .forEach(({ client }) => {
+        client.sendMessage(message)
+      })
+  }
+
+  /**
+   * Broadcast message to all clients.
+   *
+   * @param {Uint8Array} message - The message to broadcast
+   */
+  public broadcastMessageAll (message: Uint8Array): void {
+    this.clients
+      .filter(client => client)
+      .forEach(client => {
+        client.sendMessage(message)
+      })
   }
 
   public async broadcastData (): Promise<void> {

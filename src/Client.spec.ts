@@ -1,11 +1,18 @@
 import * as zlib from 'zlib'
 
 import { webSocketServer } from '.'
-import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT, MAX_LENGTH_CHAT_MESSAGE } from './Client'
+import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT, MAX_LENGTH_CHAT_MESSAGE, NO_PASSWORD_REQUIRED } from './Client'
+import { Player } from './Player'
 import { IClientServerMessage, Compression, ClientServer, ClientServerMessage, Chat } from './proto/ClientServerMessage'
-import { IServerClientMessage, ServerClient, ServerClientMessage, ServerMessage, Error as ErrorProto } from './proto/ServerClientMessage'
+import { IServerClientMessage, ServerClient, ServerClientMessage, ServerMessage, Error as ErrorProto, Authentication } from './proto/ServerClientMessage'
 import {
-  MESSAGES_PER_HALF_MINUTE_THRESHOLD, MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD, MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD, SPAM_NOTIFICATION_MESSAGE, warningLevelMuteMapping, Identity
+  Identity,
+  PASSWORD_THROTTLE_INCREASE,
+  MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD,
+  MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD,
+  MESSAGES_PER_HALF_MINUTE_THRESHOLD,
+  SPAM_NOTIFICATION_MESSAGE,
+  warningLevelMuteMapping
 } from './Identity'
 
 const addClient = (client: Client) => {
@@ -28,7 +35,9 @@ describe('Client', () => {
     webSocketServer = {
       clients: [],
       players: [],
-      onGlobalChatMessage: jest.fn()
+      onGlobalChatMessage: jest.fn(),
+      sendHandshake: jest.fn(),
+      addPlayer: jest.fn()
     } as any
     wsMock = {
       on: (type: string, callback: () => Promise<void>) => {
@@ -124,6 +133,206 @@ describe('Client', () => {
           await fnMocks.message(encodedMessage)
 
           expect(wsMock.send).toHaveBeenCalledWith(new Uint8Array(encodedMessage), { binary: true })
+        })
+      })
+
+      describe('#onAuthentication', () => {
+        let username: string
+        let characterId: number
+
+        beforeEach(() => {
+          username = 'username'
+          characterId = 4
+          process.env.MAJOR = '0'
+          process.env.MINOR = '0'
+        })
+
+        beforeEach(() => {
+          expect(client.player).toBeUndefined()
+        })
+
+        describe('if password is required', () => {
+          beforeEach(() => {
+            // @ts-ignore
+            webSocketServer.passwordRequired = true
+            const message: IClientServerMessage = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ClientServer.MessageType.HANDSHAKE,
+                handshake: {
+                  characterId,
+                  major: 0,
+                  minor: 0,
+                  username
+                }
+              }
+            }
+            const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+            return fnMocks.message(encodedMessage)
+          })
+
+          describe('on correct password', () => {
+            beforeEach(async () => {
+              const password = 'server-password'
+              // @ts-ignore
+              webSocketServer.password = password
+              const message: IClientServerMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ClientServer.MessageType.AUTHENTICATE,
+                  authenticate: {
+                    password
+                  }
+                }
+              }
+              const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+              await fnMocks.message(encodedMessage)
+            })
+
+            it('should create player object', () => {
+              expect(client.player).toBeDefined()
+              expect(client.player!.username).toEqual(username)
+              expect(client.player!.characterId).toEqual(characterId)
+            })
+
+            it('should add player to server', () => {
+              expect(webSocketServer.addPlayer).toHaveBeenCalledWith(new Player(client, username, characterId))
+            })
+
+            it('should send password accepted message to client', () => {
+              const success: IServerClientMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ServerClient.MessageType.SERVER_MESSAGE,
+                  serverMessage: {
+                    messageType: ServerMessage.MessageType.AUTHENTICATION,
+                    authentication: {
+                      status: Authentication.Status.ACCEPTED
+                    }
+                  }
+                }
+              }
+              const successMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(success)).finish()
+
+              expect(wsMock.send).toHaveBeenLastCalledWith(successMessage, {
+                binary: true
+              })
+            })
+          })
+
+          describe('on incorrect password', () => {
+            let wrongPasswordMessage: Uint8Array
+            beforeEach(async () => {
+              const password = 'server-password'
+              // @ts-ignore
+              webSocketServer.password = password
+              const message: IClientServerMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ClientServer.MessageType.AUTHENTICATE,
+                  authenticate: {
+                    password: 'incorrect-password'
+                  }
+                }
+              }
+              wrongPasswordMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+              await fnMocks.message(wrongPasswordMessage)
+              expect(wsMock.send).toHaveBeenCalledTimes(1)
+            })
+
+            it('should send message that password was incorrect', () => {
+              const message: IServerClientMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ServerClient.MessageType.SERVER_MESSAGE,
+                  serverMessage: {
+                    messageType: ServerMessage.MessageType.AUTHENTICATION,
+                    authentication: {
+                      status: Authentication.Status.DENIED,
+                      throttle: PASSWORD_THROTTLE_INCREASE
+                    }
+                  }
+                }
+              }
+              const wrongPasswordMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(message)).finish()
+
+              expect(wsMock.send).toHaveBeenLastCalledWith(wrongPasswordMessage, {
+                binary: true
+              })
+            })
+
+            it('should not accept message during throttle phase', async () => {
+              await fnMocks.message(wrongPasswordMessage)
+
+              expect(wsMock.send).toHaveBeenCalledTimes(1)
+            })
+
+            it('should reaccept message after throttling phase', async () => {
+              jest.advanceTimersByTime(PASSWORD_THROTTLE_INCREASE)
+              await fnMocks.message(wrongPasswordMessage)
+
+              expect(wsMock.send).toHaveBeenCalledTimes(2)
+            })
+          })
+        })
+
+        describe('if password is not required', () => {
+          beforeEach(async () => {
+            // @ts-ignore
+            webSocketServer.passwordRequired = false
+            let message: IClientServerMessage = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ClientServer.MessageType.HANDSHAKE,
+                handshake: {
+                  characterId,
+                  major: 0,
+                  minor: 0,
+                  username
+                }
+              }
+            }
+            let encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+            await fnMocks.message(encodedMessage)
+
+            message = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ClientServer.MessageType.AUTHENTICATE,
+                authenticate: {
+                  password: 'password'
+                }
+              }
+            }
+            encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+            await fnMocks.message(encodedMessage)
+          })
+
+          it('should send message that password is not required', () => {
+            const message: IServerClientMessage = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ServerClient.MessageType.SERVER_MESSAGE,
+                serverMessage: {
+                  messageType: ServerMessage.MessageType.ERROR,
+                  error: {
+                    errorType: ErrorProto.ErrorType.BAD_REQUEST,
+                    message: NO_PASSWORD_REQUIRED
+                  }
+                }
+              }
+            }
+            const noPassRequiredMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(message)).finish()
+
+            expect(wsMock.send).toHaveBeenLastCalledWith(noPassRequiredMessage, {
+              binary: true
+            })
+          })
         })
       })
 

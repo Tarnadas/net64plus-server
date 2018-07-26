@@ -3,6 +3,10 @@ import {
   IServerClientMessage, ServerClient, Compression, ServerClientMessage, Chat
 } from './proto/ServerClientMessage'
 
+export const PASSWORD_THROTTLE_INCREASE = 10
+
+export const PASSWORD_THROTTLE_RESET = 120
+
 export const MESSAGES_PER_HALF_MINUTE_THRESHOLD = 15
 
 export const MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD = 150
@@ -23,6 +27,17 @@ export class Identity {
   private static identityDeleteTimers: { [key: string]: NodeJS.Timer } = {}
 
   private static identityDeleteTimeout = 120000
+
+  private passwordThrottle = 0
+
+  private passwordThrottleReset?: NodeJS.Timer
+
+  private _canSendPassword = true
+  public get canSendPassword (): boolean {
+    return this._canSendPassword
+  }
+
+  private canSendPasswordReset?: NodeJS.Timer
 
   private warningLevel = 0
 
@@ -57,6 +72,23 @@ export class Identity {
     Identity.identityDeleteTimers[this.ipAddress] = setTimeout(() => {
       delete Identity.Identities[this.ipAddress]
     }, Identity.identityDeleteTimeout)
+  }
+
+  public getPasswordThrottle (): number {
+    if (!this._canSendPassword) {
+      throw new Error('Password throttle was called even though password sending is disabled')
+    }
+    this.passwordThrottle += PASSWORD_THROTTLE_INCREASE
+    this.passwordThrottleReset = setTimeout(() => {
+      this.passwordThrottle = 0
+      delete this.passwordThrottleReset
+    }, PASSWORD_THROTTLE_RESET)
+    this._canSendPassword = false
+    this.canSendPasswordReset = setTimeout(() => {
+      this._canSendPassword = true
+      delete this.canSendPasswordReset
+    }, this.passwordThrottle)
+    return this.passwordThrottle
   }
 
   public chatProtect (message: string): boolean {

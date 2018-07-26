@@ -10,6 +10,7 @@ describe('WebSocketServer', () => {
       gamemode: 1,
       enableGamemodeVote: true,
       passwordRequired: false,
+      password: '',
       name: 'A Server',
       domain: '',
       description: 'A description'
