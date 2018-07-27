@@ -80,6 +80,9 @@ export class WebSocketServer {
     this.onConnection = this.onConnection.bind(this)
     this.server = new WSServer({ port: this.port }, () => {
       console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
+      if (passwordRequired) {
+        console.info('Password protection enabled')
+      }
       if (process.env.TARGET_ENV === 'win32') {
         console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
         console.info('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')

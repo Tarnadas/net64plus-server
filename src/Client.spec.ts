@@ -263,15 +263,56 @@ describe('Client', () => {
                 binary: true
               })
             })
+          })
 
-            it('should not accept message during throttle phase', async () => {
+          describe('during throttling phase', () => {
+            let wrongPasswordMessage: Uint8Array
+            beforeEach(async () => {
+              const password = 'server-password'
+              // @ts-ignore
+              webSocketServer.password = password
+              const message: IClientServerMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ClientServer.MessageType.AUTHENTICATE,
+                  authenticate: {
+                    password: 'incorrect-password'
+                  }
+                }
+              }
+              wrongPasswordMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
               await fnMocks.message(wrongPasswordMessage)
-
               expect(wsMock.send).toHaveBeenCalledTimes(1)
             })
 
+            it('should send remaining throttling time', async () => {
+              const expectedRemainingTime = 3;
+              (client as any).identity.getPasswordThrottle = jest.fn(() => expectedRemainingTime)
+              const message: IServerClientMessage = {
+                compression: Compression.NONE,
+                data: {
+                  messageType: ServerClient.MessageType.SERVER_MESSAGE,
+                  serverMessage: {
+                    messageType: ServerMessage.MessageType.AUTHENTICATION,
+                    authentication: {
+                      status: Authentication.Status.DENIED,
+                      throttle: expectedRemainingTime
+                    }
+                  }
+                }
+              }
+              const expectedMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(message)).finish()
+
+              await fnMocks.message(wrongPasswordMessage)
+
+              expect(wsMock.send).toHaveBeenLastCalledWith(expectedMessage, {
+                binary: true
+              })
+            })
+
             it('should reaccept message after throttling phase', async () => {
-              jest.advanceTimersByTime(PASSWORD_THROTTLE_INCREASE)
+              jest.advanceTimersByTime(PASSWORD_THROTTLE_INCREASE * 1000)
               await fnMocks.message(wrongPasswordMessage)
 
               expect(wsMock.send).toHaveBeenCalledTimes(2)

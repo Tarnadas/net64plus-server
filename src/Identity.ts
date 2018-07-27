@@ -30,6 +30,8 @@ export class Identity {
 
   private passwordThrottle = 0
 
+  private passwordThrottledUntil = 0
+
   private passwordThrottleReset?: NodeJS.Timer
 
   private _canSendPassword = true
@@ -76,18 +78,20 @@ export class Identity {
 
   public getPasswordThrottle (): number {
     if (!this._canSendPassword) {
-      throw new Error('Password throttle was called even though password sending is disabled')
+      const remainingThrottleTime = this.passwordThrottledUntil - Date.now()
+      return remainingThrottleTime / 1000
     }
     this.passwordThrottle += PASSWORD_THROTTLE_INCREASE
+    this.passwordThrottledUntil = Date.now() + this.passwordThrottle * 1000
     this.passwordThrottleReset = setTimeout(() => {
       this.passwordThrottle = 0
       delete this.passwordThrottleReset
-    }, PASSWORD_THROTTLE_RESET)
+    }, PASSWORD_THROTTLE_RESET * 1000)
     this._canSendPassword = false
     this.canSendPasswordReset = setTimeout(() => {
       this._canSendPassword = true
       delete this.canSendPasswordReset
-    }, this.passwordThrottle)
+    }, this.passwordThrottle * 1000)
     return this.passwordThrottle
   }
 

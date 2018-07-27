@@ -70,6 +70,9 @@ export class Client {
       }
     }, CONNECTION_TIMEOUT)
     this.afkTimeout = setInterval(this.afkTimer, AFK_TIMEOUT)
+    if (!this.identity.canSendPassword) {
+      this.sendWrongPasswordMessage()
+    }
   }
 
   public closeConnection (): void {
@@ -359,7 +362,10 @@ export class Client {
     }
     const authenticate = messageData.authenticate
     this.checkRequiredObjects(authenticate)
-    if (!this.identity.canSendPassword) return
+    if (!this.identity.canSendPassword) {
+      this.sendWrongPasswordMessage()
+      return
+    }
     const password = authenticate!.password
     if (password !== webSocketServer.password) {
       this.sendWrongPasswordMessage()
