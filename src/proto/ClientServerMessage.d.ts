@@ -126,6 +126,9 @@ export interface IClientServer {
     /** ClientServer player */
     player?: (IPlayer|null);
 
+    /** ClientServer authenticate */
+    authenticate?: (IAuthenticate|null);
+
     /** ClientServer playerData */
     playerData?: (IPlayerData|null);
 
@@ -157,6 +160,9 @@ export class ClientServer implements IClientServer {
     /** ClientServer player. */
     public player?: (IPlayer|null);
 
+    /** ClientServer authenticate. */
+    public authenticate?: (IAuthenticate|null);
+
     /** ClientServer playerData. */
     public playerData?: (IPlayerData|null);
 
@@ -167,7 +173,7 @@ export class ClientServer implements IClientServer {
     public chat?: (IChat|null);
 
     /** ClientServer message. */
-    public message?: ("handshake"|"ping"|"player"|"playerData"|"metaData"|"chat");
+    public message?: ("handshake"|"ping"|"player"|"authenticate"|"playerData"|"metaData"|"chat");
 
     /**
      * Creates a new ClientServer instance using the specified properties.
@@ -248,6 +254,7 @@ export namespace ClientServer {
         HANDSHAKE = 2,
         PING = 3,
         PLAYER_UPDATE = 6,
+        AUTHENTICATE = 7,
         PLAYER_DATA = 128,
         META_DATA = 129,
         CHAT = 130
@@ -537,6 +544,96 @@ export class Player implements IPlayer {
 
     /**
      * Converts this Player to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Properties of an Authenticate. */
+export interface IAuthenticate {
+
+    /** Authenticate password */
+    password?: (string|null);
+}
+
+/** Represents an Authenticate. */
+export class Authenticate implements IAuthenticate {
+
+    /**
+     * Constructs a new Authenticate.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IAuthenticate);
+
+    /** Authenticate password. */
+    public password: string;
+
+    /**
+     * Creates a new Authenticate instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Authenticate instance
+     */
+    public static create(properties?: IAuthenticate): Authenticate;
+
+    /**
+     * Encodes the specified Authenticate message. Does not implicitly {@link Authenticate.verify|verify} messages.
+     * @param message Authenticate message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IAuthenticate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Authenticate message, length delimited. Does not implicitly {@link Authenticate.verify|verify} messages.
+     * @param message Authenticate message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IAuthenticate, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an Authenticate message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Authenticate
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Authenticate;
+
+    /**
+     * Decodes an Authenticate message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Authenticate
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Authenticate;
+
+    /**
+     * Verifies an Authenticate message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an Authenticate message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Authenticate
+     */
+    public static fromObject(object: { [k: string]: any }): Authenticate;
+
+    /**
+     * Creates a plain object from an Authenticate message. Also converts values to other types if specified.
+     * @param message Authenticate
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Authenticate, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Authenticate to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };

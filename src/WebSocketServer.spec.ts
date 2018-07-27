@@ -9,6 +9,8 @@ describe('WebSocketServer', () => {
       port: 3678,
       gamemode: 1,
       enableGamemodeVote: true,
+      passwordRequired: false,
+      password: '',
       name: 'A Server',
       domain: '',
       description: 'A description'

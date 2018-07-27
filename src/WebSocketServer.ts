@@ -20,8 +20,7 @@ import {
   Compression,
   Chat,
   Error as ErrorProto,
-  IMeta,
-  GameModeType
+  IMeta
 } from './proto/ServerClientMessage'
 
 let WSServer: typeof WebSocket.Server
@@ -42,8 +41,6 @@ export class WebSocketServer {
 
   public playerWithToken?: Player
 
-  private isOffline: boolean
-
   private server?: WebSocket.Server
 
   private metaData: MetaData = new MetaData()
@@ -62,11 +59,14 @@ export class WebSocketServer {
 
   private countryCode: string
 
+  public readonly passwordRequired: boolean
+
+  public readonly password: string
+
   constructor (
-    { port, gamemode, enableGamemodeVote, name, domain, description }: Settings,
+    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description }: Settings,
     server?: Server
   ) {
-    this.isOffline = !server
     this.gameMode = gamemode
     this.ip = server ? server.ip : ''
     this.port = port
@@ -74,10 +74,15 @@ export class WebSocketServer {
     this.domain = domain
     this.description = description
     this.countryCode = server ? server.countryCode : 'LAN'
+    this.passwordRequired = passwordRequired
+    this.password = password
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
     this.server = new WSServer({ port: this.port }, () => {
       console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
+      if (passwordRequired) {
+        console.info('Password protection enabled')
+      }
       if (process.env.TARGET_ENV === 'win32') {
         console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
         console.info('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')
@@ -124,7 +129,7 @@ export class WebSocketServer {
       }
     }
     const playerMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(playerMsg)).finish()
-    this.broadcastMessage(playerMessage)
+    this.broadcastMessageAll(playerMessage)
   }
 
   private generatePlayerUpdates (): IPlayerUpdate[] {
@@ -155,7 +160,8 @@ export class WebSocketServer {
           gameMode: this.gameMode,
           playerList: {
             playerUpdates: this.generatePlayerUpdates()
-          }
+          },
+          passwordRequired: this.passwordRequired
         }
       }
     }
@@ -180,11 +186,30 @@ export class WebSocketServer {
     }
   }
 
+  /**
+   * Broadcast message to all authenticate clients.
+   *
+   * @param {Uint8Array} message - The message to broadcast
+   */
   public broadcastMessage (message: Uint8Array): void {
-    for (const i in this.players) {
-      const player = this.players[i]
-      player.client.sendMessage(message)
-    }
+    this.players
+      .filter(player => player)
+      .forEach(({ client }) => {
+        client.sendMessage(message)
+      })
+  }
+
+  /**
+   * Broadcast message to all clients.
+   *
+   * @param {Uint8Array} message - The message to broadcast
+   */
+  public broadcastMessageAll (message: Uint8Array): void {
+    this.clients
+      .filter(client => client)
+      .forEach(client => {
+        client.sendMessage(message)
+      })
   }
 
   public async broadcastData (): Promise<void> {

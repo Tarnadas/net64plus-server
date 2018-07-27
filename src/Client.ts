@@ -5,12 +5,24 @@ import * as zlib from 'zlib'
 import { webSocketServer } from '.'
 import { Identity } from './Identity'
 import { Player, PLAYER_DATA_LENGTH } from './Player'
-import { WebSocketServer } from './WebSocketServer'
 import { ConnectionError } from './models/Connection.model'
 import {
-  ServerClientMessage, IServerClientMessage, ServerClient, ServerMessage, ConnectionDenied, Error as ErrorProto
+  Authentication,
+  ConnectionDenied,
+  Error as ErrorProto,
+  IServerClientMessage,
+  ServerClient,
+  ServerClientMessage,
+  ServerMessage
 } from './proto/ServerClientMessage'
-import { ClientServerMessage, ClientServer, IClientServer, IClientHandshake, Compression, Chat } from './proto/ClientServerMessage'
+import {
+  Chat,
+  ClientServer,
+  ClientServerMessage,
+  Compression,
+  IClientHandshake,
+  IClientServer
+} from './proto/ClientServerMessage'
 
 export const CONNECTION_TIMEOUT = 10000
 
@@ -19,6 +31,8 @@ export const AFK_TIMEOUT = 10000
 export const AFK_TIMEOUT_COUNT = 30
 
 export const DECOMPRESSION_ERROR = 'Your message could not be decompressed'
+
+export const NO_PASSWORD_REQUIRED = 'This server requires no password authentication'
 
 export const MAX_LENGTH_CHAT_MESSAGE = 100
 
@@ -38,6 +52,10 @@ export class Client {
 
   private previousPlayerLocation = 0
 
+  private desiredUsername?: string
+
+  private desiredCharacterId?: number
+
   constructor (public id: number, private ws: WebSocket) {
     this.id = id
     this.ws = ws
@@ -52,6 +70,9 @@ export class Client {
       }
     }, CONNECTION_TIMEOUT)
     this.afkTimeout = setInterval(this.afkTimer, AFK_TIMEOUT)
+    if (!this.identity.canSendPassword) {
+      this.sendWrongPasswordMessage()
+    }
   }
 
   public closeConnection (): void {
@@ -166,6 +187,9 @@ export class Client {
         case ClientServer.MessageType.PLAYER_UPDATE:
           this.onPlayerUpdate(messageData!)
           break
+        case ClientServer.MessageType.AUTHENTICATE:
+          this.onAuthentication(messageData!)
+          break
         case ClientServer.MessageType.PLAYER_DATA:
           this.onPlayerData(messageData!)
           break
@@ -250,12 +274,25 @@ export class Client {
         this.sendWrongVersionMessage()
         return
       }
-      this.player = new Player(this, username, characterId)
-      webSocketServer.addPlayer(this.player)
       this.sendHandshake()
+      if (webSocketServer.passwordRequired) {
+        this.desiredUsername = username
+        this.desiredCharacterId = characterId
+        return
+      }
+      this.createPlayerObject(username, characterId)
     } catch (err) {
       console.error(err)
     }
+  }
+
+  private createPlayerObject (username?: string, characterId?: number): void {
+    username = username || this.desiredUsername
+    if (!username) throw new Error('Player object could not be created, because username is null')
+    characterId = characterId || this.desiredCharacterId
+    if (characterId == null) throw new Error('Player object could not be created, because characterId is null')
+    this.player = new Player(this, username, characterId)
+    webSocketServer.addPlayer(this.player)
   }
 
   private isClientUsingWrongVersion (handshake: IClientHandshake): boolean {
@@ -312,10 +349,68 @@ export class Client {
       }
     }
     const playerMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(playerMsg)).finish()
-    webSocketServer.broadcastMessage(playerMessage)
+    webSocketServer.broadcastMessageAll(playerMessage)
   }
 
-  private onPlayerData (messageData: IClientServer) {
+  private onAuthentication (messageData: IClientServer): void {
+    if (!webSocketServer.passwordRequired) {
+      this.sendBadRequest(new ConnectionError(
+        NO_PASSWORD_REQUIRED,
+        ErrorProto.ErrorType.BAD_REQUEST
+      ))
+      return
+    }
+    const authenticate = messageData.authenticate
+    this.checkRequiredObjects(authenticate)
+    if (!this.identity.canSendPassword) {
+      this.sendWrongPasswordMessage()
+      return
+    }
+    const password = authenticate!.password
+    if (password !== webSocketServer.password) {
+      this.sendWrongPasswordMessage()
+      return
+    }
+    this.sendSuccessfulAuthenticationMessage()
+    this.createPlayerObject()
+  }
+
+  private sendWrongPasswordMessage (): void {
+    const wrongPassword: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.SERVER_MESSAGE,
+        serverMessage: {
+          messageType: ServerMessage.MessageType.AUTHENTICATION,
+          authentication: {
+            status: Authentication.Status.DENIED,
+            throttle: this.identity.getPasswordThrottle()
+          }
+        }
+      }
+    }
+    const wrongPasswordMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(wrongPassword)).finish()
+    this.sendMessage(wrongPasswordMessage)
+  }
+
+  private sendSuccessfulAuthenticationMessage (): void {
+    const success: IServerClientMessage = {
+      compression: Compression.NONE,
+      data: {
+        messageType: ServerClient.MessageType.SERVER_MESSAGE,
+        serverMessage: {
+          messageType: ServerMessage.MessageType.AUTHENTICATION,
+          authentication: {
+            status: Authentication.Status.ACCEPTED
+          }
+        }
+      }
+    }
+    const successMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(success)).finish()
+    this.sendMessage(successMessage)
+  }
+
+  private onPlayerData (messageData: IClientServer): void {
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout)
       this.connectionTimeout = undefined
