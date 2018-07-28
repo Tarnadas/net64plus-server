@@ -296,7 +296,9 @@ export class Client {
   }
 
   private isClientUsingWrongVersion (handshake: IClientHandshake): boolean {
-    return String(handshake.major) !== process.env.MAJOR || String(handshake.minor) !== process.env.MINOR
+    const major = handshake.major || -1
+    const minor = handshake.minor || -1
+    return major < Number(process.env.MAJOR) || minor < Number(process.env.MINOR)
   }
 
   private sendWrongVersionMessage (): void {
