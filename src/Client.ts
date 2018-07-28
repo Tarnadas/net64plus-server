@@ -271,6 +271,7 @@ export class Client {
         return
       }
       if (this.isClientUsingWrongVersion(handshake)) {
+        console.log('WRONG', handshake, process.env.MAJOR, process.env.MINOR)
         this.sendWrongVersionMessage()
         return
       }
@@ -289,7 +290,7 @@ export class Client {
   private createPlayerObject (username?: string, characterId?: number): void {
     username = username || this.desiredUsername
     if (!username) throw new Error('Player object could not be created, because username is null')
-    characterId = characterId || this.desiredCharacterId
+    characterId = characterId != null ? characterId : this.desiredCharacterId
     if (characterId == null) throw new Error('Player object could not be created, because characterId is null')
     this.player = new Player(this, username, characterId)
     webSocketServer.addPlayer(this.player)
@@ -298,7 +299,7 @@ export class Client {
   private isClientUsingWrongVersion (handshake: IClientHandshake): boolean {
     const major = handshake.major || -1
     const minor = handshake.minor || -1
-    return major < Number(process.env.MAJOR) || minor < Number(process.env.MINOR)
+    return major !== Number(process.env.MAJOR) || minor < Number(process.env.MINOR)
   }
 
   private sendWrongVersionMessage (): void {

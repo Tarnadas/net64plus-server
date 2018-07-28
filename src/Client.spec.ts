@@ -23,10 +23,14 @@ describe('Client', () => {
   let client: Client
   let wsMock: any
   let fnMocks: {[key: string]: (...args: any[]) => Promise<void>}
+  let majorVersion = 1
+  let minorVersion = 1
 
   beforeEach(() => {
     jest.useFakeTimers()
     console.info = jest.fn()
+    process.env.MAJOR = String(majorVersion)
+    process.env.MINOR = String(minorVersion)
   })
 
   beforeEach(() => {
@@ -88,11 +92,6 @@ describe('Client', () => {
         })
 
         it('should handle gzip decompression error', async () => {
-          const data = {
-            messageType: ClientServer.MessageType.PING,
-            ping: {}
-          }
-          const dataMessage = ClientServer.encode(ClientServer.fromObject(data)).finish()
           const message: IClientServerMessage = {
             compression: Compression.GZIP,
             compressedData: new Uint8Array()
@@ -116,6 +115,32 @@ describe('Client', () => {
           await fnMocks.message(encodedMessage)
 
           expect(wsMock.send).toHaveBeenCalledWith(errorMessage, { binary: true })
+        })
+      })
+
+      describe('#onHandshake', () => {
+        describe('on correct handshake', () => {
+          beforeEach(() => {
+            const message: IClientServerMessage = {
+              compression: Compression.NONE,
+              data: {
+                messageType: ClientServer.MessageType.HANDSHAKE,
+                handshake: {
+                  characterId: 0,
+                  major: majorVersion,
+                  minor: minorVersion,
+                  username: 'username'
+                }
+              }
+            }
+            const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
+
+            return fnMocks.message(encodedMessage)
+          })
+
+          it('should create player object', () => {
+            expect(client.player).toBeDefined()
+          })
         })
       })
 
@@ -143,8 +168,6 @@ describe('Client', () => {
         beforeEach(() => {
           username = 'username'
           characterId = 4
-          process.env.MAJOR = '0'
-          process.env.MINOR = '0'
         })
 
         beforeEach(() => {
@@ -161,8 +184,8 @@ describe('Client', () => {
                 messageType: ClientServer.MessageType.HANDSHAKE,
                 handshake: {
                   characterId,
-                  major: 0,
-                  minor: 0,
+                  major: majorVersion,
+                  minor: minorVersion,
                   username
                 }
               }
@@ -330,8 +353,8 @@ describe('Client', () => {
                 messageType: ClientServer.MessageType.HANDSHAKE,
                 handshake: {
                   characterId,
-                  major: 0,
-                  minor: 0,
+                  major: majorVersion,
+                  minor: minorVersion,
                   username
                 }
               }
