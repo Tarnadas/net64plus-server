@@ -271,7 +271,6 @@ export class Client {
         return
       }
       if (this.isClientUsingWrongVersion(handshake)) {
-        console.log('WRONG', handshake, process.env.MAJOR, process.env.MINOR)
         this.sendWrongVersionMessage()
         return
       }
@@ -297,8 +296,8 @@ export class Client {
   }
 
   private isClientUsingWrongVersion (handshake: IClientHandshake): boolean {
-    const major = handshake.major || -1
-    const minor = handshake.minor || -1
+    const major = handshake.major != null ? handshake.major : -1
+    const minor = handshake.minor != null ? handshake.minor : -1
     return major !== Number(process.env.MAJOR) || minor < Number(process.env.MINOR)
   }
 
