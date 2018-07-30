@@ -1,7 +1,7 @@
 {
   "name": "net64plus-server",
   "version": "2.1.1",
-  "compatVersion": "1.0.0",
+  "compatVersion": "1.0",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
   "scripts": {

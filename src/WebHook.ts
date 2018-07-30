@@ -12,6 +12,8 @@ const apiKey = Symbol('apiKey')
 export class WebHook {
   private version: string
 
+  private compatVersion: string
+
   private ip: string
 
   private port: number
@@ -30,13 +32,16 @@ export class WebHook {
 
   private longitude: number
 
+  private passwordRequired: boolean
+
   private apiKey: string
 
   constructor (
-    { name, domain, description, port, apiKey }: Settings,
+    { name, domain, description, port, passwordRequired, apiKey }: Settings,
     { ip, country, countryCode, latitude, longitude }: Server
   ) {
     this.version = process.env.VERSION!
+    this.compatVersion = process.env.COMPAT_VERSION!
     this.ip = ip
     this.port = port
     this.domain = domain
@@ -46,11 +51,12 @@ export class WebHook {
     this.countryCode = countryCode
     this.latitude = latitude
     this.longitude = longitude
+    this.passwordRequired = passwordRequired
     this.apiKey = apiKey!
-    this.loop(true)
+    this.loop()
   }
 
-  private loop = async (firstRun = false) => {
+  private loop = async () => {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON

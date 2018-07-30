@@ -1,7 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 
-const [ major, minor, patch ] = process.env.npm_package_compatVersion.split('.')
+const [ major, minor ] = process.env.npm_package_compatVersion.split('.')
 
 module.exports = [
   {
@@ -20,9 +20,9 @@ module.exports = [
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'development',
         VERSION: process.env.npm_package_version,
+        COMPAT_VERSION: process.env.npm_package_compatVersion,
         MAJOR: major,
-        MINOR: minor,
-        PATCH: patch
+        MINOR: minor
       }),
       new webpack.IgnorePlugin(/^\.\.\/compile\/uws$/)
     ],
