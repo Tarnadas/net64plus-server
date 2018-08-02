@@ -1,4 +1,4 @@
-import { webSocketServer } from '.'
+import { webSocketServer } from './globals'
 import { Client } from './Client'
 import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMessage } from './proto/ServerClientMessage'
 

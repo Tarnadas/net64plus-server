@@ -1,4 +1,4 @@
-import { webSocketServer } from '.'
+import { webSocketServer } from './globals'
 import { Client } from './Client'
 import { Vote } from './Vote'
 import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMessage, GameModeType, ServerMessage } from './proto/ServerClientMessage'

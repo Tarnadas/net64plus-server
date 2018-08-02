@@ -1,6 +1,6 @@
+import { webSocketServer } from './globals'
 import { Client } from './Client'
 import { Characters } from './models/Characters.model'
-import { webSocketServer } from '.'
 
 export const PLAYER_DATA_LENGTH = 0x1C
 

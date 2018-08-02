@@ -1,5 +1,5 @@
 import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE, GAMEMODE_NOT_ENOUGH_VOTES } from './Command'
-import { webSocketServer } from '.'
+import { webSocketServer, setWebSocketServer } from './globals'
 import { Client } from './Client'
 import { ClientMock } from './Client.mock'
 import { Vote } from './Vote'
@@ -16,12 +16,12 @@ describe('Command', () => {
   beforeEach(() => {
     jest.useFakeTimers()
     // @ts-ignore
-    webSocketServer = {
+    setWebSocketServer({
       gameMode: 0,
       clients: [],
       broadcastMessage: jest.fn(),
       reorderPlayers: jest.fn()
-    }
+    })
     addMockClient(undefined!)
     console.info = jest.fn()
     command = new Command(true)
