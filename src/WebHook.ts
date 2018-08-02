@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { webSocketServer } from '.'
+import { webSocketServer } from './globals'
 import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
