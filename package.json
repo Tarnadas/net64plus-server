@@ -88,7 +88,7 @@
     "node-loader": "^0.6.0",
     "standard": "^10.0.3",
     "ts-jest": "^22.0.4",
-    "typescript": "^2.7.2",
+    "typescript": "^2.9",
     "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
     "webpack-node-externals": "^1.6.0"
