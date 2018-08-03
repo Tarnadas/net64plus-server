@@ -5,9 +5,14 @@ import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
 const URL_LIST = 'https://smmdb.ddns.net/net64'
-const URL_API = 'https://smmdb.ddns.net/api/net64server'
+export const URL_API = 'https://smmdb.ddns.net/api/net64server'
 
 const apiKey = Symbol('apiKey')
+
+if (process.env.NODE_ENV === 'test') {
+  // @ts-ignore
+  axios = axios.default
+}
 
 export class WebHook {
   private version: string
@@ -37,7 +42,7 @@ export class WebHook {
   private apiKey: string
 
   constructor (
-    { name, domain, description, port, passwordRequired, apiKey }: Settings,
+    { name, domain, description, port, passwordRequired, apiKey }: Omit<Settings, 'gamemode'>,
     { ip, country, countryCode, latitude, longitude }: Server
   ) {
     this.version = process.env.VERSION!
