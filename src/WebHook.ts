@@ -1,16 +1,23 @@
 import axios from 'axios'
 
-import { webSocketServer } from '.'
+import { webSocketServer } from './globals'
 import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
 const URL_LIST = 'https://smmdb.ddns.net/net64'
-const URL_API = 'https://smmdb.ddns.net/api/net64server'
+export const URL_API = 'https://smmdb.ddns.net/api/net64server'
 
 const apiKey = Symbol('apiKey')
 
+if (process.env.NODE_ENV === 'test') {
+  // @ts-ignore
+  axios = axios.default
+}
+
 export class WebHook {
   private version: string
+
+  private compatVersion: string
 
   private ip: string
 
@@ -30,13 +37,16 @@ export class WebHook {
 
   private longitude: number
 
+  private passwordRequired: boolean
+
   private apiKey: string
 
   constructor (
-    { name, domain, description, port, apiKey }: Settings,
+    { name, domain, description, port, passwordRequired, apiKey }: Omit<Settings, 'gamemode'>,
     { ip, country, countryCode, latitude, longitude }: Server
   ) {
     this.version = process.env.VERSION!
+    this.compatVersion = process.env.COMPAT_VERSION!
     this.ip = ip
     this.port = port
     this.domain = domain
@@ -46,11 +56,12 @@ export class WebHook {
     this.countryCode = countryCode
     this.latitude = latitude
     this.longitude = longitude
+    this.passwordRequired = passwordRequired
     this.apiKey = apiKey!
-    this.loop(true)
+    this.loop()
   }
 
-  private loop = async (firstRun = false) => {
+  private loop = async () => {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON

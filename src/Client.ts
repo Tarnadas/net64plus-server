@@ -2,7 +2,7 @@ import * as WebSocket from 'uws'
 
 import * as zlib from 'zlib'
 
-import { webSocketServer } from '.'
+import { webSocketServer } from './globals'
 import { Identity } from './Identity'
 import { Player, PLAYER_DATA_LENGTH } from './Player'
 import { ConnectionError } from './models/Connection.model'

@@ -1,6 +1,6 @@
 import * as zlib from 'zlib'
 
-import { webSocketServer } from '.'
+import { webSocketServer, setWebSocketServer } from './globals'
 import { Client, CONNECTION_TIMEOUT, DECOMPRESSION_ERROR, AFK_TIMEOUT, AFK_TIMEOUT_COUNT, MAX_LENGTH_CHAT_MESSAGE, NO_PASSWORD_REQUIRED } from './Client'
 import { Player } from './Player'
 import { IClientServerMessage, Compression, ClientServer, ClientServerMessage, Chat } from './proto/ClientServerMessage'
@@ -36,13 +36,13 @@ describe('Client', () => {
   beforeEach(() => {
     fnMocks = {}
     // @ts-ignore
-    webSocketServer = {
+    setWebSocketServer({
       clients: [],
       players: [],
       onGlobalChatMessage: jest.fn(),
       sendHandshake: jest.fn(),
       addPlayer: jest.fn()
-    } as any
+    } as any)
     wsMock = {
       on: (type: string, callback: () => Promise<void>) => {
         fnMocks[type] = callback

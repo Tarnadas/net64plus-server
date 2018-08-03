@@ -1,8 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
-const MinifyPlugin = require('babel-minify-webpack-plugin')
 
-const [ major, minor, patch ] = process.env.npm_package_compatVersion.split('.')
+const [ major, minor ] = process.env.npm_package_compatVersion.split('.')
 
 module.exports = [
   {
@@ -20,10 +19,10 @@ module.exports = [
       new webpack.EnvironmentPlugin({
         NODE_ENV: 'production',
         VERSION: process.env.npm_package_version,
+        COMPAT_VERSION: process.env.npm_package_compatVersion,
         TARGET_ENV: 'win32',
         MAJOR: major,
-        MINOR: minor,
-        PATCH: patch
+        MINOR: minor
       }),
       new webpack.IgnorePlugin(/^uws$/)
       // TODO add minification

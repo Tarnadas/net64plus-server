@@ -3,6 +3,7 @@ import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { webSocketServer, setWebSocketServer } from './globals'
 import { WebSocketServer } from './WebSocketServer'
 import { WebHook } from './WebHook'
 import { DEFAULT_SETTINGS } from './models/Settings.model'
@@ -10,8 +11,6 @@ import { Server } from './models/Server.model'
 
 const UPDATE_INTERVAL = 32
 const URL_IP_API = 'http://ip-api.com/json'
-
-export let webSocketServer: WebSocketServer
 
 let settings = DEFAULT_SETTINGS
 if (process.env.TARGET_ENV !== 'win32') {
@@ -43,7 +42,7 @@ const init = async () => {
 
 (async () => {
   let serverData: Server | undefined = await init()
-  webSocketServer = new WebSocketServer(settings, serverData)
+  setWebSocketServer(new WebSocketServer(settings, serverData))
   if (settings.enableWebHook && serverData) {
     if (!settings.apiKey) {
       throw new Error('You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')

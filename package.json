@@ -1,7 +1,7 @@
 {
   "name": "net64plus-server",
-  "version": "2.1.1",
-  "compatVersion": "1.0.0",
+  "version": "2.1.2",
+  "compatVersion": "1.0",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
   "scripts": {
@@ -49,7 +49,8 @@
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/*.{ts,tsx}",
-      "!**/*.{d,model,mock}.{ts,tsx}"
+      "!**/*.{d,model,mock}.{ts,tsx}",
+      "!**/{index,globals}.{ts,tsx}"
     ]
   },
   "dependencies": {
@@ -81,11 +82,13 @@
     "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-typescript": "^0.8.1",
     "jest": "^22.3.0",
+    "jest-mock-axios": "^2.1.11",
+    "mock-socket": "^8.0.2",
     "nexe": "^2.0.0-rc.23",
     "node-loader": "^0.6.0",
     "standard": "^10.0.3",
     "ts-jest": "^22.0.4",
-    "typescript": "^2.7.2",
+    "typescript": "^2.9",
     "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
     "webpack-node-externals": "^1.6.0"
