@@ -129,15 +129,16 @@ export class Client {
 
   private onDisconnect (): void {
     this.identity.startDeleteTimeout()
-    webSocketServer.removePlayer(this.id)
+    delete webSocketServer.clients[this.id]
+    if (this.player) {
+      webSocketServer.removePlayer(this.id)
+    }
     if (this.connectionTimeout) {
       clearTimeout(this.connectionTimeout)
     }
     if (this.afkTimeout) {
       clearInterval(this.afkTimeout)
     }
-    const activeUsers = webSocketServer.clients.filter(client => client).length
-    console.info(`Active users: ${activeUsers}/24`)
   }
 
   /**

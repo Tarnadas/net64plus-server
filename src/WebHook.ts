@@ -4,7 +4,6 @@ import { webSocketServer } from './globals'
 import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
-const URL_LIST = 'https://smmdb.ddns.net/net64'
 export const URL_API = 'https://smmdb.ddns.net/api/net64server'
 
 const apiKey = Symbol('apiKey')
@@ -18,6 +17,8 @@ export class WebHook {
   private version: string
 
   private compatVersion: string
+
+  private id?: string
 
   private ip: string
 
@@ -41,6 +42,8 @@ export class WebHook {
 
   private apiKey: string
 
+  private isDedicated: boolean
+
   constructor (
     { name, domain, description, port, passwordRequired, apiKey }: Omit<Settings, 'gamemode'>,
     { ip, country, countryCode, latitude, longitude }: Server
@@ -58,6 +61,7 @@ export class WebHook {
     this.longitude = longitude
     this.passwordRequired = passwordRequired
     this.apiKey = apiKey!
+    this.isDedicated = process.env.TARGET_ENV !== 'win32'
     this.loop()
   }
 
@@ -65,15 +69,19 @@ export class WebHook {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON
-      await axios.post(
-        URL_API,
+      const url = `${URL_API}${this.id ? `?id=${this.id}` : ''}`
+      const res = (await axios.post(
+        url,
         body,
         {
+          timeout: 10000,
           headers: this.apiKey ? {
             'Authorization': `APIKEY ${this.apiKey}`
-          } : {}
+          } : {},
+          responseType: 'json'
         }
-      )
+      )).data
+      this.id = res.id
     } catch (err) {
       if (err.response && err.response.status === 401) {
         console.error('Your API key seems to be wrong. Please check your settings!\nWebHook was disabled now')

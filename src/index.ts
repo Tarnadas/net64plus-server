@@ -1,54 +1,53 @@
 import axios from 'axios'
 
-import * as fs from 'fs'
-import * as path from 'path'
-
 import { webSocketServer, setWebSocketServer } from './globals'
 import { WebSocketServer } from './WebSocketServer'
 import { WebHook } from './WebHook'
-import { DEFAULT_SETTINGS } from './models/Settings.model'
 import { Server } from './models/Server.model'
+import { Arguments } from './Arguments'
 
 const UPDATE_INTERVAL = 32
-const URL_IP_API = 'http://ip-api.com/json'
+const PORT_CHECK_API = 'https://smmdb.ddns.net/api/v2/net64/portcheck'
 
-let settings = DEFAULT_SETTINGS
-if (process.env.TARGET_ENV !== 'win32') {
-  try {
-    settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), {
-      encoding: 'utf8'
-    }))
-  } catch (err) {
-    console.info('Failed to find or parse settings.json file. Using default settings instead.')
-  }
-}
+const args = new Arguments()
+const settings = args.settings
 
-const init = async () => {
+const portCheck = async (port: number): Promise<Server | undefined> => {
+  console.info(`Checking whether port ${port} is open...`)
   try {
-    const res = (await axios.get(URL_IP_API, {
+    const url = `${PORT_CHECK_API}?port=${port}`
+    const res = (await axios.get(url, {
+      timeout: 10000,
       responseType: 'json'
     })).data
-    return {
-      ip: res.query,
-      country: res.country,
-      countryCode: res.countryCode,
-      latitude: res.lat,
-      longitude: res.lon
-    }
+    console.info('Looks like we got in there')
+    return res
   } catch (err) {
-    console.warn('It looks like you are offline. The server will be starting in offline mode')
+    if (err.response && err.response.status === 400 && err.response.data === 'Port is closed') {
+      return
+    }
+    console.warn(`WARNING: Port check did not succeed. We could not check whether you set up proper port forwarding, sorry.`)
   }
 }
 
 (async () => {
-  let serverData: Server | undefined = await init()
-  setWebSocketServer(new WebSocketServer(settings, serverData))
-  if (settings.enableWebHook && serverData) {
-    if (!settings.apiKey) {
-      throw new Error('You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
-    }
-    const webHook = new WebHook(settings, serverData)
+  setWebSocketServer(new WebSocketServer(settings))
+  let serverData: Server | undefined = await portCheck(settings.port)
+  const isOnline = !!serverData
+  if (!isOnline && settings.enableWebHook) {
+    console.warn(`ERROR: Cannot host a public server if Port check failed.`)
+    process.exit(1)
   }
+  if (isOnline) {
+    if (settings.enableWebHook) {
+      if (!settings.apiKey) {
+        console.error('ERROR: You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
+        process.exit(1)
+      }
+      const webHook = new WebHook(settings, serverData!)
+    }
+  }
+  webSocketServer.start(serverData)
 
   const main = () => {
     webSocketServer.broadcastData()

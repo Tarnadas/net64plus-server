@@ -1,6 +1,6 @@
 {
   "name": "net64plus-server",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "compatVersion": "1.0",
   "description": "Net64+ Dedicated Server",
   "main": "dist/index.js",
@@ -54,6 +54,7 @@
     ]
   },
   "dependencies": {
+    "argparse": "^1.0.10",
     "axios": "^0.17.1",
     "escape-html": "^1.0.3",
     "farmhash": "^2.0.5",
@@ -62,6 +63,7 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
+    "@types/argparse": "^1.0.35",
     "@types/jest": "^22.2.0",
     "@types/uws": "^0.13.1",
     "awesome-typescript-loader": "^3.4.1",
