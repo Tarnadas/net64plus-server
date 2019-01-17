@@ -75,14 +75,7 @@ export class WebSocketServer {
     this.password = password
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
-    this.server = new WSServer({ port: this.port }, async () => {
-      if (passwordRequired) {
-        console.info('Password protection enabled')
-      }
-      if (process.env.TARGET_ENV === 'win32') {
-        console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
-      }
-    })
+    this.server = new WSServer({ port: this.port })
     this.metaData = new MetaData()
     this.clients = []
     this.players = []
@@ -93,6 +86,9 @@ export class WebSocketServer {
     this.countryCode = server ? server.countryCode : 'LAN'
     console.info(`\nNet64+ ${process.env.VERSION} server successfully started!`)
     this.server!.on('connection', this.onConnection)
+    if (this.passwordRequired) {
+      console.info('Password protection enabled')
+    }
   }
 
   public addPlayer (player: Player): void {
