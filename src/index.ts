@@ -13,7 +13,7 @@ const UPDATE_INTERVAL = 32
 const URL_IP_API = 'http://ip-api.com/json'
 
 let settings = DEFAULT_SETTINGS
-if (process.env.TARGET_ENV !== 'win32') {
+if (!process.env.IS_EXECUTABLE) {
   try {
     settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), {
       encoding: 'utf8'

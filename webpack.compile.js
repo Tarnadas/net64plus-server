@@ -20,7 +20,7 @@ module.exports = [
         NODE_ENV: 'production',
         VERSION: process.env.npm_package_version,
         COMPAT_VERSION: process.env.npm_package_compatVersion,
-        TARGET_ENV: 'win32',
+        IS_EXECUTABLE: true,
         MAJOR: major,
         MINOR: minor
       }),
@@ -31,7 +31,7 @@ module.exports = [
     resolve: {
       extensions: [ '.js', '.ts', '.json' ]
     },
-    externals: /^.*(uws_win32|Release\/farmhash).*$/,
+    externals: /^.*(uws_|Release\/farmhash).*$/,
     module: {
       loaders: [
         {
@@ -45,7 +45,7 @@ module.exports = [
                 presets: [
                   ['env', {
                     targets: {
-                      node: 'current'
+                      node: '8.15.0'
                     }
                   }]
                 ]

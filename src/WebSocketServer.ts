@@ -24,7 +24,7 @@ import {
 } from './proto/ServerClientMessage'
 
 let WSServer: typeof WebSocket.Server
-if (process.env.TARGET_ENV === 'win32') {
+if (process.env.IS_EXECUTABLE) {
   WSServer = require('../compile/uws').Server
 } else {
   WSServer = require('uws').Server
@@ -83,7 +83,7 @@ export class WebSocketServer {
       if (passwordRequired) {
         console.info('Password protection enabled')
       }
-      if (process.env.TARGET_ENV === 'win32') {
+      if (process.env.IS_EXECUTABLE) {
         console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
         console.info('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')
       }
