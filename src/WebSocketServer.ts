@@ -24,7 +24,7 @@ import {
 } from './proto/ServerClientMessage'
 
 let WSServer: typeof WebSocket.Server
-if (process.env.TARGET_ENV === 'win32') {
+if (process.env.IS_EXECUTABLE) {
   WSServer = require('../compile/uws').Server
 } else {
   WSServer = require('uws').Server
