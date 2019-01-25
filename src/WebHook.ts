@@ -61,7 +61,7 @@ export class WebHook {
     this.longitude = longitude
     this.passwordRequired = passwordRequired
     this.apiKey = apiKey!
-    this.isDedicated = process.env.TARGET_ENV !== 'win32'
+    this.isDedicated = !process.env.IS_EXECUTABLE
     this.loop()
   }
 

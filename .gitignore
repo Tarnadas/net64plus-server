@@ -1,7 +1,8 @@
 
 /node_modules/
 /dist/
-/compile/index.js
+/compile/*.js
+/compile/net64plus-server*
 /.idea/
 /coverage/
 *.exe
