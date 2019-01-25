@@ -1,6 +1,6 @@
 'use strict';
 
-const native = require('./uws_win32_57.node')
+const native = require(`./uws_${process.platform}_57.node`);
 const http = require('http');
 const EventEmitter = require('events');
 const EE_ERROR = 'Registering more than one listener to a WebSocket is not supported.';
