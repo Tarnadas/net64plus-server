@@ -34,9 +34,13 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
   setWebSocketServer(new WebSocketServer(settings))
   let serverData: Server | undefined = await portCheck(settings.port)
   const isOnline = !!serverData
-  if (!isOnline && settings.enableWebHook) {
-    console.warn(`ERROR: Cannot host a public server if Port check failed.`)
-    process.exit(1)
+  if (!isOnline) {
+    if (settings.enableWebHook) {
+      console.warn(`ERROR: Cannot host a public server if Port check failed.`)
+      process.exit(1)
+    } else {
+      console.warn(`WARNING: Port check failed.`)
+    }
   }
   if (isOnline) {
     if (settings.enableWebHook) {
