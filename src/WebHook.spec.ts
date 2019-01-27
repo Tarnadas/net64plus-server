@@ -53,7 +53,9 @@ describe('WebHook', () => {
     const expectedHeaders = {
       headers: {
         Authorization: 'APIKEY apiKey'
-      }
+      },
+      responseType: 'json',
+      timeout: 10000
     }
 
     expect(mockAxios.post).toHaveBeenCalledWith(URL_API, expect.objectContaining(expectedBody), expectedHeaders)
