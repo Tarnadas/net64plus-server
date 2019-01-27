@@ -24,6 +24,11 @@ jobs:
     - stage: Changelog
       script: yarn changelog
 
+before_deploy:
+  - tar cjf compile/net64plus-server_$PACKAGE_VERSION_win32-x64.tar.bz2 compile/net64plus-server_$PACKAGE_VERSION_win32-x64.exe
+  - tar cjf compile/net64plus-server_$PACKAGE_VERSION_linux-x64.tar.bz2 compile/net64plus-server_$PACKAGE_VERSION_linux-x64
+  - CHANGELOG="$(cat changelog/$PACKAGE_VERSION.md)"
+
 deploy:
   provider: releases
   api_key:
@@ -33,8 +38,8 @@ deploy:
     - compile/net64plus-server_$PACKAGE_VERSION_linux-x64.tar.bz2
   skip_cleanup: true
   draft: true
-  name: "Name"
-  body: "Body"
+  name: "Net64+ Server $PACKAGE_VERSION"
+  body: $CHANGELOG
   on:
     repo: Tarnadas/net64plus-server
     branch: dev
