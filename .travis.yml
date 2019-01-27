@@ -18,17 +18,19 @@ jobs:
   include:
     - stage: Test
       script: jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
+    - script: yarn lint
+      name: "Lint"
+    - script: yarn changelog
+      name: "Changelog"
     - stage: Build
       script: yarn build
-    - stage: Compile
-      script: yarn compile
-    - stage: Changelog
-      script: yarn changelog
+    - script: yarn compile
+      name: "Compile"
     - stage: Deploy
       before_deploy:
-        - tar cjf compile/net64plus-server_$PACKAGE_VERSION_win32-x64.tar.bz2 compile/net64plus-server_$PACKAGE_VERSION_win32-x64.exe
-        - tar cjf compile/net64plus-server_$PACKAGE_VERSION_linux-x64.tar.bz2 compile/net64plus-server_$PACKAGE_VERSION_linux-x64
-        - CHANGELOG="$(cat changelog/$PACKAGE_VERSION.md)"
+        - tar cjf compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.bz2 compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
+        - tar cjf compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.bz2 compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
+        - CHANGELOG="$(cat changelog/$(echo $PACKAGE_VERSION).md)"
       deploy:
         provider: releases
         api_key:
@@ -38,8 +40,8 @@ jobs:
           - compile/net64plus-server_$PACKAGE_VERSION_linux-x64.tar.bz2
         skip_cleanup: true
         draft: true
-        name: "Net64+ Server $PACKAGE_VERSION"
-        body: $CHANGELOG
+        name: "Net64+ Server $(echo $PACKAGE_VERSION)"
+        body: $(echo $CHANGELOG)
         on:
           repo: Tarnadas/net64plus-server
           branch: dev
