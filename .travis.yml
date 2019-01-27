@@ -28,15 +28,15 @@ jobs:
       script: yarn compile
       name: "Compile & Deploy"
       before_deploy:
-        - tar cjf compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.bz2 compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
-        - tar cjf compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.bz2 compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
+        - tar czf compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
+        - tar czf compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
       deploy:
         provider: releases
         api_key:
           secure: vV+znDhyrpJzGHr8D7GwzYvq36elrDzDYIOF8b9hjjRIuQzLbI+SD7YieQBh6079EHM/CNquBlIBZUba9qI6g+XE6vHQn02WcU6KprE1u5XHMntPqpsoHfLzEkd5lAiLQ98izHKaaLL6hMXzwMuwkt1anI0kWbO6Y4/vWPGZw3xlyR+LJCj+SsDq4QeX1i1YMpTlBaDPRae+tDHckOX102n7KkeNEzwo9X4T7Tctr1dbQDeVuupv7CyMDcaB437F9X0yWRdieA95BcAzfw/iUqghJnDBhXjuTDgWa5YoMLmpvM9Un1AOSwEZgGTram4wc61fMVASIhWfu9QHvrSnEQd7t9XhdJZ+uMAwUdrLB7vC1BaeL4i38E+QnUWuN9xGnZCmpioy3ed9+WqKRh9cem/kXevuKwxDcc7WVxu+QV2pK7Zq2yRXi9N4m5xpmaGOkCW56Z4Iu5uSXDA+OxWX6w/r4B1PN+L0Ju+zLcoaragennA2azILZo4R9EEAXZN8Wh44STbnH7bQvsARtveIETW+v/HAqWTGfBFHXDT3Wy6iwy+TQSAoEKEQAKMcqin6bCWpe9iQM0ioVRcshxSzkt2ZnOlu4lX2kwXBVY/L9hEcRhkz1q9cjUY0CFNWJEdxRZXCwfpWD/ys6hfTFPuTIaNI7iOt59FvFexaoGjOO+c=
         file:
-          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.bz2
-          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.bz2
+          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz
+          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
         skip_cleanup: true
         draft: true
         name: "Net64+ Server $(echo $PACKAGE_VERSION)"
