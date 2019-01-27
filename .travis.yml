@@ -41,7 +41,7 @@ jobs:
         skip_cleanup: true
         draft: true
         name: "Net64+ Server $(echo $PACKAGE_VERSION)"
-        body: $(echo $CHANGELOG)
+        body: "$(echo $CHANGELOG)"
         on:
           repo: Tarnadas/net64plus-server
           branch: dev
