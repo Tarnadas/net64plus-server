@@ -21,4 +21,6 @@ jobs:
       script: yarn build
     - stage: Compile
       script: yarn compile
+    - stage: Changelog
+      script: yarn changelog
       
