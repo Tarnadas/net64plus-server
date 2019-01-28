@@ -47,7 +47,7 @@ export class WebSocketServer {
 
   private command: Command
 
-  private ip: string
+  private ip?: string
 
   private port: number
 
@@ -57,41 +57,38 @@ export class WebSocketServer {
 
   private description: string
 
-  private countryCode: string
+  private countryCode?: string
 
   public readonly passwordRequired: boolean
 
   public readonly password: string
 
   constructor (
-    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description }: Settings,
-    server?: Server
+    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description }: Settings
   ) {
     this.gameMode = gamemode
-    this.ip = server ? server.ip : ''
     this.port = port
     this.name = name
     this.domain = domain
     this.description = description
-    this.countryCode = server ? server.countryCode : 'LAN'
     this.passwordRequired = passwordRequired
     this.password = password
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
-    this.server = new WSServer({ port: this.port }, () => {
-      console.info(`\nNet64+ ${process.env.VERSION} server successfully started!\nAccepting connections on Port ${this.port}`)
-      if (passwordRequired) {
-        console.info('Password protection enabled')
-      }
-      if (process.env.IS_EXECUTABLE) {
-        console.info('Connect locally via direct connect 127.0.0.1\nTo accept external connections, your Port must be forwarded.\nTo join via LAN, others must use your LAN IP address: win + "cmd" > ipconfig > IPv4 Address or via Hamachi network and IP')
-        console.info('\nThis is a precompiled version of the Net64+ server. It has the limitation, that it cannot be displayed on the public server list. It is only meant to be used for user servers!\n')
-      }
-    })
-    this.server.on('connection', this.onConnection)
+    this.server = new WSServer({ port: this.port })
     this.metaData = new MetaData()
     this.clients = []
     this.players = []
+  }
+
+  public start (server?: Server) {
+    this.ip = server ? server.ip : ''
+    this.countryCode = server ? server.countryCode : 'LAN'
+    console.info(`\nNet64+ ${process.env.VERSION} server successfully started!`)
+    this.server!.on('connection', this.onConnection)
+    if (this.passwordRequired) {
+      console.info('Password protection enabled')
+    }
   }
 
   public addPlayer (player: Player): void {
@@ -101,10 +98,11 @@ export class WebSocketServer {
       this.grantNewServerToken(player)
     }
     this.broadcastPlayerListMessage()
+    const activeUsers = this.players.filter(players => players).length
+    console.info(`Active users: ${activeUsers}/24`)
   }
 
   public removePlayer (clientId: number): void {
-    delete this.clients[clientId]
     const playerToRemove = this.players[clientId]
     let shouldGrantNewToken = false
     if (playerToRemove === this.playerWithToken) {
@@ -116,6 +114,8 @@ export class WebSocketServer {
       this.grantNewServerToken()
     }
     this.broadcastPlayerListMessage()
+    const activeUsers = this.players.filter(player => player).length
+    console.info(`Active users: ${activeUsers}/24`)
   }
 
   private broadcastPlayerListMessage (): void {
@@ -404,8 +404,6 @@ export class WebSocketServer {
       console.info(`A new client connected and received ID: ${id}`)
     }
     this.clients[id] = new Client(id, ws)
-    const activeUsers = this.clients.filter(client => client).length
-    console.info(`Active users: ${activeUsers}/24`)
   }
 
   private getNextClientId (): number | null {
