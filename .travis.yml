@@ -43,4 +43,4 @@ jobs:
         name: "Net64+ Server $(echo $PACKAGE_VERSION)"
         on:
           repo: Tarnadas/net64plus-server
-          branch: dev
+          branch: master
