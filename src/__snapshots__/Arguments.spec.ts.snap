@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Arguments should match snapshot 1`] = `
+Object {
+  "apiKey": "",
+  "description": "The **best** Net64+ server ever
+
+:unicorn_face:",
+  "domain": "",
+  "enableGamemodeVote": true,
+  "enableWebHook": false,
+  "gamemode": 1,
+  "name": "A Net64+ Server",
+  "password": "",
+  "passwordRequired": false,
+  "port": 3678,
+}
+`;
