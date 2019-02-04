@@ -30,17 +30,21 @@ export class Arguments {
     })
     this.parser.addArgument([ '--gamemode', '-g' ])
     this.parser.addArgument([ '--disableGamemodeVote', '-G' ], {
-      action: 'storeFalse'
+      action: 'storeConst',
+      constant: false,
+      dest: 'enableGamemodeVote'
     })
     this.parser.addArgument([ '--passwordRequired', '-pr' ], {
-      action: 'storeTrue'
+      action: 'storeConst',
+      constant: true
     })
     this.parser.addArgument([ '--password', '-p' ])
     this.parser.addArgument([ '--name', '-n' ])
     this.parser.addArgument([ '--domain', '-D' ])
     this.parser.addArgument([ '--description', '-d' ])
     this.parser.addArgument([ '--enableWebHook', '-w' ], {
-      action: 'storeTrue'
+      action: 'storeConst',
+      constant: true
     })
     this.parser.addArgument([ '--apiKey', '-k' ])
     const parsed = this.parser.parseArgs() as Settings
@@ -48,7 +52,11 @@ export class Arguments {
     this.settings = {} as any
     Object.entries(DEFAULT_SETTINGS).forEach(([ key, defaultValue ]: [ string, any ]) => {
       // @ts-ignore
-      this.settings[key] = parsed[key] || (settings ? settings[key] : null) || defaultValue
+      this.settings[key] = parsed[key]
+      // @ts-ignore
+      if (this.settings[key] == null) this.settings[key] = (settings ? settings[key] : null)
+      // @ts-ignore
+      if (this.settings[key] == null) this.settings[key] = defaultValue
     })
   }
 }
