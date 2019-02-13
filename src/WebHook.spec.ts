@@ -2,7 +2,7 @@ import { WebHook, URL_API } from './WebHook'
 import mockAxios from 'jest-mock-axios'
 
 beforeEach(() => {
-  console.error = jest.fn()
+  console.warn = jest.fn()
 })
 
 afterEach(() => {
@@ -64,11 +64,11 @@ describe('WebHook', () => {
   it('should display error message on wrong apiKey', async () => {
     mockAxios.mockError({
       response: {
-        status: 401
+        status: 400
       }
     })
     await new Promise((resolve) => setTimeout(resolve(), 0))
 
-    expect(console.error).toHaveBeenCalledWith('Your API key seems to be wrong. Please check your settings!\nYour server won\'t be publicly visible')
+    expect(console.warn).toHaveBeenCalledWith('WARNING: Your API key seems to be wrong. Please check your settings!\nYour server won\'t be publicly visible')
   })
 })
