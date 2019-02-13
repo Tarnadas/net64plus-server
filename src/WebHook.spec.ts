@@ -69,6 +69,6 @@ describe('WebHook', () => {
     })
     await new Promise((resolve) => setTimeout(resolve(), 0))
 
-    expect(console.error).toHaveBeenCalledWith('Your API key seems to be wrong. Please check your settings!\nWebHook was disabled now')
+    expect(console.error).toHaveBeenCalledWith('Your API key seems to be wrong. Please check your settings!\nYour server won\'t be publicly visible')
   })
 })

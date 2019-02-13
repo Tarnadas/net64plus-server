@@ -5,7 +5,7 @@ node_js:
 env:
   global:
     - CXX=g++-4.8
-    - PACKAGE_VERSION="2.2.1"
+    - PACKAGE_VERSION="2.2.2"
 
 addons:
   apt:

@@ -83,8 +83,9 @@ export class WebHook {
       )).data
       this.id = res.id
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        console.error('Your API key seems to be wrong. Please check your settings!\nWebHook was disabled now')
+      if (err.response && err.response.status === 400) {
+        console.warn('WARNING: Your API key seems to be wrong. Please check your settings!\nYour server won\'t be publicly visible')
+        return
       } else {
         // fail silently. Server might be unreachable
       }
