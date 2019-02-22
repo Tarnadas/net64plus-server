@@ -23,7 +23,7 @@ function build (platform, platformName, arch) {
       .replace(/\.node /g, `.node") `)
       .replace(
         `./build/Release/farmhash`,
-        `module.exports = require("./farmhash.node_${platform}_57");`
+        `module.exports = require("./farmhash_${platform}_57.node");`
       )
   )
 
