@@ -1,6 +1,6 @@
 # Net64+ Server
 
-[![Discord](https://discordapp.com/api/guilds/354358899328942081/widget.png)](https://discord.gg/net64)
+[![Discord](https://discordapp.com/api/guilds/559982917049253898/widget.png)](https://discord.gg/GgGUKH8)
 [![Build Status](https://api.travis-ci.org/Tarnadas/net64plus-server.svg?branch=master)](https://travis-ci.org/Tarnadas/net64plus-server)
 [![Coverage Status](https://coveralls.io/repos/github/Tarnadas/net64plus-server/badge.svg?branch=master)](https://coveralls.io/github/Tarnadas/net64plus-server?branch=master)
 
@@ -23,6 +23,7 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
   - you can try using a later version of Node, but you will need to install C++ compilers
 - `git clone` this repository or [download as zip](https://github.com/Tarnadas/net64plus-server/archive/master.zip)
 - modify `settings.json`
+
 ```js
 {
   "port": "3678", // make sure your port is forwarded
@@ -36,18 +37,22 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
   "apiKey": "" // this is required, if you want your server to be listed
 }
 ```
+
 - (OPTIONAL) if you want your server to be listed, go to [SMMDB](https://smmdb.ddns.net), login with Google, go to profile and get your API key
-  - *Do not share your API key, because it gives full access to your account*
+  - _Do not share your API key, because it gives full access to your account_
   - You can only list one server per API key
   - `name` will be shortened to 40 characters at most
   - `description` will be shortened to 200 characters at most
   - `description` supports [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) and [emojis](https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json)
 - open a terminal in the folder of your server and execute the following commands
+
 ```
 $ npm install
 $ npm start
 ```
+
 - (OPTIONAL) if you want to run your server indefinitely with auto restarts, I suggest to use pm2
+
 ```
 $ npm i -g pm2
 $ npm run build
