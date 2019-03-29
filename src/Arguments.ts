@@ -28,7 +28,9 @@ export class Arguments {
     this.parser.addArgument([ '--port', '-P' ], {
       type: (int: string) => parseInt(int)
     })
-    this.parser.addArgument([ '--gamemode', '-g' ])
+    this.parser.addArgument([ '--gamemode', '-g' ], {
+      type: (int: string) => parseInt(int)
+    })
     this.parser.addArgument([ '--disableGamemodeVote', '-G' ], {
       action: 'storeConst',
       constant: false,
