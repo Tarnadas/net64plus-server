@@ -7,7 +7,7 @@ import { Server } from './models/Server.model'
 import { Arguments } from './Arguments'
 
 const UPDATE_INTERVAL = 32
-const PORT_CHECK_API = 'https://smmdb.ddns.net/api/v2/net64/portcheck'
+const PORT_CHECK_API = 'https://smmdb.net/api/v2/net64/portcheck'
 
 const args = new Arguments()
 const settings = args.settings
