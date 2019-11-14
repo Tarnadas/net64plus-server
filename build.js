@@ -30,7 +30,7 @@ function build (platform, platformName, arch) {
   nexe.compile({
     input: buildPath,
     output: path.join('compile', `net64plus-server_${pjson.version}_${platform}-${arch}`),
-    target: `${platformName}-${arch}-8.15.0`,
+    target: `${platformName}-${arch}-8.16.0`,
     native: {
       uws: {
         additionalFiles: [
