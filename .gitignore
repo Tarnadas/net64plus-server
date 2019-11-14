@@ -7,3 +7,4 @@
 /coverage/
 *.exe
 *.7z
+yarn-error.log

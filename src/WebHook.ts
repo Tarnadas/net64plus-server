@@ -4,7 +4,7 @@ import { webSocketServer } from './globals'
 import { Settings } from './models/Settings.model'
 import { Server } from './models/Server.model'
 
-export const URL_API = 'https://smmdb.ddns.net/api/net64server'
+export const URL_API = 'https://smmdb.net/api/net64server'
 
 const apiKey = Symbol('apiKey')
 

@@ -10,7 +10,7 @@ This repository includes the dedicated server software. For the client please vi
 
 ## Server List
 
-There is a [public server list](https://smmdb.ddns.net/net64) of all Net64+ server, that have enabled listing.
+There is a [public server list](https://smmdb.net/net64) of all Net64+ server, that have enabled listing.
 
 ## Downloads
 
@@ -21,6 +21,8 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
 
 - download and install [Node 8](https://nodejs.org/en/download/)
   - you can try using a later version of Node, but you will need to install C++ compilers
+    - on Windows you can do the following: `npm i -g windows-build-tools` / or use `yarn global add`
+- install yarn. It's a package manager for npm, which is generally faster
 - `git clone` this repository or [download as zip](https://github.com/Tarnadas/net64plus-server/archive/master.zip)
 - modify `settings.json`
 
@@ -38,7 +40,7 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
 }
 ```
 
-- (OPTIONAL) if you want your server to be listed, go to [SMMDB](https://smmdb.ddns.net), login with Google, go to profile and get your API key
+- (OPTIONAL) if you want your server to be listed, go to [SMMDB](https://smmdb.net), login with Google, go to profile and get your API key
   - _Do not share your API key, because it gives full access to your account_
   - You can only list one server per API key
   - `name` will be shortened to 40 characters at most
@@ -47,14 +49,14 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
 - open a terminal in the folder of your server and execute the following commands
 
 ```
-$ npm install
-$ npm start
+$ yarn install
+$ yarn start
 ```
 
 - (OPTIONAL) if you want to run your server indefinitely with auto restarts, I suggest to use pm2
 
 ```
-$ npm i -g pm2
-$ npm run build
+$ yarn global add pm2
+$ yarn build
 $ pm2 start ./dist --name="net64 server"
 ```
