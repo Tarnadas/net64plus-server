@@ -5,7 +5,6 @@ node_js:
 env:
   global:
     - CXX=g++-4.8
-    - PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
 
 addons:
   apt:
@@ -28,6 +27,7 @@ jobs:
       script: yarn compile
       name: "Compile & Deploy"
       before_deploy:
+        - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
