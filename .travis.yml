@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-  - 8.15.0
+  - 8.17.0
 
 env:
   global:
     - CXX=g++-4.8
-    - PACKAGE_VERSION="2.2.2"
+    - PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
 
 addons:
   apt:
