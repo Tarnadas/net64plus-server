@@ -56,7 +56,7 @@ export class Client {
 
   private desiredCharacterId?: number
 
-  constructor (public id: number, private ws: WebSocket) {
+  constructor (public id: number, private ws: WebSocket, private verbose: boolean) {
     this.id = id
     this.ws = ws
     this.identity = Identity.getIdentity(this, (ws as any)._socket.remoteAddress)
@@ -65,7 +65,7 @@ export class Client {
     this.connectionTimeout = setTimeout(() => {
       this.connectionTimeout = undefined
       this.ws.close()
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development' || verbose) {
         console.info('A player timed out on handshake')
       }
     }, CONNECTION_TIMEOUT)
@@ -95,7 +95,7 @@ export class Client {
     this.afkTimerCount++
     if (this.afkTimerCount < AFK_TIMEOUT_COUNT) return
     this.ws.close()
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || this.verbose) {
       console.info('A player timed out because of inactivity')
     }
   }
@@ -211,7 +211,7 @@ export class Client {
         this.sendBadRequest(err)
         return
       }
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development' || this.verbose) {
         this.sendInternalServerError(err)
         return
       }

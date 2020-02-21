@@ -63,8 +63,10 @@ export class WebSocketServer {
 
   public readonly password: string
 
+  private verbose: boolean
+
   constructor (
-    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description }: Settings
+    { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description, verbose }: Settings
   ) {
     this.gameMode = gamemode
     this.port = port
@@ -73,6 +75,7 @@ export class WebSocketServer {
     this.description = description
     this.passwordRequired = passwordRequired
     this.password = password
+    this.verbose = !!verbose
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
     this.server = new WSServer({ port: this.port })
@@ -283,7 +286,7 @@ export class WebSocketServer {
   }
 
   public onGlobalChatMessage (client: Client, message: string) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || this.verbose) {
       console.info(`Received global message from client ${client.id}:\n${message}`)
     }
     const chat: IServerClientMessage = {
@@ -385,7 +388,7 @@ export class WebSocketServer {
     }
     const serverTokenMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverToken)).finish()
     playerToGrant.client.sendMessage(serverTokenMessage)
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || this.verbose) {
       console.info(`New server token has been granted to player [${playerToGrant.client.id}] ${playerToGrant.username}`)
     }
     this.playerWithToken = playerToGrant
@@ -395,15 +398,15 @@ export class WebSocketServer {
     const id = this.getNextClientId()
     if (id == null) {
       this.sendServerFullMessage(ws)
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development' || this.verbose) {
         console.info(`A new client connected, but server is full`)
       }
       return
     }
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || this.verbose) {
       console.info(`A new client connected and received ID: ${id}`)
     }
-    this.clients[id] = new Client(id, ws)
+    this.clients[id] = new Client(id, ws, this.verbose)
   }
 
   private getNextClientId (): number | null {

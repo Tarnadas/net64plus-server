@@ -49,6 +49,10 @@ export class Arguments {
       constant: true
     })
     this.parser.addArgument([ '--apiKey', '-k' ])
+    this.parser.addArgument([ '--verbose', '-v' ], {
+      action: 'storeConst',
+      constant: true
+    })
     const parsed = this.parser.parseArgs() as Settings
 
     this.settings = {} as any

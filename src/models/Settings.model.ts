@@ -9,6 +9,7 @@ export interface Settings {
   description: string
   enableWebHook?: boolean
   apiKey?: string
+  verbose?: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -21,7 +22,8 @@ export const DEFAULT_SETTINGS: Settings = {
   domain: '',
   description: 'The **best** Net64+ server ever\n\n:unicorn_face:',
   enableWebHook: false,
-  apiKey: ''
+  apiKey: '',
+  verbose: false
 }
 
 export const TIME_UNTIL_META_RESEND = 10000

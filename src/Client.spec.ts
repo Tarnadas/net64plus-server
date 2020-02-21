@@ -53,7 +53,7 @@ describe('Client', () => {
         remoteAddress: '127.0.0.1'
       }
     }
-    client = new Client(1, wsMock)
+    client = new Client(1, wsMock, false)
     addClient(client)
   })
 
