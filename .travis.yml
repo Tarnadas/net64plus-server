@@ -32,13 +32,15 @@ jobs:
         - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
         - export GIT_TAG=$PACKAGE_VERSION-dev.$TRAVIS_BUILD_NUMBER
         - yarn changelog
-        - export RELEASE_BODY="$(cat ${PACKAGE_VERSION}.md)"
+        - export RELEASE_BODY="$(cat changelog/${PACKAGE_VERSION}.md)"
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
-        - yarn changelog
       after_success:
+        - git add changelog
+        - git commit -m "docs: update changelog"
         - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+        - git push -q https://github.com/Tarnadas/net64plus-server
         - git push -q https://github.com/Tarnadas/net64plus-server --tags
       deploy:
         provider: releases
