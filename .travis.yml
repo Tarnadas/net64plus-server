@@ -28,9 +28,16 @@ jobs:
       name: "Compile & Deploy"
       before_deploy:
         - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
+        - export GIT_TAG=$PACKAGE_VERSION-dev.$TRAVIS_BUILD_NUMBER
+        - yarn changelog
+        - export RELEASE_BODY="$(cat ${PACKAGE_VERSION}.md)"
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
+        - yarn changelog
+      after_success:
+        - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+        - git push -q https://github.com/Tarnadas/net64plus-server --tags
       deploy:
         provider: releases
         api_key:
@@ -40,7 +47,8 @@ jobs:
           - net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
         skip_cleanup: true
         draft: true
-        name: "Net64+ Server $(echo $PACKAGE_VERSION)"
+        name: "Net64+ Server $(echo $PACKAGE_VERSION) [CommitID: $(echo $GIT_TAG)]"
+        body: "$(echo $RELEASE_BODY)"
         on:
           repo: Tarnadas/net64plus-server
           branch: master
