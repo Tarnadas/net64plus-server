@@ -34,7 +34,7 @@ jobs:
       deploy:
         provider: releases
         api_key:
-          secure: vV+znDhyrpJzGHr8D7GwzYvq36elrDzDYIOF8b9hjjRIuQzLbI+SD7YieQBh6079EHM/CNquBlIBZUba9qI6g+XE6vHQn02WcU6KprE1u5XHMntPqpsoHfLzEkd5lAiLQ98izHKaaLL6hMXzwMuwkt1anI0kWbO6Y4/vWPGZw3xlyR+LJCj+SsDq4QeX1i1YMpTlBaDPRae+tDHckOX102n7KkeNEzwo9X4T7Tctr1dbQDeVuupv7CyMDcaB437F9X0yWRdieA95BcAzfw/iUqghJnDBhXjuTDgWa5YoMLmpvM9Un1AOSwEZgGTram4wc61fMVASIhWfu9QHvrSnEQd7t9XhdJZ+uMAwUdrLB7vC1BaeL4i38E+QnUWuN9xGnZCmpioy3ed9+WqKRh9cem/kXevuKwxDcc7WVxu+QV2pK7Zq2yRXi9N4m5xpmaGOkCW56Z4Iu5uSXDA+OxWX6w/r4B1PN+L0Ju+zLcoaragennA2azILZo4R9EEAXZN8Wh44STbnH7bQvsARtveIETW+v/HAqWTGfBFHXDT3Wy6iwy+TQSAoEKEQAKMcqin6bCWpe9iQM0ioVRcshxSzkt2ZnOlu4lX2kwXBVY/L9hEcRhkz1q9cjUY0CFNWJEdxRZXCwfpWD/ys6hfTFPuTIaNI7iOt59FvFexaoGjOO+c=
+          secure: jphi6aEJVksJDYZwBfnudcVEl7y34AVtxfui7nNdRXPDG5ez4m9PcdGULNqsadfCKzRMcUdOSPCSjZAMB4+20uPJJFHHmKSbjyuvXHrkR2NiVe1/sLAtsWZUg5GzmY3hg4KEb1Ru8NP7B8w5LjKE31958UM+swUIW+2XtYUPXXWPGd9VXK/5SK6cA80fEBaw9gaZhGPlrtzjGCcP8JpzpsReoCnvkvPvm4eV7gSUFNdiCyROajrERQRKuAN5yzpiEJBvRJKiZClqExbg7Nz5BqyxeVXYeHyn0/rO3Dc/abTrmnM9nKNp3E7GWYgEpirUIliNuTn1/1cU/5jqZUXcbhQ9kaqk4+e4xHZ1bVi9ewuOQKGzbiyff5md8/+nJkFmzMYUuzIlqSUu3WXf+/E/EGOwNLNR0mjlzmi1Ckzm5GHZ58iqXASlA6pS0CP1T4sONtkQ63muIGCEEIQ9jw7I0qA3rU2+53WSpPxW5afTfMPp8Iy6RVv7OBBX+n3yLHVk0u+x3R+SPpifzUueoPWcxtwymoq2U4DLMyLlb2JJtpWARlooyxztqUKKozVOnY/SPaiYzdrI7Mw3DW/RiqCJ3jqZa8/OXWpuEH5F0pWHejFop6VKsOmmRG9EubqxKMiQrk6J1F+CyCCIdWqOzFebj4b4UdACVE5AEAfNXCivqYE=
         file:
           - net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz
           - net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
