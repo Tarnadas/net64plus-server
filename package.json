@@ -54,6 +54,11 @@
       "!**/{index,globals}.{ts,tsx}"
     ]
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "dependencies": {
     "argparse": "^1.0.10",
     "axios": "^0.17.1",
@@ -64,6 +69,9 @@
     "xss": "^1.0.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@commitlint/travis-cli": "^8.3.5",
     "@types/argparse": "^1.0.38",
     "@types/jest": "^22.2.0",
     "@types/uws": "^0.13.2",
@@ -84,6 +92,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-typescript": "^0.8.1",
+    "husky": "^4.2.3",
     "jest": "^22.3.0",
     "jest-mock-axios": "^2.1.11",
     "mock-socket": "^8.0.2",

@@ -20,6 +20,8 @@ jobs:
       name: "Unit Tests"
     - script: yarn lint
       name: "Lint"
+    - script: commitlint-travis
+      name: "Lint Commit"
     - stage: Build
       script: yarn build
       name: "Build"
