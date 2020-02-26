@@ -14,5 +14,6 @@ Object {
   "password": "",
   "passwordRequired": false,
   "port": 3678,
+  "verbose": false,
 }
 `;
