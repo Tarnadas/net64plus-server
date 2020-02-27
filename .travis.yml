@@ -5,7 +5,7 @@ node_js:
 env:
   global:
     - CXX=g++-4.8
-    - secure: bmmv1vsxjouRAJdxJmL6wnpCJ86H3BV1FIyEO298CGCl4YXiL6OBdI29g23l9FUqPhFDMNNGEmwcca3wjHWOLDFXvGOMu6QXKGlFGSLV6wwY0DVRx0hpxA+BZd0/XGIhb3UiASugsGaGeopKrDJwaQLamcPhIaXewNmujuEn5+C0sSt7UDebuI4S7NnAIsB4K3JDs0Jbv72TN9Wglb5ZemrIm6vLTNCDL/uHOsKvUVz23+H8/WExG7SJ6yoE9t7aD7/VpVlCIoacZMjyUJcrPyfXbD9Mqp1LCF6XrKXqvXFGdYl+f4eJYh5nH1LXVwEUssbSAKmckAiZyZr0OGzy9VNrskofp8jMEXYG8iM/p3cPfHADIcDU2SJoVpr13viW9O4sif/yXvNfchWZgFwvo9dovA2Fc2N2/m2HmXXwqHjfPXlurQHTJTyXYN0q4SPLKGP1U38AOsnDA4/IRF2XwunhyX5ErLnuPQevAF/Zy90iybL3nafQw9f3p7NcgHErZaqKdB5CokhWgXY13VfDFyvMdcxu6NU66OOUMISN/N/PSSlty7So8KJxXc0g34kkaEFMoyJkOlPHp36FrepqrVaO/E0pDhqv4lish3k87oep3bMdzxtlFV6JlaRFpUzFySKBAMRw7IpsbUUB3rjB8ZNNqCZmVceap8gpb42V41c=
+    - secure: CukHRAi2HUgz5TPlbxsOOszc0fIRYFkNZg3J/kCtolX6Jf6amBplH36//CpGtpu8GdYVa5swMofl4kwqC8CvdVmGVHFIcqu3csxeUeXqv8sh1xPph5dWv1uiuNyFtTXwvbNtLcRMYD9kfEyi6w58ss8axaMNO1fvlHpu6g1+fuMlbQsl8nrD3mevH1E5k9UGb4gEkNoo/aFKe86MiE2nMmeiwzSQqGh5yjUXuXTDGOwlxVG/J1/rPVYY3L7dZ+UhNmKjEjf8Od7sF5Ud6oDM893xS92xZ78enQEc8ML9NwWx8o9EEWJqlJXYuu5EummhCcUwWu5rbGUUtwvD81/ZRnhCSn5QC5HLWtB3nbWKA+bmIeATQXx37ZyVqOdrHbUZASKzDWgIUJ4J9ErpFPL6IWLEaekTWqaPcQaKEu5utLHWAMDvz2u/1cc7e8b1NBIb23M49hv2kQaxZmVeSggHP0UySL6NMLC+ahmGUvQgEQKMLLBk5wLNIhQ47KA26g/UZu/vptE2Ax2HNcrJBGEO4MI7874JGEzFAFncnQTqoQbwmf/aeaVpXP3MHQ2YaOipXd6boJai0oXplXLW8xSvjTkiJi9ITjcfJ/6U4PaYkH20KepXOXblY5uVCCNO+26Fkh9WP9YGixWrrTTUDkvtiOlLq9OVlJtqPxWU6QFIZ7U=
 
 addons:
   apt:
@@ -39,12 +39,12 @@ jobs:
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
-      after_success:
+      after_deploy:
         - git add changelog
         - 'git commit -m "docs: update changelog"'
         - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server HEAD:$TRAVIS_BRANCH
-        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server --tags
+        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server.git HEAD:$TRAVIS_BRANCH
+        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server.git --tags
       deploy:
         provider: releases
         api_key:
