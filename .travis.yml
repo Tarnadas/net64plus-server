@@ -5,6 +5,7 @@ node_js:
 env:
   global:
     - CXX=g++-4.8
+    - secure: bmmv1vsxjouRAJdxJmL6wnpCJ86H3BV1FIyEO298CGCl4YXiL6OBdI29g23l9FUqPhFDMNNGEmwcca3wjHWOLDFXvGOMu6QXKGlFGSLV6wwY0DVRx0hpxA+BZd0/XGIhb3UiASugsGaGeopKrDJwaQLamcPhIaXewNmujuEn5+C0sSt7UDebuI4S7NnAIsB4K3JDs0Jbv72TN9Wglb5ZemrIm6vLTNCDL/uHOsKvUVz23+H8/WExG7SJ6yoE9t7aD7/VpVlCIoacZMjyUJcrPyfXbD9Mqp1LCF6XrKXqvXFGdYl+f4eJYh5nH1LXVwEUssbSAKmckAiZyZr0OGzy9VNrskofp8jMEXYG8iM/p3cPfHADIcDU2SJoVpr13viW9O4sif/yXvNfchWZgFwvo9dovA2Fc2N2/m2HmXXwqHjfPXlurQHTJTyXYN0q4SPLKGP1U38AOsnDA4/IRF2XwunhyX5ErLnuPQevAF/Zy90iybL3nafQw9f3p7NcgHErZaqKdB5CokhWgXY13VfDFyvMdcxu6NU66OOUMISN/N/PSSlty7So8KJxXc0g34kkaEFMoyJkOlPHp36FrepqrVaO/E0pDhqv4lish3k87oep3bMdzxtlFV6JlaRFpUzFySKBAMRw7IpsbUUB3rjB8ZNNqCZmVceap8gpb42V41c=
 
 addons:
   apt:
@@ -33,15 +34,17 @@ jobs:
         - export GIT_TAG=$PACKAGE_VERSION-dev.$TRAVIS_BUILD_NUMBER
         - yarn changelog
         - export RELEASE_BODY="$(cat changelog/${PACKAGE_VERSION}.md)"
+        - echo $(cat changelog/${PACKAGE_VERSION}.md)
+        - echo $RELEASE_BODY
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
       after_success:
         - git add changelog
-        - git commit -m "docs: update changelog"
+        - 'git commit -m "docs: update changelog"'
         - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-        - git push -q https://github.com/Tarnadas/net64plus-server
-        - git push -q https://github.com/Tarnadas/net64plus-server --tags
+        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server HEAD:$TRAVIS_BRANCH
+        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server --tags
       deploy:
         provider: releases
         api_key:
@@ -51,7 +54,7 @@ jobs:
           - net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
         skip_cleanup: true
         draft: true
-        name: "Net64+ Server $(echo $PACKAGE_VERSION) [CommitID: $(echo $GIT_TAG)]"
+        name: "Net64+ Server $(echo $GIT_TAG)"
         body: "$(echo $RELEASE_BODY)"
         on:
           repo: Tarnadas/net64plus-server
