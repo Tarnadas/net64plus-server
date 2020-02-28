@@ -23,9 +23,9 @@ function build (platform, platformName, arch) {
         `require("../farmhash_${platform}_72.node")`
       )
       .replace(
-        /return __webpack_require__.*\(`\.\/cws_\${process\.platform}\_\${process\.versions\.modules}`\)/,
+        /return __webpack_require__.*\(`\.\/cws_\${process\.platform}_\${process\.versions\.modules}`\)/,
         // eslint-disable-next-line no-template-curly-in-string
-        "return require(`../cws_${process.platform}_${process.versions.modules}`)"
+        'return require(`../cws_${process.platform}_${process.versions.modules}`)'
       )
   )
 
