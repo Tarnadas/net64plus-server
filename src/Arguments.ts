@@ -21,7 +21,7 @@ export class Arguments {
         encoding: 'utf8'
       }))
     } catch (err) {
-      fs.writeFileSync(settingsPath, JSON.stringify(DEFAULT_SETTINGS))
+      fs.writeFileSync(settingsPath, JSON.stringify(DEFAULT_SETTINGS, undefined, 2))
       console.info('Failed to find or parse settings.json file. Using default settings instead and created a settings.json just for you.')
     }
 
