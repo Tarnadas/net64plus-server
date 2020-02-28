@@ -1,4 +1,4 @@
-import * as WebSocket from 'uws'
+import { WebSocketServer as CWSServer, WebSocket } from '@clusterws/cws'
 
 import * as zlib from 'zlib'
 
@@ -23,13 +23,6 @@ import {
   IMeta
 } from './proto/ServerClientMessage'
 
-let WSServer: typeof WebSocket.Server
-if (process.env.IS_EXECUTABLE) {
-  WSServer = require('../compile/uws').Server
-} else {
-  WSServer = require('uws').Server
-}
-
 export const PLAYER_DATA_COMPRESSION_THRESHOLD = 3
 
 export class WebSocketServer {
@@ -41,7 +34,7 @@ export class WebSocketServer {
 
   public playerWithToken?: Player
 
-  private server?: WebSocket.Server
+  private server: CWSServer
 
   private metaData: MetaData = new MetaData()
 
@@ -78,7 +71,7 @@ export class WebSocketServer {
     this.verbose = !!verbose
     this.command = new Command(enableGamemodeVote)
     this.onConnection = this.onConnection.bind(this)
-    this.server = new WSServer({ port: this.port })
+    this.server = new CWSServer({ port: this.port })
     this.metaData = new MetaData()
     this.clients = []
     this.players = []
@@ -88,7 +81,7 @@ export class WebSocketServer {
     this.ip = server ? server.ip : ''
     this.countryCode = server ? server.countryCode : 'LAN'
     console.info(`\nNet64+ ${process.env.VERSION} server successfully started!`)
-    this.server!.on('connection', this.onConnection)
+    this.server.on('connection', this.onConnection)
     if (this.passwordRequired) {
       console.info('Password protection enabled')
     }
@@ -433,7 +426,7 @@ export class WebSocketServer {
       }
     }
     const serverFullMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverFull)).finish()
-    ws.send(serverFullMessage, {
+    ws.send(Buffer.from(serverFullMessage), {
       binary: true
     })
   }

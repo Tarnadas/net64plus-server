@@ -18,28 +18,30 @@ function build (platform, platformName, arch) {
   fs.writeFileSync(
     buildPath,
     String(fs.readFileSync('./compile/index.js'))
-      .replace(/ \.\/uws_/g, ` require("./uws_`)
-      .replace(/\.node;/g, `.node");`)
-      .replace(/\.node /g, `.node") `)
       .replace(
-        `./build/Release/farmhash`,
-        `module.exports = require("./farmhash_${platform}_57.node");`
+        `./build/Release/farmhash.node`,
+        `require("../farmhash_${platform}_72.node")`
+      )
+      .replace(
+        /return __webpack_require__.*\(`\.\/cws_\${process\.platform}\_\${process\.versions\.modules}`\)/,
+        // eslint-disable-next-line no-template-curly-in-string
+        "return require(`../cws_${process.platform}_${process.versions.modules}`)"
       )
   )
 
   nexe.compile({
     input: buildPath,
     output: path.join('compile', `net64plus-server_${pjson.version}_${platform}-${arch}`),
-    target: `${platformName}-${arch}-8.16.0`,
+    target: `${platformName}-${arch}-12.14.1`,
     native: {
-      uws: {
+      cws: {
         additionalFiles: [
-          `./compile/uws_${platform}_57.node`
+          `./compile/cws_${platform}_72.node`
         ]
       },
       farmhash: {
         additionalFiles: [
-          './compile/farmhash.node'
+          `./compile/farmhash_${platform}_72.node`
         ]
       }
     }

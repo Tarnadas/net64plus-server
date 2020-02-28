@@ -24,14 +24,14 @@ module.exports = [
         MAJOR: major,
         MINOR: minor
       }),
-      new webpack.IgnorePlugin(/^uws$/)
+      new webpack.IgnorePlugin(/cws_(darwin|linux|win32)_.*/)
       // TODO add minification
       // new MinifyPlugin()
     ],
     resolve: {
       extensions: [ '.js', '.ts', '.json' ]
     },
-    externals: /^.*(uws_|Release\/farmhash).*$/,
+    externals: /^.*(cws_|Release\/farmhash).*$/,
     module: {
       loaders: [
         {
@@ -45,7 +45,7 @@ module.exports = [
                 presets: [
                   ['env', {
                     targets: {
-                      node: '8.15.0'
+                      node: '12.14.1'
                     }
                   }]
                 ]

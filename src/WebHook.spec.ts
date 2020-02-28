@@ -67,7 +67,7 @@ describe('WebHook', () => {
         status: 400
       }
     })
-    await new Promise((resolve) => setTimeout(resolve(), 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(console.warn).toHaveBeenCalledWith('WARNING: Your API key seems to be wrong. Please check your settings!\nYour server won\'t be publicly visible')
   })

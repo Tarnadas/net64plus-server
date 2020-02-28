@@ -60,12 +60,12 @@
     }
   },
   "dependencies": {
+    "@clusterws/cws": "^1",
     "argparse": "^1.0.10",
     "axios": "^0.17.1",
     "escape-html": "^1.0.3",
-    "farmhash": "^2.0.5",
+    "farmhash": "^3",
     "protobufjs": "^6.8.8",
-    "uws": "^9.14.0",
     "xss": "^1.0.6"
   },
   "devDependencies": {
@@ -74,7 +74,6 @@
     "@commitlint/travis-cli": "^8.3.5",
     "@types/argparse": "^1.0.38",
     "@types/jest": "^22.2.0",
-    "@types/uws": "^0.13.2",
     "awesome-typescript-loader": "^3.4.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -96,12 +95,12 @@
     "jest": "^22.3.0",
     "jest-mock-axios": "^2.1.11",
     "mock-socket": "^8.0.2",
-    "nexe": "^2.0.0-rc.23",
+    "nexe": "^3",
     "node-loader": "^0.6.0",
     "standard": "^10.0.3",
     "standard-changelog": "^2.0.21",
     "ts-jest": "^22.0.4",
-    "typescript": "^2.9",
+    "typescript": "3.7",
     "typescript-eslint-parser": "^13.0.0",
     "webpack": "^3.6.0",
     "webpack-node-externals": "^1.7.2"

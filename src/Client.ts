@@ -1,4 +1,4 @@
-import * as WebSocket from 'uws'
+import { WebSocket } from '@clusterws/cws'
 
 import * as zlib from 'zlib'
 
@@ -101,7 +101,7 @@ export class Client {
   }
 
   public sendMessage (message: Uint8Array): void {
-    this.ws.send(message, {
+    this.ws.send(Buffer.from(message), {
       binary: true
     })
   }
