@@ -1,0 +1,13 @@
+{
+  "port": 3678,
+  "gamemode": 1,
+  "enableGamemodeVote": true,
+  "passwordRequired": false,
+  "password": "",
+  "name": "A Net64+ Server",
+  "domain": "",
+  "description": "The **best** Net64+ server ever\n\n:unicorn_face:",
+  "enableWebHook": false,
+  "apiKey": "",
+  "verbose": false
+}

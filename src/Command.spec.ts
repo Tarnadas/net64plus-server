@@ -1,4 +1,4 @@
-import { Command, GAMEMODE_VOTE_TIME, SECONDS_UNTIL_NEXT_GAMEMODE_VOTE, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE, GAMEMODE_NOT_ENOUGH_VOTES } from './Command'
+import { Command, GAMEMODE_VOTE_TIME, NAN_MESSAGE, TOO_MANY_ARGS_MESSAGE, GAMEMODE_ALREADY_RUNNING_MESSAGE, GAMEMODE_NOT_ENOUGH_VOTES } from './Command'
 import { webSocketServer, setWebSocketServer } from './globals'
 import { Client } from './Client'
 import { ClientMock } from './Client.mock'
@@ -15,13 +15,12 @@ describe('Command', () => {
 
   beforeEach(() => {
     jest.useFakeTimers()
-    // @ts-ignore
     setWebSocketServer({
       gameMode: 0,
       clients: [],
       broadcastMessage: jest.fn(),
       reorderPlayers: jest.fn()
-    })
+    } as any)
     addMockClient(undefined!)
     console.info = jest.fn()
     command = new Command(true)
@@ -234,14 +233,13 @@ describe('Command', () => {
       command.onGameModeCommand(mockClient, ['1'])
       jest.advanceTimersByTime(GAMEMODE_VOTE_TIME)
       command.onGameModeCommand(mockClient, ['1'])
-      const seconds = SECONDS_UNTIL_NEXT_GAMEMODE_VOTE
       const message: IServerClientMessage = {
         compression: Compression.NONE,
         data: {
           messageType: ServerClient.MessageType.CHAT,
           chat: {
             chatType: Chat.ChatType.COMMAND,
-            message: `You must wait at least 5min until you can start the next gamemode vote.`
+            message: 'You must wait at least 5min until you can start the next gamemode vote.'
           }
         }
       }

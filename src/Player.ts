@@ -34,6 +34,7 @@ export class Player {
   constructor (public client: Client, public username: string, characterId: number) {
     this.characterId = characterId
     this.playerData = Buffer.alloc(PLAYER_DATA_LENGTH)
+    // eslint-disable-next-line no-self-assign
     this.toJSON = this.toJSON
   }
 

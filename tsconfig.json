@@ -9,7 +9,9 @@
     "moduleResolution": "node"
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./webpack*.js",
+    "./build.js"
   ],
   "exclude": ["node_modules"]
 }

@@ -10,6 +10,7 @@ afterEach(() => {
 })
 
 describe('WebHook', () => {
+  // eslint-disable-next-line
   let webHook: WebHook
 
   beforeEach(() => {

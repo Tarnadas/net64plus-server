@@ -1,19 +1,62 @@
 {
-  "parser": "typescript-eslint-parser",
+  "parser": "@typescript-eslint/parser",
   "extends": [
-    "standard-with-typescript",
-    "plugin:jest/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "standard-with-typescript"
   ],
   "plugins": [
-    "typescript",
-    "jsdoc",
-    "jest"
+    "@typescript-eslint",
+    "jsdoc"
   ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    },
+    "project": "./tsconfig.json"
+  },
   "rules": {
-    "indent": "off",
-    "indent-legacy": ["error", 2, { "SwitchCase": 1 }],
-    "no-triple-slash-reference": "off",
-    "no-useless-constructor": "off",
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/default-param-last": 0,
+    "@typescript-eslint/member-delimiter-style": [2, {
+      "multiline": {
+        "delimiter": "none",
+        "requireLast": false
+      },
+      "singleline": {
+        "delimiter": "comma",
+        "requireLast": false
+      },
+      "overrides": {
+        "typeLiteral": {
+          "multiline": {
+            "delimiter": "comma",
+            "requireLast": true
+          }
+        }
+      }
+    }],
+    "@typescript-eslint/no-dynamic-delete": 0,
+    "@typescript-eslint/no-empty-function": 1,
+    "@typescript-eslint/no-floating-promises": 0,
+    "@typescript-eslint/no-for-in-array": 0,
+    "@typescript-eslint/no-misused-promises": 1,
+    "@typescript-eslint/no-non-null-assertion": 1,
+    "@typescript-eslint/no-unused-vars": [2, {
+      "varsIgnorePattern": "^_"
+    }],
+    "@typescript-eslint/prefer-nullish-coalescing": 0,
+    "@typescript-eslint/promise-function-async": 0,
+    "@typescript-eslint/restrict-plus-operands": 1,
+    "@typescript-eslint/restrict-template-expressions": 0,
+    "@typescript-eslint/strict-boolean-expressions": 0,
+    "max-len": [2, { "code": 120, "comments": 150, "ignoreStrings": true }],
+    "no-case-declarations": 0,
+    "no-empty": [2, { "allowEmptyCatch": true }],
+    "no-unused-vars": 0,
     "jsdoc/check-param-names": 1,
     "jsdoc/check-tag-names": 1,
     "jsdoc/check-types": 1,
@@ -24,10 +67,12 @@
     "jsdoc/require-param-name": 1,
     "jsdoc/require-param-type": 1,
     "jsdoc/require-returns-description": 1,
-    "jsdoc/require-returns-type": 1,
-    "typescript/explicit-member-accessibility": "off"
+    "jsdoc/require-returns-type": 1
   },
   "env": {
+    "browser": false,
+    "node": true,
+    "worker": true,
     "jest": true
   }
 }

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const webpack = require('webpack')
 const path = require('path')
 const MinifyPlugin = require('babel-minify-webpack-plugin')
 
-const [ major, minor ] = process.env.npm_package_compatVersion.split('.')
+const [major, minor] = process.env.npm_package_compatVersion.split('.')
 
 module.exports = [
   {
@@ -29,7 +31,7 @@ module.exports = [
       new MinifyPlugin()
     ],
     resolve: {
-      extensions: [ '.js', '.ts', '.json' ]
+      extensions: ['.js', '.ts', '.json']
     },
     externals: [require('webpack-node-externals')()],
     module: {

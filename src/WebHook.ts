@@ -6,43 +6,42 @@ import { Server } from './models/Server.model'
 
 export const URL_API = 'https://smmdb.net/api/net64server'
 
-const apiKey = Symbol('apiKey')
-
 if (process.env.NODE_ENV === 'test') {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   axios = axios.default
 }
 
 export class WebHook {
-  private version: string
+  private readonly version: string
 
-  private compatVersion: string
+  private readonly compatVersion: string
 
   private id?: string
 
-  private ip: string
+  private readonly ip: string
 
-  private port: number
+  private readonly port: number
 
-  private domain: string
+  private readonly domain: string
 
-  private name: string
+  private readonly name: string
 
-  private description: string
+  private readonly description: string
 
-  private country: string
+  private readonly country: string
 
-  private countryCode: string
+  private readonly countryCode: string
 
-  private latitude: number
+  private readonly latitude: number
 
-  private longitude: number
+  private readonly longitude: number
 
-  private passwordRequired: boolean
+  private readonly passwordRequired: boolean
 
-  private apiKey: string
+  private readonly apiKey: string
 
-  private isDedicated: boolean
+  private readonly isDedicated: boolean
 
   constructor (
     { name, domain, description, port, passwordRequired, apiKey }: Omit<Settings, 'gamemode'>,
@@ -65,7 +64,7 @@ export class WebHook {
     this.loop()
   }
 
-  private loop = async () => {
+  private readonly loop = async () => {
     try {
       const body = Object.assign({}, this)
       body.toJSON = this.toJSON
@@ -76,7 +75,7 @@ export class WebHook {
         {
           timeout: 10000,
           headers: this.apiKey ? {
-            'Authorization': `APIKEY ${this.apiKey}`
+            Authorization: `APIKEY ${this.apiKey}`
           } : {},
           responseType: 'json'
         }
