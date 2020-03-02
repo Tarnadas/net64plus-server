@@ -13,7 +13,8 @@ export const MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD = 150
 
 export const MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD = 500
 
-export const SPAM_NOTIFICATION_MESSAGE = (seconds: number) => `**You have been muted for the next ${seconds} seconds due to spamming in chat**`
+export const SPAM_NOTIFICATION_MESSAGE =
+  (seconds: number) => `**You have been muted for the next ${seconds} seconds due to spamming in chat**`
 
 export const warningLevelMuteMapping = [
   30, 60, 120, 240, 480
@@ -26,7 +27,7 @@ export class Identity {
 
   private static identityDeleteTimers: { [key: string]: NodeJS.Timer } = {}
 
-  private static identityDeleteTimeout = 120000
+  private static readonly identityDeleteTimeout = 120000
 
   private passwordThrottle = 0
 
@@ -49,9 +50,9 @@ export class Identity {
 
   private isMutedReset?: NodeJS.Timer
 
-  private messagesFromLastHalfMinute: string[] = []
+  private readonly messagesFromLastHalfMinute: string[] = []
 
-  private allMessagesFromLastHalfMinute: string[] = []
+  private readonly allMessagesFromLastHalfMinute: string[] = []
 
   private constructor (private client: Client | null, public ipAddress: string) {
     Identity.Identities[ipAddress] = this
@@ -137,7 +138,8 @@ export class Identity {
   }
 
   private isSpam (messagesPerMinute: number, messageCharactersPerMinute: number): boolean {
-    return messagesPerMinute >= MESSAGES_PER_HALF_MINUTE_THRESHOLD || messageCharactersPerMinute >= MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD
+    return messagesPerMinute >= MESSAGES_PER_HALF_MINUTE_THRESHOLD ||
+      messageCharactersPerMinute >= MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD
   }
 
   private sendSpamNotification (muteTimeout: number): void {

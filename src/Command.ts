@@ -1,7 +1,7 @@
 import { webSocketServer } from './globals'
 import { Client } from './Client'
 import { Vote } from './Vote'
-import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMessage, GameModeType, ServerMessage } from './proto/ServerClientMessage'
+import { IServerClientMessage, Compression, ServerClient, Chat, ServerClientMessage, ServerMessage } from './proto/ServerClientMessage'
 
 export const GAMEMODE_VOTE_TIME = 30000
 export const SECONDS_UNTIL_NEXT_GAMEMODE_VOTE = 300
@@ -25,7 +25,7 @@ export class Command {
   private votesInProgress: {[key: string]: Vote} = {}
 
   // eslint-disable-next-line no-useless-constructor
-  constructor (private enableGamemodeVote: boolean) {
+  constructor (private readonly enableGamemodeVote: boolean) {
   }
 
   public onGameModeCommand (client: Client, args: string[]): void {
@@ -38,7 +38,7 @@ export class Command {
       this.sendTooManyArgsMessage(client)
       return
     }
-    const lastVote = Vote.lastVotes['gameMode']
+    const lastVote = Vote.lastVotes.gameMode
     if (lastVote && Date.now() - lastVote < SECONDS_UNTIL_NEXT_GAMEMODE_VOTE * 1000) {
       this.sendWaitMessage(client, lastVote)
       return
@@ -161,10 +161,10 @@ export class Command {
   }
 
   private acceptGameModeVote (client: Client, selectedGameMode: number): void {
-    let vote: Vote = this.votesInProgress['gameMode']
+    let vote: Vote = this.votesInProgress.gameMode
     if (!vote) {
       vote = new Vote(GAMEMODE_VOTE_TIME, this.changeGameMode, this.sendTooFewGameModeVotes)
-      this.votesInProgress['gameMode'] = vote
+      this.votesInProgress.gameMode = vote
       const command: IServerClientMessage = {
         compression: Compression.NONE,
         data: {
@@ -181,9 +181,9 @@ export class Command {
     vote.acceptVote(client, selectedGameMode)
   }
 
-  private changeGameMode = (selectedGameMode: number) => {
-    delete this.votesInProgress['gameMode']
-    Vote.lastVotes['gameMode'] = Date.now()
+  private readonly changeGameMode = (selectedGameMode: number) => {
+    delete this.votesInProgress.gameMode
+    Vote.lastVotes.gameMode = Date.now()
     webSocketServer.gameMode = selectedGameMode
     webSocketServer.reorderPlayers()
     const gameMode: IServerClientMessage = {
@@ -203,7 +203,7 @@ export class Command {
     console.info(`Gamemode successfully changed to ${selectedGameMode}`)
   }
 
-  private sendTooFewGameModeVotes = () => {
+  private readonly sendTooFewGameModeVotes = () => {
     const command: IServerClientMessage = {
       compression: Compression.NONE,
       data: {

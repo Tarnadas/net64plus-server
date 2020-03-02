@@ -8,14 +8,14 @@ import { Settings, DEFAULT_SETTINGS } from './models/Settings.model'
 export class Arguments {
   public settings: Settings
 
-  private parser = new ArgumentParser({
+  private readonly parser = new ArgumentParser({
     addHelp: true,
     description: 'Net64+ server'
   })
 
   constructor () {
     let settings: Settings | undefined
-    let settingsPath = path.join(__dirname, '../settings.json')
+    const settingsPath = path.join(__dirname, '../settings.json')
     try {
       settings = JSON.parse(fs.readFileSync(settingsPath, {
         encoding: 'utf8'
@@ -25,38 +25,39 @@ export class Arguments {
       console.info('Failed to find or parse settings.json file. Using default settings instead and created a settings.json just for you.')
     }
 
-    this.parser.addArgument([ '--port', '-P' ], {
+    this.parser.addArgument(['--port', '-P'], {
       type: (int: string) => parseInt(int)
     })
-    this.parser.addArgument([ '--gamemode', '-g' ], {
+    this.parser.addArgument(['--gamemode', '-g'], {
       type: (int: string) => parseInt(int)
     })
-    this.parser.addArgument([ '--disableGamemodeVote', '-G' ], {
+    this.parser.addArgument(['--disableGamemodeVote', '-G'], {
       action: 'storeConst',
       constant: false,
       dest: 'enableGamemodeVote'
     })
-    this.parser.addArgument([ '--passwordRequired', '-pr' ], {
+    this.parser.addArgument(['--passwordRequired', '-pr'], {
       action: 'storeConst',
       constant: true
     })
-    this.parser.addArgument([ '--password', '-p' ])
-    this.parser.addArgument([ '--name', '-n' ])
-    this.parser.addArgument([ '--domain', '-D' ])
-    this.parser.addArgument([ '--description', '-d' ])
-    this.parser.addArgument([ '--enableWebHook', '-w' ], {
+    this.parser.addArgument(['--password', '-p'])
+    this.parser.addArgument(['--name', '-n'])
+    this.parser.addArgument(['--domain', '-D'])
+    this.parser.addArgument(['--description', '-d'])
+    this.parser.addArgument(['--enableWebHook', '-w'], {
       action: 'storeConst',
       constant: true
     })
-    this.parser.addArgument([ '--apiKey', '-k' ])
-    this.parser.addArgument([ '--verbose', '-v' ], {
+    this.parser.addArgument(['--apiKey', '-k'])
+    this.parser.addArgument(['--verbose', '-v'], {
       action: 'storeConst',
       constant: true
     })
     const parsed = this.parser.parseArgs() as Settings
 
     this.settings = {} as any
-    Object.entries(DEFAULT_SETTINGS).forEach(([ key, defaultValue ]: [ string, any ]) => {
+    /* eslint-disable @typescript-eslint/ban-ts-ignore */
+    Object.entries(DEFAULT_SETTINGS).forEach(([key, defaultValue]: [ string, any ]) => {
       // @ts-ignore
       this.settings[key] = parsed[key]
       // @ts-ignore

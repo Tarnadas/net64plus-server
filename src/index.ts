@@ -26,20 +26,20 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
     if (err.response && err.response.status === 400 && err.response.data === 'Port is closed') {
       return
     }
-    console.warn(`WARNING: Port check did not succeed. We could not check whether you set up proper port forwarding, sorry.`)
+    console.warn('WARNING: Port check did not succeed. We could not check whether you set up proper port forwarding, sorry.')
   }
 }
 
 (async () => {
   setWebSocketServer(new WebSocketServer(settings))
-  let serverData: Server | undefined = await portCheck(settings.port)
+  const serverData: Server | undefined = await portCheck(settings.port)
   const isOnline = !!serverData
   if (!isOnline) {
     if (settings.enableWebHook) {
-      console.warn(`ERROR: Cannot host a public server if Port check failed.`)
+      console.warn('ERROR: Cannot host a public server if Port check failed.')
       process.exit(1)
     } else {
-      console.warn(`WARNING: Port check failed.`)
+      console.warn('WARNING: Port check failed.')
     }
   }
   if (isOnline) {
@@ -48,6 +48,7 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
         console.error('ERROR: You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
         process.exit(1)
       }
+      // eslint-disable-next-line
       const webHook = new WebHook(settings, serverData!)
     }
   }
@@ -60,6 +61,8 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
 })()
 
 process.on('uncaughtException', (err: Error) => {
-  console.warn(`An unexpected error occured and the server is performing an automatic restart. Please report this issue:\n\n${err}`)
+  console.warn(
+    `An unexpected error occured and the server is performing an automatic restart. Please report this issue:\n\n${err}`
+  )
   process.exit(1)
 })

@@ -34,21 +34,21 @@ export class WebSocketServer {
 
   public playerWithToken?: Player
 
-  private server: CWSServer
+  private readonly server: CWSServer
 
-  private metaData: MetaData = new MetaData()
+  private readonly metaData: MetaData = new MetaData()
 
-  private command: Command
+  private readonly command: Command
 
   private ip?: string
 
-  private port: number
+  private readonly port: number
 
-  private name: string
+  private readonly name: string
 
-  private domain: string
+  private readonly domain: string
 
-  private description: string
+  private readonly description: string
 
   private countryCode?: string
 
@@ -56,7 +56,7 @@ export class WebSocketServer {
 
   public readonly password: string
 
-  private verbose: boolean
+  private readonly verbose: boolean
 
   constructor (
     { port, gamemode, enableGamemodeVote, passwordRequired, password, name, domain, description, verbose }: Settings
@@ -169,7 +169,7 @@ export class WebSocketServer {
     const newClients: Client[] = []
     const newPlayers: Player[] = []
     let j = 1
-    for (let i in this.clients) {
+    for (const i in this.clients) {
       if (!this.clients[i]) continue
       newClients[j] = this.clients[i]
       newClients[j].id = j
@@ -392,7 +392,7 @@ export class WebSocketServer {
     if (id == null) {
       this.sendServerFullMessage(ws)
       if (process.env.NODE_ENV === 'development' || this.verbose) {
-        console.info(`A new client connected, but server is full`)
+        console.info('A new client connected, but server is full')
       }
       return
     }

@@ -23,8 +23,8 @@ describe('Client', () => {
   let client: Client
   let wsMock: any
   let fnMocks: {[key: string]: (...args: any[]) => Promise<void>}
-  let majorVersion = 1
-  let minorVersion = 1
+  const majorVersion = 1
+  const minorVersion = 1
 
   beforeEach(() => {
     jest.useFakeTimers()
@@ -35,7 +35,6 @@ describe('Client', () => {
 
   beforeEach(() => {
     fnMocks = {}
-    // @ts-ignore
     setWebSocketServer({
       clients: [],
       players: [],
@@ -176,8 +175,7 @@ describe('Client', () => {
 
         describe('if password is required', () => {
           beforeEach(() => {
-            // @ts-ignore
-            webSocketServer.passwordRequired = true
+            (webSocketServer as any).passwordRequired = true
             const message: IClientServerMessage = {
               compression: Compression.NONE,
               data: {
@@ -197,9 +195,8 @@ describe('Client', () => {
 
           describe('on correct password', () => {
             beforeEach(async () => {
-              const password = 'server-password'
-              // @ts-ignore
-              webSocketServer.password = password
+              const password = 'server-password';
+              (webSocketServer as any).password = password
               const message: IClientServerMessage = {
                 compression: Compression.NONE,
                 data: {
@@ -248,9 +245,8 @@ describe('Client', () => {
           describe('on incorrect password', () => {
             let wrongPasswordMessage: Uint8Array
             beforeEach(async () => {
-              const password = 'server-password'
-              // @ts-ignore
-              webSocketServer.password = password
+              const password = 'server-password';
+              (webSocketServer as any).password = password
               const message: IClientServerMessage = {
                 compression: Compression.NONE,
                 data: {
@@ -291,9 +287,8 @@ describe('Client', () => {
           describe('during throttling phase', () => {
             let wrongPasswordMessage: Uint8Array
             beforeEach(async () => {
-              const password = 'server-password'
-              // @ts-ignore
-              webSocketServer.password = password
+              const password = 'server-password';
+              (webSocketServer as any).password = password
               const message: IClientServerMessage = {
                 compression: Compression.NONE,
                 data: {
@@ -345,8 +340,7 @@ describe('Client', () => {
 
         describe('if password is not required', () => {
           beforeEach(async () => {
-            // @ts-ignore
-            webSocketServer.passwordRequired = false
+            (webSocketServer as any).passwordRequired = false
             let message: IClientServerMessage = {
               compression: Compression.NONE,
               data: {
@@ -450,7 +444,7 @@ describe('Client', () => {
           }
           const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
 
-          const messages: Promise<void>[] = []
+          const messages: Array<Promise<void>> = []
           for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD + 1; i++) {
             messages.push(fnMocks.message(encodedMessage))
           }
@@ -472,7 +466,7 @@ describe('Client', () => {
           }
           const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
 
-          const messages: Promise<void>[] = []
+          const messages: Array<Promise<void>> = []
           for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_DOS_THRESHOLD; i++) {
             messages.push(fnMocks.message(encodedMessage))
           }
@@ -494,13 +488,14 @@ describe('Client', () => {
           }
           const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
 
-          const messages: Promise<void>[] = []
+          const messages: Array<Promise<void>> = []
           for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD; i++) {
             messages.push(fnMocks.message(encodedMessage))
           }
           await Promise.all(messages)
 
-          const expectedAmountOfMessages = Math.ceil(MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD / MAX_LENGTH_CHAT_MESSAGE)
+          const expectedAmountOfMessages =
+            Math.ceil(MESSAGE_CHARACTERS_PER_HALF_MINUTE_THRESHOLD / MAX_LENGTH_CHAT_MESSAGE)
           expect(webSocketServer.onGlobalChatMessage).toHaveBeenCalledTimes(expectedAmountOfMessages)
         })
 
@@ -518,7 +513,7 @@ describe('Client', () => {
           const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
 
           const expectMuteMessageWarningLevel = async (warningLevel: number) => {
-            const messages: Promise<void>[] = []
+            const messages: Array<Promise<void>> = []
             for (let i = 0; i < MESSAGES_PER_HALF_MINUTE_THRESHOLD + 1; i++) {
               messages.push(fnMocks.message(encodedMessage))
             }
@@ -534,7 +529,8 @@ describe('Client', () => {
                 }
               }
             }
-            const spamNotificationMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(muteMessage)).finish()
+            const spamNotificationMessage =
+              ClientServerMessage.encode(ClientServerMessage.fromObject(muteMessage)).finish()
 
             expect(wsMock.send).toHaveBeenLastCalledWith(spamNotificationMessage, {
               binary: true
@@ -582,12 +578,12 @@ describe('Client', () => {
       }
       const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
       client.player = {
-        playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
+        playerData: new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
       } as any
 
       await fnMocks.message(encodedMessage)
       jest.advanceTimersByTime(AFK_TIMEOUT * AFK_TIMEOUT_COUNT - 1)
-      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
+      client.player!.playerData = new Uint8Array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
       jest.advanceTimersByTime(1)
 
       expect(wsMock.close).not.toHaveBeenCalled()
@@ -603,14 +599,14 @@ describe('Client', () => {
       }
       const encodedMessage = ClientServerMessage.encode(ClientServerMessage.fromObject(message)).finish()
       client.player = {
-        playerData: new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ])
+        playerData: new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
       } as any
 
       await fnMocks.message(encodedMessage)
       jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
-      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ])
+      client.player!.playerData = new Uint8Array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
       jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
-      client.player!.playerData = new Uint8Array([ 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0 ])
+      client.player!.playerData = new Uint8Array([0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0])
       jest.advanceTimersByTime(AFK_TIMEOUT * (AFK_TIMEOUT_COUNT) - 1)
 
       expect(wsMock.close).not.toHaveBeenCalled()

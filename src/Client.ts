@@ -13,7 +13,8 @@ import {
   IServerClientMessage,
   ServerClient,
   ServerClientMessage,
-  ServerMessage
+  ServerMessage,
+  IPlayer
 } from './proto/ServerClientMessage'
 import {
   Chat,
@@ -36,17 +37,19 @@ export const NO_PASSWORD_REQUIRED = 'This server requires no password authentica
 
 export const MAX_LENGTH_CHAT_MESSAGE = 100
 
+/* eslint-disable @typescript-eslint/no-var-requires */
 const escapeHTML = require('escape-html')
 const FilterXSS = require('xss')
+/* eslint-enable */
 
 export class Client {
-  private identity: Identity
+  private readonly identity: Identity
 
   public player?: Player
 
   private connectionTimeout?: NodeJS.Timer
 
-  private afkTimeout?: NodeJS.Timer
+  private readonly afkTimeout?: NodeJS.Timer
 
   private afkTimerCount = 0
 
@@ -56,7 +59,7 @@ export class Client {
 
   private desiredCharacterId?: number
 
-  constructor (public id: number, private ws: WebSocket, private verbose: boolean) {
+  constructor (public id: number, private readonly ws: WebSocket, private readonly verbose: boolean) {
     this.id = id
     this.ws = ws
     this.identity = Identity.getIdentity(this, (ws as any)._socket.remoteAddress)
@@ -79,7 +82,7 @@ export class Client {
     this.ws.close()
   }
 
-  private afkTimer = () => {
+  private readonly afkTimer = () => {
     if (!this.player) {
       return
     }
@@ -159,7 +162,7 @@ export class Client {
         case Compression.GZIP:
           this.checkRequiredObjects(message.compressedData)
           const uncompressedData = await new Promise<Buffer>((resolve, reject) => {
-            zlib.gunzip(message.compressedData! as Buffer, (err, result) => {
+            zlib.gunzip(message.compressedData as Buffer, (err, result) => {
               if (err) reject(err)
               resolve(result)
             })
@@ -178,27 +181,28 @@ export class Client {
     }
     try {
       this.checkRequiredObjects(messageData)
-      switch (messageData!.messageType) {
+      messageData = messageData as IClientServer
+      switch (messageData.messageType) {
         case ClientServer.MessageType.HANDSHAKE:
-          this.onHandshake(messageData!)
+          this.onHandshake(messageData)
           break
         case ClientServer.MessageType.PING:
           this.onPing(buffer)
           break
         case ClientServer.MessageType.PLAYER_UPDATE:
-          this.onPlayerUpdate(messageData!)
+          this.onPlayerUpdate(messageData)
           break
         case ClientServer.MessageType.AUTHENTICATE:
-          this.onAuthentication(messageData!)
+          this.onAuthentication(messageData)
           break
         case ClientServer.MessageType.PLAYER_DATA:
-          this.onPlayerData(messageData!)
+          this.onPlayerData(messageData)
           break
         case ClientServer.MessageType.META_DATA:
-          this.onMetaData(messageData!)
+          this.onMetaData(messageData)
           break
         case ClientServer.MessageType.CHAT:
-          this.onChatMessage(messageData!)
+          this.onChatMessage(messageData)
           break
         default:
           throw new ConnectionError(
@@ -207,6 +211,7 @@ export class Client {
           )
       }
     } catch (err) {
+      // eslint-disable-next-line no-prototype-builtins
       if (Object.getPrototypeOf(ConnectionError).isPrototypeOf(err)) {
         this.sendBadRequest(err)
         return
@@ -252,7 +257,7 @@ export class Client {
       this.checkRequiredObjects(handshake)
       handshake = handshake as IClientHandshake
       this.checkRequiredObjects(handshake.major, handshake.minor, handshake.characterId, handshake.username)
-      const characterId = handshake.characterId!
+      const characterId = handshake.characterId
       if (
         typeof characterId !== 'number' ||
         characterId < 0 ||
@@ -261,7 +266,7 @@ export class Client {
         this.onBadMessage()
         return
       }
-      const username = handshake.username!
+      const username = handshake.username as string
       const checkedUsername = username.replace(/\W/g, '')
       if (
         username !== checkedUsername ||
@@ -329,15 +334,16 @@ export class Client {
 
   private onPlayerUpdate (messageData: IClientServer): void {
     if (this.player == null) return
-    const player = messageData.player
+    let player = messageData.player
     this.checkRequiredObjects(player)
+    player = player as IPlayer
     let hasChanged = false
-    if (player!.characterId != null) {
-      this.player.characterId = player!.characterId!
+    if (player.characterId != null) {
+      this.player.characterId = player.characterId
       hasChanged = true
     }
-    if (player!.username != null) {
-      this.player.username = player!.username!
+    if (player.username != null) {
+      this.player.username = player.username
       hasChanged = true
     }
     if (!hasChanged) return

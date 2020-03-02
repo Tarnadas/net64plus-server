@@ -38,8 +38,8 @@ describe('WebSocketServer', () => {
   })
 
   describe('#addPlayer', () => {
-    let mockClients: Client[] = []
-    let mockPlayers: Player[] = []
+    const mockClients: Client[] = []
+    const mockPlayers: Player[] = []
 
     beforeEach(() => {
       mockClients.push(new ClientMock(0, {}, {}) as any)
@@ -157,7 +157,7 @@ describe('WebSocketServer', () => {
         { id: 7 },
         undefined
       ] as any
-      const expected: any = [ undefined, 1, 2, 3, 4 ]
+      const expected: any = [undefined, 1, 2, 3, 4]
 
       server.reorderPlayers()
 

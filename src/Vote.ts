@@ -7,15 +7,19 @@ export class Vote {
 
   private votes: {[vote: number]: number} = {}
 
-  private clientsAlreadyVoted: number[] = []
+  private readonly clientsAlreadyVoted: number[] = []
 
-  private timer: NodeJS.Timer
+  private readonly timer: NodeJS.Timer
 
-  constructor (private timeout: number, private onSuccess: (winner: number) => void, private onReject: () => void) {
+  constructor (
+    private readonly timeout: number,
+    private readonly onSuccess: (winner: number) => void,
+    private readonly onReject: () => void
+  ) {
     this.timer = setTimeout(this.onVoteEnd, timeout)
   }
 
-  private onVoteEnd = () => {
+  private readonly onVoteEnd = () => {
     let winners: number[] = []
     let maxVote = 0
     const voteEntries = Object.entries(this.votes)
@@ -53,7 +57,8 @@ export class Vote {
     client.sendMessage(commandMessage)
     this.clientsAlreadyVoted.push(clientId)
     this.votes[vote] = (this.votes[vote] || 0) + 1
-    const clientsWithoutVotes = webSocketServer.clients.filter(client => client).length - this.clientsAlreadyVoted.length
+    const clientsWithoutVotes =
+      webSocketServer.clients.filter(client => client).length - this.clientsAlreadyVoted.length
     if (clientsWithoutVotes === 0) {
       this.onVoteEnd()
       clearTimeout(this.timer)

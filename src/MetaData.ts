@@ -24,8 +24,8 @@ export class MetaData {
     return res
   }
 
-  private generateMetaData = function * (this: MetaData) {
-    for (const [k, v] of this.metaData) {
+  private readonly generateMetaData = function * (this: MetaData) {
+    for (const [_k, v] of this.metaData) {
       yield v
     }
   }
