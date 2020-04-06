@@ -93,7 +93,7 @@
     "eslint-plugin-standard": "^4",
     "husky": "^4.2.3",
     "jest": "^25",
-    "jest-mock-axios": "^3",
+    "jest-mock-axios": "2.1.11",
     "nexe": "^3",
     "standard": "^10.0.3",
     "standard-changelog": "^2.0.21",

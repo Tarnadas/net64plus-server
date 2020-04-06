@@ -5521,12 +5521,17 @@ jest-message-util@^25.1.0:
     slash "^3.0.0"
     stack-utils "^1.0.1"
 
-jest-mock-axios@^3:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/jest-mock-axios/-/jest-mock-axios-3.2.0.tgz#e68f0360b8c6a04da4da9010b28ddd9c10ac5395"
-  integrity sha512-aRzSxGwjVQ54rhRG3wH3+guubJdlc5bFoUhE5Ic3pjHiaMlfRracADJ8mKQqptyqT5YGqXGKqRULxEQhiXOGoA==
+jest-mock-axios@2.1.11:
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/jest-mock-axios/-/jest-mock-axios-2.1.11.tgz#5261646f25d69cd034c8235e4e9683ead3bdcc74"
+  integrity sha512-rxF13chmHuelAh/rysNQEY4YqmOO94XmBO5Mk2+edFh2dOwe3j/XIRSnY8+m61t1658AU6nGoTh1s7tCgvridg==
   dependencies:
-    synchronous-promise "^2.0.10"
+    jest-mock-promise "^1.0.23"
+
+jest-mock-promise@^1.0.23:
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/jest-mock-promise/-/jest-mock-promise-1.1.10.tgz#ab51bb15de62b8be4ad1527f7f519d9f2f2a912a"
+  integrity sha512-3TiZuTliAlF8xDeSbJGdCz+qCz2fQ1NH71Xw3meX9LC84D19dtMlG9Y1HNYQPk1FMji35SOMiwMZYR12NaKVpQ==
 
 jest-mock@^25.1.0:
   version "25.1.0"
@@ -8371,11 +8376,6 @@ supports-hyperlinks@^2.0.0:
 symbol-tree@^3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.2.tgz#ae27db38f660a7ae2e1c3b7d1bc290819b8519e6"
-
-synchronous-promise@^2.0.10:
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/synchronous-promise/-/synchronous-promise-2.0.10.tgz#e64c6fd3afd25f423963353043f4a68ebd397fd8"
-  integrity sha512-6PC+JRGmNjiG3kJ56ZMNWDPL8hjyghF5cMXIFOKg+NiwwEZZIvxTWd0pinWKyD227odg9ygF8xVhhz7gb8Uq7A==
 
 table@^3.7.8:
   version "3.8.3"
