@@ -2,11 +2,14 @@ import * as fs from 'fs'
 
 import { Arguments } from './Arguments'
 
+jest.mock('fs')
+
 describe('Arguments', () => {
   let args: Arguments
 
   beforeEach(() => {
     process.argv = process.argv.slice(0, 2)
+    console.info = jest.fn()
   })
 
   it('should be created', () => {
@@ -48,10 +51,6 @@ describe('Arguments', () => {
   })
 
   describe('with JSON options', () => {
-    beforeEach(() => {
-      jest.mock('fs')
-    })
-
     it('should set number', () => {
       const mockSettings = JSON.stringify({
         port: 1337

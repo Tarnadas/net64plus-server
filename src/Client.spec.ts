@@ -87,7 +87,7 @@ describe('Client', () => {
 
           await fnMocks.message(encodedMessage)
 
-          expect(wsMock.send).toHaveBeenCalledWith(new Uint8Array(encodedMessage), { binary: true })
+          expect(wsMock.send).toHaveBeenCalledWith(Buffer.from(new Uint8Array(encodedMessage)), { binary: true })
         })
 
         it('should handle gzip decompression error', async () => {
@@ -156,7 +156,7 @@ describe('Client', () => {
 
           await fnMocks.message(encodedMessage)
 
-          expect(wsMock.send).toHaveBeenCalledWith(new Uint8Array(encodedMessage), { binary: true })
+          expect(wsMock.send).toHaveBeenCalledWith(Buffer.from(new Uint8Array(encodedMessage)), { binary: true })
         })
       })
 

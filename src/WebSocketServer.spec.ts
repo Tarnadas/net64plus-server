@@ -30,11 +30,11 @@ describe('WebSocketServer', () => {
   })
 
   afterEach(() => {
-    (server as any).server.stop()
+    (server as any).server.close()
   })
 
   describe('#onMessage', () => {
-    it('should compress player data message, if amount of players is above threshold')
+    xit('should compress player data message, if amount of players is above threshold', () => {})
   })
 
   describe('#addPlayer', () => {
@@ -128,9 +128,9 @@ describe('WebSocketServer', () => {
   })
 
   describe('#removePlayer', () => {
-    it('should remove player')
-    it('should grant new server token, if leaving player was the one holding the token')
-    it('should broadcast player list update')
+    xit('should remove player', () => {})
+    xit('should grant new server token, if leaving player was the one holding the token', () => {})
+    xit('should broadcast player list update', () => {})
   })
 
   describe('#reorderPlayers', () => {
