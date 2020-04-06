@@ -6,7 +6,8 @@
     "allowJs": false,
     "sourceMap": true,
     "strict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "include": [
     "./src/**/*",
