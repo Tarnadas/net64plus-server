@@ -279,9 +279,7 @@ export class WebSocketServer {
   }
 
   public onGlobalChatMessage (client: Client, message: string) {
-    if (process.env.NODE_ENV === 'development' || this.verbose) {
-      console.info(`Received global message from client ${client.id}:\n${message}`)
-    }
+    console.info(`[${client.getName()}]: ${message}`)
     const chat: IServerClientMessage = {
       compression: Compression.NONE,
       data: {
@@ -382,7 +380,7 @@ export class WebSocketServer {
     const serverTokenMessage = ServerClientMessage.encode(ServerClientMessage.fromObject(serverToken)).finish()
     playerToGrant.client.sendMessage(serverTokenMessage)
     if (process.env.NODE_ENV === 'development' || this.verbose) {
-      console.info(`New server token has been granted to player [${playerToGrant.client.id}] ${playerToGrant.username}`)
+      console.info(`New server token has been granted to ${playerToGrant.client.getName()}`)
     }
     this.playerWithToken = playerToGrant
   }
@@ -392,12 +390,12 @@ export class WebSocketServer {
     if (id == null) {
       this.sendServerFullMessage(ws)
       if (process.env.NODE_ENV === 'development' || this.verbose) {
-        console.info('A new client connected, but server is full')
+        console.info(`Client [${ws._socket.remoteAddress}] connected, but server is full`)
       }
       return
     }
     if (process.env.NODE_ENV === 'development' || this.verbose) {
-      console.info(`A new client connected and received ID: ${id}`)
+      console.info(`Client [${ws._socket.remoteAddress}] connected and received ID: ${id}`)
     }
     this.clients[id] = new Client(id, ws, this.verbose)
   }

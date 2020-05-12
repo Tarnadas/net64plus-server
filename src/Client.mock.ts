@@ -1,7 +1,7 @@
 import { Client } from './Client'
 
 export class ClientMock implements Partial<Client> {
-  constructor (public id: number, private readonly server: any, private readonly ws: any) {
+  constructor (public id: number, private readonly server: any, public readonly ws: any) {
     this.id = id
     this.server = server
     this.ws = ws

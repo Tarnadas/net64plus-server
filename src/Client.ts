@@ -59,7 +59,7 @@ export class Client {
 
   private desiredCharacterId?: number
 
-  constructor (public id: number, private readonly ws: WebSocket, private readonly verbose: boolean) {
+  constructor (public id: number, public readonly ws: WebSocket, private readonly verbose: boolean) {
     this.id = id
     this.ws = ws
     this.identity = Identity.getIdentity(this, (ws as any)._socket.remoteAddress)
@@ -69,7 +69,7 @@ export class Client {
       this.connectionTimeout = undefined
       this.ws.close()
       if (process.env.NODE_ENV === 'development' || verbose) {
-        console.info('A player timed out on handshake')
+        console.info(`${this.getName()} timed out on handshake`)
       }
     }, CONNECTION_TIMEOUT)
     this.afkTimeout = setInterval(this.afkTimer, AFK_TIMEOUT)
@@ -99,8 +99,12 @@ export class Client {
     if (this.afkTimerCount < AFK_TIMEOUT_COUNT) return
     this.ws.close()
     if (process.env.NODE_ENV === 'development' || this.verbose) {
-      console.info('A player timed out because of inactivity')
+      console.info(`${this.getName()} timed out because of inactivity`)
     }
+  }
+
+  public getName (): string {
+    return `${this.player ? this.player.username : `ClientID ${this.id}`};${this.ws._socket.remoteAddress}`
   }
 
   public sendMessage (message: Uint8Array): void {
