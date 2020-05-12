@@ -10,7 +10,7 @@ This repository includes the dedicated server software. For the client please vi
 
 ## Server List
 
-There is a [public server list](https://smmdb.net/net64) of all Net64+ server, that have enabled listing.
+There is a [public server list](https://net64-mod.github.io/servers) of all Net64+ server, that have enabled listing.
 
 ## Downloads
 
@@ -19,7 +19,7 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
 
 ## Installation
 
-- download and install [Node 8](https://nodejs.org/en/download/)
+- download and install [Node 12](https://nodejs.org/en/download/)
   - you can try using a later version of Node, but you will need to install C++ compilers
     - on Windows you can do the following: `npm i -g windows-build-tools` / or use `yarn global add`
 - install yarn. It's a package manager for npm, which is generally faster
@@ -48,14 +48,14 @@ The prebuilt version is bundled with the [Net64+ Client](https://github.com/Tarn
   - `description` supports [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) and [emojis](https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json)
 - open a terminal in the folder of your server and execute the following commands
 
-```
+```bash
 $ yarn install
 $ yarn start
 ```
 
 - (OPTIONAL) if you want to run your server indefinitely with auto restarts, I suggest to use pm2
 
-```
+```bash
 $ yarn global add pm2
 $ yarn build
 $ pm2 start ./dist --name="net64 server"
