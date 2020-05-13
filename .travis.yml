@@ -14,6 +14,10 @@ addons:
     packages:
       - g++-4.8
 
+if:
+  - sender != "Travis CI"
+  - NOT tag IS present
+
 jobs:
   include:
     - stage: Test
@@ -41,6 +45,8 @@ jobs:
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
         - cd ..
       after_deploy:
+        - git config --global user.email "travis@travis-ci.org"
+        - git config --global user.name "Travis CI"
         - git add changelog
         - 'git commit -m "docs: update changelog"'
         - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
