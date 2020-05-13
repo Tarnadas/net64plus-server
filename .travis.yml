@@ -14,8 +14,9 @@ addons:
     packages:
       - g++-4.8
 
-before_install:
+install:
   - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
+  - echo $AUTHOR_NAME
 
 stages:
   - name: Test
