@@ -14,14 +14,16 @@ addons:
     packages:
       - g++-4.8
 
+before_install:
+  - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
 
 stages:
   - name: Test
-    if: sender != "Travis CI" AND tag IS NOT present
+    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
   - name: Build
-    if: sender != "Travis CI" AND tag IS NOT present
+    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
   - name: Deploy
-    if: sender != "Travis CI" AND tag IS NOT present
+    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
 
 jobs:
   include:
@@ -48,6 +50,7 @@ jobs:
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
+        - ls
         - cd ..
       after_deploy:
         - git config --global user.email "travis@travis-ci.org"
