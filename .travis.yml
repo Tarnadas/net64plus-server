@@ -15,10 +15,17 @@ addons:
     packages:
       - g++-4.8
 
+stages:
+  - name: Test
+    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+  - name: Build
+    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+  - name: Deploy
+    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+
 jobs:
   include:
     - stage: Test
-      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
       name: "Unit Tests"
     - script: yarn lint
@@ -26,11 +33,9 @@ jobs:
     - script: commitlint-travis
       name: "Lint Commit"
     - stage: Build
-      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: yarn build
       name: "Build"
     - stage: Deploy
-      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: yarn compile
       name: "Compile & Deploy"
       before_deploy:
@@ -58,8 +63,8 @@ jobs:
         api_key:
           secure: jphi6aEJVksJDYZwBfnudcVEl7y34AVtxfui7nNdRXPDG5ez4m9PcdGULNqsadfCKzRMcUdOSPCSjZAMB4+20uPJJFHHmKSbjyuvXHrkR2NiVe1/sLAtsWZUg5GzmY3hg4KEb1Ru8NP7B8w5LjKE31958UM+swUIW+2XtYUPXXWPGd9VXK/5SK6cA80fEBaw9gaZhGPlrtzjGCcP8JpzpsReoCnvkvPvm4eV7gSUFNdiCyROajrERQRKuAN5yzpiEJBvRJKiZClqExbg7Nz5BqyxeVXYeHyn0/rO3Dc/abTrmnM9nKNp3E7GWYgEpirUIliNuTn1/1cU/5jqZUXcbhQ9kaqk4+e4xHZ1bVi9ewuOQKGzbiyff5md8/+nJkFmzMYUuzIlqSUu3WXf+/E/EGOwNLNR0mjlzmi1Ckzm5GHZ58iqXASlA6pS0CP1T4sONtkQ63muIGCEEIQ9jw7I0qA3rU2+53WSpPxW5afTfMPp8Iy6RVv7OBBX+n3yLHVk0u+x3R+SPpifzUueoPWcxtwymoq2U4DLMyLlb2JJtpWARlooyxztqUKKozVOnY/SPaiYzdrI7Mw3DW/RiqCJ3jqZa8/OXWpuEH5F0pWHejFop6VKsOmmRG9EubqxKMiQrk6J1F+CyCCIdWqOzFebj4b4UdACVE5AEAfNXCivqYE=
         file:
-          - net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz
-          - net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
+          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz
+          - compile/net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz
         skip_cleanup: true
         draft: true
         name: "Net64+ Server $(echo $GIT_TAG)"
