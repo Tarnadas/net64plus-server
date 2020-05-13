@@ -5,6 +5,7 @@ node_js:
 env:
   global:
     - CXX=g++-4.8
+    - AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
     - secure: CukHRAi2HUgz5TPlbxsOOszc0fIRYFkNZg3J/kCtolX6Jf6amBplH36//CpGtpu8GdYVa5swMofl4kwqC8CvdVmGVHFIcqu3csxeUeXqv8sh1xPph5dWv1uiuNyFtTXwvbNtLcRMYD9kfEyi6w58ss8axaMNO1fvlHpu6g1+fuMlbQsl8nrD3mevH1E5k9UGb4gEkNoo/aFKe86MiE2nMmeiwzSQqGh5yjUXuXTDGOwlxVG/J1/rPVYY3L7dZ+UhNmKjEjf8Od7sF5Ud6oDM893xS92xZ78enQEc8ML9NwWx8o9EEWJqlJXYuu5EummhCcUwWu5rbGUUtwvD81/ZRnhCSn5QC5HLWtB3nbWKA+bmIeATQXx37ZyVqOdrHbUZASKzDWgIUJ4J9ErpFPL6IWLEaekTWqaPcQaKEu5utLHWAMDvz2u/1cc7e8b1NBIb23M49hv2kQaxZmVeSggHP0UySL6NMLC+ahmGUvQgEQKMLLBk5wLNIhQ47KA26g/UZu/vptE2Ax2HNcrJBGEO4MI7874JGEzFAFncnQTqoQbwmf/aeaVpXP3MHQ2YaOipXd6boJai0oXplXLW8xSvjTkiJi9ITjcfJ/6U4PaYkH20KepXOXblY5uVCCNO+26Fkh9WP9YGixWrrTTUDkvtiOlLq9OVlJtqPxWU6QFIZ7U=
 
 addons:
@@ -14,21 +15,10 @@ addons:
     packages:
       - g++-4.8
 
-install:
-  - export AUTHOR_NAME="$(git log -1 $TRAVIS_COMMIT --pretty="%aN")"
-  - echo $AUTHOR_NAME
-
-stages:
-  - name: Test
-    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
-  - name: Build
-    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
-  - name: Deploy
-    if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
-
 jobs:
   include:
     - stage: Test
+      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: jest --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
       name: "Unit Tests"
     - script: yarn lint
@@ -36,9 +26,11 @@ jobs:
     - script: commitlint-travis
       name: "Lint Commit"
     - stage: Build
+      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: yarn build
       name: "Build"
     - stage: Deploy
+      if: env(AUTHOR_NAME) != "Travis CI" AND tag IS NOT present
       script: yarn compile
       name: "Compile & Deploy"
       before_deploy:
