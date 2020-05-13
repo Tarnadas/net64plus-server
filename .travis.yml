@@ -14,9 +14,14 @@ addons:
     packages:
       - g++-4.8
 
-if:
-  - sender != "Travis CI"
-  - NOT tag IS present
+
+stages:
+  - name: Test
+    if: sender != "Travis CI" AND tag IS NOT present
+  - name: Build
+    if: sender != "Travis CI" AND tag IS NOT present
+  - name: Deploy
+    if: sender != "Travis CI" AND tag IS NOT present
 
 jobs:
   include:
