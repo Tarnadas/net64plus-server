@@ -4,11 +4,11 @@ const path = require('path')
 const pjson = require('./package.json')
 
 const supportedPlatforms = [
-  [ 'win32', 'windows', 'x64' ],
-  [ 'linux', 'linux', 'x64' ]
+  ['win32', 'windows', 'x64'],
+  ['linux', 'linux', 'x64']
 ]
 
-for (const [ platform, platformName, arch ] of supportedPlatforms) {
+for (const [platform, platformName, arch] of supportedPlatforms) {
   build(platform, platformName, arch)
 }
 
@@ -19,7 +19,7 @@ function build (platform, platformName, arch) {
     buildPath,
     String(fs.readFileSync('./compile/index.js'))
       .replace(
-        `./build/Release/farmhash.node`,
+        './build/Release/farmhash.node',
         `require("../farmhash_${platform}_72.node")`
       )
       .replace(

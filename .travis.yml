@@ -41,9 +41,10 @@ jobs:
       before_deploy:
         - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
         - export GIT_TAG=$PACKAGE_VERSION-dev.$TRAVIS_BUILD_NUMBER
+        - export GZIP=-9
         - cd compile
-        - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
-        - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
+        - tar -I 'gzip -9' -cf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe cws_win32_72.node farmhash_win32_72.node
+        - tar -I 'gzip -9' -cf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64 cws_linux_72.node farmhash_linux_72.node
         - ls
         - cd ..
       after_deploy:
