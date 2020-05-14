@@ -11,8 +11,7 @@
     "build:compile": "webpack --env=compile",
     "compile": "npm run build:compile && node ./build",
     "lint": "eslint src/ --ext ts",
-    "test": "jest",
-    "changelog": "node ./changelog-gen.js"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -96,7 +95,6 @@
     "jest-mock-axios": "2.1.11",
     "nexe": "^3",
     "standard": "^10.0.3",
-    "standard-changelog": "^2.0.21",
     "ts-jest": "^25",
     "typescript": "3.7",
     "typescript-eslint-parser": "^13",

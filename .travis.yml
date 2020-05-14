@@ -17,11 +17,11 @@ addons:
 
 stages:
   - name: Test
-    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+    if: 'tag IS NOT present'
   - name: Build
-    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+    if: 'tag IS NOT present'
   - name: Deploy
-    if: 'commit_message != "docs: update changelog" AND tag IS NOT present'
+    if: 'tag IS NOT present'
 
 jobs:
   include:
@@ -41,10 +41,6 @@ jobs:
       before_deploy:
         - export PACKAGE_VERSION=$(grep '"version":' package.json -m1 | cut -d\" -f4)
         - export GIT_TAG=$PACKAGE_VERSION-dev.$TRAVIS_BUILD_NUMBER
-        - yarn changelog
-        - export RELEASE_BODY="$(cat changelog/${PACKAGE_VERSION}.md)"
-        - echo $(cat changelog/${PACKAGE_VERSION}.md)
-        - echo $RELEASE_BODY
         - cd compile
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_win32-x64.exe
         - tar czf net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64.tar.gz net64plus-server_$(echo $PACKAGE_VERSION)_linux-x64
@@ -53,10 +49,7 @@ jobs:
       after_deploy:
         - git config --global user.email "travis@travis-ci.org"
         - git config --global user.name "Travis CI"
-        - git add changelog
-        - 'git commit -m "docs: update changelog"'
         - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-        - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server.git HEAD:$TRAVIS_BRANCH
         - git push -q https://$GIT_CREDENTIALS@github.com/Tarnadas/net64plus-server.git --tags
       deploy:
         provider: releases
@@ -68,7 +61,6 @@ jobs:
         skip_cleanup: true
         draft: true
         name: "Net64+ Server $(echo $GIT_TAG)"
-        body: "$(echo $RELEASE_BODY)"
         on:
           repo: Tarnadas/net64plus-server
           branch: master
