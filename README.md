@@ -1,5 +1,8 @@
 # Net64+ Server
 
+![GitHub All Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/total)
+![GitHub Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/latest/total)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Tarnadas/net64plus)](https://lgtm.com/projects/g/Tarnadas/net64plus)
 [![Discord](https://discordapp.com/api/guilds/559982917049253898/widget.png)](https://discord.gg/GgGUKH8)
 [![Build Status](https://api.travis-ci.org/Tarnadas/net64plus-server.svg?branch=master)](https://travis-ci.org/Tarnadas/net64plus-server)
 [![Coverage Status](https://coveralls.io/repos/github/Tarnadas/net64plus-server/badge.svg?branch=master)](https://coveralls.io/github/Tarnadas/net64plus-server?branch=master)
