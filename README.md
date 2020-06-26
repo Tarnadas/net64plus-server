@@ -1,7 +1,9 @@
 # Net64+ Server
 
-![GitHub All Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/total)
-![GitHub Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/latest/total)
+[![GitHub All Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/total)](https://github.com/Tarnadas/net64plus-server/releases)
+[![GitHub Releases](https://img.shields.io/github/downloads/Tarnadas/net64plus-server/latest/total)](https://github.com/Tarnadas/net64plus-server/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/tarnadas/net64plus-server)](https://hub.docker.com/r/tarnadas/net64plus-server)
+[![Docker Image Size](https://img.shields.io/docker/image-size/tarnadas/net64plus-server)](https://hub.docker.com/r/tarnadas/net64plus-server)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Tarnadas/net64plus)](https://lgtm.com/projects/g/Tarnadas/net64plus)
 [![Discord](https://discordapp.com/api/guilds/559982917049253898/widget.png)](https://discord.gg/GgGUKH8)
 [![Build Status](https://api.travis-ci.org/Tarnadas/net64plus-server.svg?branch=master)](https://travis-ci.org/Tarnadas/net64plus-server)
@@ -62,4 +64,54 @@ $ yarn start
 $ yarn global add pm2
 $ yarn build
 $ pm2 start ./dist --name="net64 server"
+```
+
+## Docker
+
+You can also pull [Net64+ Server from Docker Hub](https://hub.docker.com/r/tarnadas/net64plus-server).
+
+Make sure that [Docker is installed](https://docs.docker.com/get-docker/) and running.
+Then execute the following commands:
+
+```bash
+$ docker run --rm -it -p 3678:3678 tarnadas/net64plus-server
+$
+$ # or run it detached in background
+$ docker run --rm -it -d -p 3678:3678 tarnadas/net64plus-server
+```
+
+You will still need to port-forward in order for this to work.
+
+The Docker Container accepts all arguments that the regular Net64+ Server executable accepts as well.
+
+```bash
+usage: index_linux-x64.js [-h] [--port PORT] [--gamemode GAMEMODE]
+                          [--disableGamemodeVote] [--passwordRequired]
+                          [--password PASSWORD] [--name NAME]
+                          [--domain DOMAIN] [--description DESCRIPTION]
+                          [--enableWebHook] [--apiKey APIKEY] [--verbose]
+                          
+
+Net64+ server
+
+Optional arguments:
+  -h, --help            Show this help message and exit.
+  --port PORT, -P PORT
+  --gamemode GAMEMODE, -g GAMEMODE
+  --disableGamemodeVote, -G
+  --passwordRequired, -pr
+  --password PASSWORD, -p PASSWORD
+  --name NAME, -n NAME
+  --domain DOMAIN, -D DOMAIN
+  --description DESCRIPTION, -d DESCRIPTION
+  --enableWebHook, -w
+  --apiKey APIKEY, -k APIKEY
+  --verbose, -v
+  --skip-port-check, -s
+```
+
+An example to host a public server on port 8080:
+
+```bash
+$ docker run --rm -it -d -p 8080:8080 tarnadas/net64plus-server -P 8080 -w -k $API_KEY -n "Public Net64+ Server" -d "This is a publicly hosted Net64+ Server"
 ```

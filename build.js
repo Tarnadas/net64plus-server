@@ -8,11 +8,15 @@ const supportedPlatforms = [
   ['linux', 'linux', 'x64']
 ]
 
-for (const [platform, platformName, arch] of supportedPlatforms) {
-  build(platform, platformName, arch)
+if (process.env.DOCKER) {
+  build('linux', 'linux', 'x64', '12.16.2')
+} else {
+  for (const [platform, platformName, arch] of supportedPlatforms) {
+    build(platform, platformName, arch, '12.14.1')
+  }
 }
 
-function build (platform, platformName, arch) {
+function build (platform, platformName, arch, nodeVersion) {
   const buildPath = `./compile/index_${platform}-${arch}.js`
 
   fs.writeFileSync(
@@ -32,7 +36,7 @@ function build (platform, platformName, arch) {
   nexe.compile({
     input: buildPath,
     output: path.join('compile', `net64plus-server_${pjson.version}_${platform}-${arch}`),
-    target: `${platformName}-${arch}-12.14.1`,
+    target: `${platformName}-${arch}-${nodeVersion}`,
     native: {
       cws: {
         additionalFiles: [
