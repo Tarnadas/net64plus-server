@@ -1,3 +1,5 @@
 src/proto/*
 src/declarations/*
 compile/uws*
+build.js
+commitlint*
