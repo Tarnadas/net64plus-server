@@ -53,6 +53,10 @@ export class Arguments {
       action: 'storeConst',
       constant: true
     })
+    this.parser.addArgument(['--skipPortCheck', '-s'], {
+      action: 'storeConst',
+      constant: true
+    })
     const parsed = this.parser.parseArgs() as Settings
 
     this.settings = {} as any

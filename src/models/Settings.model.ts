@@ -10,6 +10,7 @@ export interface Settings {
   enableWebHook?: boolean
   apiKey?: string
   verbose?: boolean
+  skipPortCheck?: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -23,7 +24,8 @@ export const DEFAULT_SETTINGS: Settings = {
   description: 'The **best** Net64+ server ever\n\n:unicorn_face:',
   enableWebHook: false,
   apiKey: '',
-  verbose: false
+  verbose: false,
+  skipPortCheck: false
 }
 
 export const TIME_UNTIL_META_RESEND = 10000

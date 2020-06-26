@@ -17,14 +17,19 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
   try {
     const url = `${PORT_CHECK_API}?port=${port}`
     const res = (await axios.get(url, {
-      timeout: 10000,
+      timeout: 20000,
       responseType: 'json'
     })).data
     console.info('Looks like we got in there')
     return res
   } catch (err) {
-    if (err.response && err.response.status === 400 && err.response.data === 'Port is closed') {
-      return
+    if (err.response) {
+      if (settings.verbose) {
+        console.info(`WARNING: Received HTTP response [${err.response.status}] ${err.response.data}`)
+      }
+      if (err.response.status === 400 && err.response.data === 'Port is closed') {
+        return
+      }
     }
     console.warn('WARNING: Port check did not succeed. We could not check whether you set up proper port forwarding, sorry.')
   }
@@ -32,17 +37,23 @@ const portCheck = async (port: number): Promise<Server | undefined> => {
 
 (async () => {
   setWebSocketServer(new WebSocketServer(settings))
-  const serverData: Server | undefined = await portCheck(settings.port)
-  const isOnline = !!serverData
-  if (!isOnline) {
+  let serverData: Server | undefined
+  if (settings.skipPortCheck) {
+    if (settings.enableWebHook) {
+      console.warn('ERROR: Port check cannot be skipped for public servers.')
+      process.exit(1)
+    }
+  } else {
+    serverData = await portCheck(settings.port)
+  }
+  if (!serverData) {
     if (settings.enableWebHook) {
       console.warn('ERROR: Cannot host a public server if Port check failed.')
       process.exit(1)
     } else {
       console.warn('WARNING: Port check failed.')
     }
-  }
-  if (isOnline) {
+  } else {
     if (settings.enableWebHook) {
       if (!settings.apiKey) {
         console.error('ERROR: You must set an apiKey, if you want to be listed on the server list. Either add an apiKey or disable web hook.')
