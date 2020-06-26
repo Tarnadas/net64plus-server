@@ -85,15 +85,6 @@ You will still need to port-forward in order for this to work.
 The Docker Container accepts all arguments that the regular Net64+ Server executable accepts as well.
 
 ```bash
-usage: index_linux-x64.js [-h] [--port PORT] [--gamemode GAMEMODE]
-                          [--disableGamemodeVote] [--passwordRequired]
-                          [--password PASSWORD] [--name NAME]
-                          [--domain DOMAIN] [--description DESCRIPTION]
-                          [--enableWebHook] [--apiKey APIKEY] [--verbose]
-                          
-
-Net64+ server
-
 Optional arguments:
   -h, --help            Show this help message and exit.
   --port PORT, -P PORT
@@ -107,7 +98,7 @@ Optional arguments:
   --enableWebHook, -w
   --apiKey APIKEY, -k APIKEY
   --verbose, -v
-  --skip-port-check, -s
+  --skipPortCheck, -s
 ```
 
 An example to host a public server on port 8080:
