@@ -61,7 +61,7 @@
   "dependencies": {
     "@clusterws/cws": "^1",
     "argparse": "^1.0.10",
-    "axios": "^0.17.1",
+    "axios": "^0.21.2",
     "escape-html": "^1.0.3",
     "farmhash": "^3",
     "protobufjs": "^6.8.8",
