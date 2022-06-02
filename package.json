@@ -64,7 +64,7 @@
     "axios": "^0.17.1",
     "escape-html": "^1.0.3",
     "farmhash": "^3",
-    "protobufjs": "^6.8.8",
+    "protobufjs": "^6.11.3",
     "xss": "^1.0.6"
   },
   "devDependencies": {
